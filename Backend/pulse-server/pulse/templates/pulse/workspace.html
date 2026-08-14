@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick='{history.back()}'>Go back</button>
+{% if workspace_data %}
+    <h1>Workspace: {{ specific_workspace.name }}</h1>
+
+    {% if workitems_list %}
+        <ul>
+            {% for item in workitems_list %}
+                <li>
+                    <a href="{% url 'pulse:workitem' item.id %}">Id: {{ item.id }} - {{ specific_workspace.space_code }}, Title: {{ item.title }}, Last Update: {{ item.last_update }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% else %}
+        <p>Workspace doesn't have any items</p>
+{% endif %}
+</body>
+</html>
