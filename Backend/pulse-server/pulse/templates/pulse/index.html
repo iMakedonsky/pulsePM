@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
-    <title>Organizations</title>
+  <meta charset="UTF-8">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
+  <title>Organizations</title>
 </head>
 <body class="page">
-    <h1 class="page-title">List of organizations</h1>
-    <div class="container">
-        <div class="panel">
-            {% if list_organizations %}
-                <ul class="list">
-                    {% for org in list_organizations %}
-                        <li>
-                            <a href="{% url 'pulse:organization' org.id %}">{{ org.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>Haven't existed any organizations yet</p>
-            {% endif %}
-        </div>
-    </div>
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<h1 class="page-title">List of organizations</h1>
+<div class="container">
+  {% include 'forms/organization_form.html' %}
+  <br/>
+  <div class="panel">
+    {% if organizations %}
+      <ul class="list">
+        {% for org in organizations %}
+          <li>
+            <a href="{% url 'pulse:organization' org.id %}">{{ org.name }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Haven't existed any organizations yet</p>
+    {% endif %}
+  </div>
+</div>
 </body>
 </html>

@@ -36,11 +36,9 @@ class Organization(models.Model):
     owner = models.ForeignKey(Account, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=100, null=False)
     description = models.TextField(max_length=500, null=True, default="")
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        org_obj = model_to_dict(self)
-
         return self.name
 
 class Member(models.Model):

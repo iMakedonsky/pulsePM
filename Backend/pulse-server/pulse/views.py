@@ -1,16 +1,67 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import generic
 from django import forms
 
-from .forms import *
+from .forms import OrganizationForm, OrganizationNonModelForm
 from pulse.models import *
 
-class Home(generic.ListView):
-    template_name = "pulse/index.html"
-    context_object_name = "list_organizations"
+# class Home(generic.ListView, generic.CreateView):
+#     template_name = "pulse/index.html"
+#     context_object_name = "list_organizations"
+#
+#     # def get_queryset(self):
+#     #     return Organization.objects.all()
+#
+#     def get_context_data(self, **kwargs):
+#         return {
+#             "list_organizations": Organization.objects.all(),
+#             "current_time": timezone.now(),
+#             "total_users_in_database": Member.objects.count()
+#         }
+#
+#     def post(self, request, *args, **kwargs):
+#         form = OrganizationForm(request.POST)
+#         if form.is_valid():
+#             Organization.objects.create(
+#                 name=form.cleaned_data["name"],
+#                 description=form.cleaned_data["description"],
+#                 owner=request.user
+#             )
+#             messages.success(request, f"Organization {form.cleaned_data['name']} created successfully")
+#             return self.render_to_response(self.get_context_data())
+#
+#         return "Success"
+#         return render(request, self.template_name, {"form": form})
 
-    def get_queryset(self):
-        return Organization.objects.all()
+
+def home_view(request):
+    context = {}
+    if request.method == 'POST':
+        form = OrganizationNonModelForm(request.POST)
+        if form.is_valid():
+            new_organization = Organization.objects.create(
+                name=form.cleaned_data['name'],
+                description=form.cleaned_data['description'],
+                owner_id=int(form.cleaned_data['owner']),
+            )
+            # form.cleaned_data == {'name': 'kajsdkjakjsd', 'description': 'boasodjals', 'owner_id': '1'}
+            messages.success(request, f"Organization {new_organization.name} created successfully")
+            form = OrganizationNonModelForm()
+    else:
+        form = OrganizationNonModelForm()
+
+    context['form'] = form
+    context['organizations'] = Organization.objects.all()
+
+    return render(request, "pulse/index.html", context)
+
+
+
+
+
+
 
 class Org(generic.ListView):
     model = Organization
@@ -63,5 +114,5 @@ class Profile(generic.DeleteView):
 
 # def create_workspace(request):
 #     form = CreateWorkspaceForm()
-#     # if request.method == "POST":
-#     return render(request, 'pulse/organization.html', {"form": form})
+    # if request.method == "POST":
+    # return render(request, 'pulse/organization.html', {"form": form})

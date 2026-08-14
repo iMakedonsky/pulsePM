@@ -115,3 +115,11 @@ body {
         height: 1px;
     }
 }
+
+.form {
+    border: 1px solid blue;
+}
+
+.success {
+    color: lightgreen;
+}
