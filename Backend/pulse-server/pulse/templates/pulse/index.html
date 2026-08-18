@@ -16,14 +16,15 @@
 {% endif %}
 <h1 class="page-title">List of organizations</h1>
 <div class="container">
-  {% include 'forms/organization_form.html' %}
+  {% include 'forms/base_form.html' %}
   <br/>
   <div class="panel">
-    {% if organizations %}
+    {% if organization_list %}
       <ul class="list">
-        {% for org in organizations %}
+        {% for organization in organization_list %}
           <li>
-            <a href="{% url 'pulse:organization' org.id %}">{{ org.name }}</a>
+
+            <a href="{% url 'pulse:organization' organization.id %}">{{ organization.name }}</a>
           </li>
         {% endfor %}
       </ul>

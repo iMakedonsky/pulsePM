@@ -9,7 +9,7 @@
 {% if workitem_data %}
         <h2>--General--</h2>
         <h3>Id: {{ workitem_data.id }} - {{ workitem_data.workspace.space_code }}, Title: {{ workitem_data.title }}</h3>
-        <h3>Created by: {{ workitem_data.created_by.user. }}</h3>
+        <h3>Created by: {{ workitem_data.created_by.user.id }}</h3>
         <h3>Assigned to: {{ workitem_data.assigned_to.id }}</h3>
         <h3>Status: {{ workitem_data.status }}</h3>
         <h3>Priority: {{ workitem_data.priority }}</h3>
