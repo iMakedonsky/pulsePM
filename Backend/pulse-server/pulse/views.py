@@ -1,25 +1,18 @@
-from datetime import timedelta
+from datetime import timezone as none_django_timezone
 from django.utils.dateparse import parse_datetime
-from keyword import kwlist
-from tarfile import NUL
 
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_list_or_404, get_object_or_404
-from django.views import generic
-from django.http import JsonResponse
-from django import forms
-from django.views.generic import FormView
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import View
-from psycopg.sql import NULL
 
 from .forms import OrganizationNonModelForm, CreateWorkspaceForm, AddItemForm
 from pulse.models import *
 
 
-class HomePage(View):
+class HomePageView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'pulse/index.html',{
-                'form': OrganizationNonModelForm(),
+                'organization_form': OrganizationNonModelForm(),
                 'organization_list': Organization.objects.all(),
             }
         )
@@ -34,19 +27,19 @@ class HomePage(View):
                 owner_id=int(form.cleaned_data['owner']),
             )
             messages.success(request, f"Organization {new_organization.name} created successfully")
-            return redirect('/')
+            return redirect(request.path_info)
 
         return render(request, 'pulse/index.html',{
-            'form': form,
+            'organization_form': form,
             'organization_list': Organization.objects.all(),
         })
 
-class Org(View):
+class OrganizationView(View):
     def get(self, request, *args, **kwargs):
         pk = self.kwargs.get("pk")
 
         return render(request, 'pulse/organization.html',{
-            'form': CreateWorkspaceForm(),
+            'workspace_form': CreateWorkspaceForm(),
             'workspace_list': WorkSpace.objects.filter(organization_id=pk),
             'member_list': Member.objects.filter(organization_id=pk),
         })
@@ -61,23 +54,25 @@ class Org(View):
                 organization_id=pk,
                 created_by=Member.objects.get(id=1), # hardcoded I have fed organization id as value to member_id
                 space_code=form.cleaned_data['space_code'],
-                description=form.cleaned_data['description']
+                description=form.cleaned_data['description'],
+                icon_url="",
             )
             messages.success(request, f"Workspace {create_workspace.name} created successfully")
-            return redirect('/')
+            return redirect(request.path_info)
 
         return render(request, 'pulse/organization.html',{
-            'form': form,
+            'workspace_form': form,
             'workspace_list': WorkSpace.objects.filter(organization_id=pk),
+            'member_list': Member.objects.filter(organization_id=pk),
         })
 
-class Space(View):
+class WorkSpaceView(View):
     def get(self, request, *args, **kwargs):
         pk = self.kwargs.get("pk")
 
         return render(request, 'pulse/workspace.html', {
-            'form': AddItemForm(),
-            'workspace_data': WorkSpace.objects.get(id=pk),
+            'workitem_form': AddItemForm(),
+            'workspace_data': get_object_or_404(WorkSpace, pk=pk),
             'workitem_list': WorkItem.objects.filter(workspace_id=pk),
         })
 
@@ -89,27 +84,34 @@ class Space(View):
             new_workitem = WorkItem.objects.create(
                 title=form.cleaned_data['title'],
                 workspace_id=pk,
-                created_by=Member.objects.get(id=1),  # hardcoded I have fed workspace id as value to member_id
-                assigned_to=Member.objects.get(id=int(form.cleaned_data['assignee'])),
+                created_by=Member.objects.get(id=1),  # hardcoded I have fed workspace id as value to member_id (user = request.user, organization__workspace__id = pk)
+                assigned_to_id=int(form.cleaned_data['assignee']),
                 description=form.cleaned_data['description'],
                 status=form.cleaned_data['status'],
                 priority=form.cleaned_data['priority'],
                 estimated_time=form.cleaned_data['estimate'],
                 time_spent=form.cleaned_data['spent'],
-                due_date=parse_datetime(f'{form.cleaned_data["due_date"]}T18:00:00+02:00')
+                due_date=parse_datetime(form.cleaned_data["due_date"]).replace(tzinfo=none_django_timezone.utc),
             )
             messages.success(request, f"WorkItem {new_workitem.title} created successfully")
-            return redirect('/')
+            return redirect(request.path_info)
 
         return render(request, 'pulse/workspace.html',{
-            'form': form,
-            'workspace_list': WorkSpace.objects.filter(workspace_id=pk),
+            'workitem_form': form,
+            'workitem_list': WorkItem.objects.filter(workspace_id=pk),
         })
 
-class ProfileMember(View):
+class MemberView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'pulse/profile.html', {
-            'profile_data': Member.objects.get(pk=kwargs["pk"]),
+            'profile_data': get_object_or_404(Member, pk=kwargs["pk"]),
+        })
+
+
+class WorkItemView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'pulse/workitem.html', {
+            'workitem_data': get_object_or_404(WorkItem, pk=kwargs["pk"]),
         })
 
 
@@ -118,29 +120,11 @@ class DeleteWorkspace(View):
         workspace = get_object_or_404(WorkSpace, pk=kwargs["pk"])
         workspace.delete()
 
-        return redirect('/')
-
+        return redirect(request.path_info)
 
 class DeleteMemberProfile(View):
     def post(self, request, *args, **kwargs):
         member = get_object_or_404(Member, pk=kwargs["pk"])
         member.delete()
 
-        return redirect('/')
-
-class Item(generic.DeleteView):
-    model = WorkItem
-
-    template_name = "pulse/workitem.html"
-    context_object_name = "workitem_data"
-
-    def get_queryset(self):
-        return WorkItem.objects.filter(id=self.kwargs.get("pk"))
-
-
-# TODO ? : 'form has no errors' which are "errors" of form talking about?
-
-# def create_workspace(request):
-#     form = CreateWorkspaceForm()
-    # if request.method == "POST":
-    # return render(request, 'pulse/organization.html', {"form": form})
+        return redirect(request.path_info)

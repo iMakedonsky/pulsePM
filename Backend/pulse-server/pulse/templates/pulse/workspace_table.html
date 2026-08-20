@@ -1,7 +1,7 @@
             <section class="panel">
                 <h2>Workspaces</h2>
                 <div>
-                    {% include 'forms/base_form.html' %}
+                    {% include 'forms/base_form.html' with form=workspace_form %}
                 </div>
                 {% if workspace_list %}
                     <ul class="list">

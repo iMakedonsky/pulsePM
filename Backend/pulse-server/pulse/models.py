@@ -77,8 +77,6 @@ class Member(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        member_obj = model_to_dict(self)
-
         return self.user.username
 
 
@@ -97,8 +95,6 @@ class WorkSpace(models.Model):
 
 
     def __str__(self):
-        workspace_obj = model_to_dict(self)
-
         return self.name
 
 class WorkItem(models.Model):
@@ -144,6 +140,4 @@ class WorkItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        item_obj = model_to_dict(self)
-
         return self.title

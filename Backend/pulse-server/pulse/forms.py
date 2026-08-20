@@ -1,6 +1,7 @@
+
 from django import forms
 
-from pulse.models import Account, Member
+from pulse.models import Account, Member, WorkItem, Organization
 
 
 def get_choices_for_account():
@@ -11,19 +12,18 @@ def get_choices_for_account():
     ]
 
 def get_choices_for_member():
+    org = Organization.objects.all()
+    members = Member.objects.all()
     return [('', '--blank--')] + [
-
         (member.id, member.user.username)
-        for member in Member.objects.all() # hardcoded. I haven't known how get members from specific ofg yet
+        for member in Member.objects.all()
     ]
 
 def get_choices_for_status():
-    statuses = ['review','to do','in progress','done', 'test', 'test done']
-    return [('', '--blank--')] + [(s, s) for s in statuses]
+    return [('', '--blank--')] + [(s, s) for s in [status for status in WorkItem.Status]]
 
 def get_choices_for_priority():
-    statuses = ['low','medium','high','major']
-    return [('', '--blank--')] + [(s, s) for s in statuses]
+    return [('', '--blank--')] + [(p, p) for p in [priority for priority in WorkItem.Priority]]
 
 class CreateWorkspaceForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput(), max_length=100, required=True)

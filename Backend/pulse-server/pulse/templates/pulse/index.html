@@ -16,7 +16,7 @@
 {% endif %}
 <h1 class="page-title">List of organizations</h1>
 <div class="container">
-  {% include 'forms/base_form.html' %}
+  {% include 'forms/base_form.html' with form=organization_form %}
   <br/>
   <div class="panel">
     {% if organization_list %}
@@ -29,7 +29,7 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p>Haven't existed any organizations yet</p>
+      <p>No organizations exist yet</p>
     {% endif %}
   </div>
 </div>
