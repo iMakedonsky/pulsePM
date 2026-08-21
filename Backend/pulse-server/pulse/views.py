@@ -1,15 +1,67 @@
+from django.contrib.auth.models import User
+from django.db import IntegrityError
+from django.http import HttpResponse
+
+from pulse.models import *
 from datetime import timezone as none_django_timezone
 from django.utils.dateparse import parse_datetime
-
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.base import View
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .forms import (
+    RegistrationForm,
+    OrganizationNonModelForm,
+    CreateWorkspaceForm,
+    AddItemForm
+)
 
-from .forms import OrganizationNonModelForm, CreateWorkspaceForm, AddItemForm
-from pulse.models import *
+class LoginView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'pulse/auth.html', {
+            'login_form': AuthenticationForm(),
+        })
 
+    def post(self, request, *args, **kwargs):
+        form = AuthenticationForm(data=request.POST)
 
-class HomePageView(View):
+        if form.is_valid():
+
+        return render(request, 'pulse/auth.html', {})
+
+class RegistrationView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'pulse/sign-up.html', {
+            'registration_form': RegistrationForm(),
+        })
+    def post(self, request, *args, **kwargs):
+        form = RegistrationForm(request.POST)
+
+        if form.is_valid():
+            try:
+                user = User.objects.create_user(
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['last_name'],
+                    username=form.cleaned_data['username'],
+                    email=form.cleaned_data['email'],
+                    password=form.cleaned_data['password'],
+                )
+            except IntegrityError:
+                return HttpResponse(status=409, content="User already exists")
+            return redirect('/auth/login')
+
+        return render(request, 'pulse/sign-up.html', {
+            'registration_form': form,
+        })
+
+# class LogoutView(View):
+    # def get(self, request, *args, **kwargs):
+
+class HomePageView(LoginRequiredMixin, View):
+    login_url = 'auth/login'
+    redirect_field_name = 'redirect_to'
+
     def get(self, request, *args, **kwargs):
         return render(request, 'pulse/index.html',{
                 'organization_form': OrganizationNonModelForm(),
@@ -19,7 +71,6 @@ class HomePageView(View):
 
     def post(self, request, *args, **kwargs):
         form = OrganizationNonModelForm(request.POST)
-
         if form.is_valid():
             new_organization = Organization.objects.create(
                 name=form.cleaned_data['name'],

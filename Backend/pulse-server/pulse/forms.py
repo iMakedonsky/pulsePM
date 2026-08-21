@@ -25,6 +25,19 @@ def get_choices_for_status():
 def get_choices_for_priority():
     return [('', '--blank--')] + [(p, p) for p in [priority for priority in WorkItem.Priority]]
 
+class RegistrationForm(forms.Form):
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), max_length=50, required=False)
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), max_length=50, required=False)
+    username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), max_length=50)
+    email = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}), max_length=50)
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}), min_length=6)
+
+class OrganizationNonModelForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(), max_length=100)
+    description = forms.CharField(widget=forms.Textarea(), max_length=500, required=False)
+    owner = forms.ChoiceField(choices=get_choices_for_account, required=True)
+
+
 class CreateWorkspaceForm(forms.Form):
     name = forms.CharField(widget=forms.TextInput(), max_length=100, required=True)
     space_code = forms.CharField(widget=forms.TextInput(), max_length=5, required=True)
@@ -40,9 +53,3 @@ class AddItemForm(forms.Form):
     estimate = forms.IntegerField(widget=forms.TextInput(attrs={'class':'form-control'}))
     spent = forms.IntegerField(widget=forms.TextInput(attrs={'class':'form-control'}))
     due_date = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'2026-11-14'}))
-
-
-class OrganizationNonModelForm(forms.Form):
-    name = forms.CharField(widget=forms.TextInput(), max_length=100)
-    description = forms.CharField(widget=forms.Textarea(), max_length=500, required=False)
-    owner = forms.ChoiceField(choices=get_choices_for_account, required=True)
