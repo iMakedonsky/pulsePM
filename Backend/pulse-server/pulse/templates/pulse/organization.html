@@ -7,50 +7,22 @@
     <title>Organization</title>
 </head>
 <body class="page">
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
     <a class="back-link" onclick="history.back()">Go back</a>
-    {% if organization_data %}
-        <div class="form-block">
-            <form method="post">
-                {{ form.name }}
-                {{ form.space_code }}
-                {{ form.description }}
-                <input type="submit" value="Create">
-            </form>
-        </div>
-
         <div class="container">
-            <section class="panel">
-                <h2>Workspaces</h2>
-                {% if workspaces_list %}
-                    <ul class="list">
-                        {% for space in workspaces_list %}
-                            <li>
-                                <a href="{% url 'pulse:workspace' space.id %}">{{ space }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>Haven't existed any workspace yet</p>
-                {% endif %}
-            </section>
+
+            {% include 'pulse/workspace_table.html'  %}
 
             <div class="divider" aria-hidden="true"></div>
 
-            <section class="panel">
-                <h2>Members</h2>
-                {% if members_list %}
-                    <ul class="list">
-                        {% for member in members_list %}
-                            <li>
-                                <a href="{% url 'pulse:profile' member.id %}">{{ member }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>Haven't joined any member yet</p>
-                {% endif %}
-            </section>
+            {% include 'pulse/member_table.html' %}
+
         </div>
-    {% endif %}
 </body>
 </html>

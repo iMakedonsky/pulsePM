@@ -6,14 +6,27 @@
 </head>
 <body>
 <button onclick='{history.back()}'>Go back</button>
-{% if workspace_data %}
-    <h1>Workspace: {{ specific_workspace.name }}</h1>
 
-    {% if workitems_list %}
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if workspace_data %}
+
+    <h1>Workspace: {{ workspace_data.name }}</h1>
+
+    {% include 'forms/base_form.html' with form=workitem_form %}
+
+    {% if workitem_list %}
         <ul>
-            {% for item in workitems_list %}
+            {% for workitem in workitem_list %}
                 <li>
-                    <a href="{% url 'pulse:workitem' item.id %}">Id: {{ item.id }} - {{ specific_workspace.space_code }}, Title: {{ item.title }}, Last Update: {{ item.last_update }}</a>
+
+                    <a href="{% url 'workitem' workitem.id %}">Id: {{ workitem.id }} - {{ workspace_data.space_code }}, Title: {{ workitem.title }}, Last Update: {{ workitem.last_update }}</a>
                 </li>
             {% endfor %}
         </ul>
