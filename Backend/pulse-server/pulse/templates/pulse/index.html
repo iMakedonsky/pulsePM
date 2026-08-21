@@ -24,7 +24,7 @@
         {% for organization in organization_list %}
           <li>
 
-            <a href="{% url 'pulse:organization' organization.id %}">{{ organization.name }}</a>
+            <a href="{% url 'organization' organization.id %}">{{ organization.name }}</a>
           </li>
         {% endfor %}
       </ul>

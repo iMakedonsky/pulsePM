@@ -1,39 +1,22 @@
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.forms import model_to_dict
 from django.utils import timezone
 
 
 def validate_not_past(value):
     if value < timezone.now():
-        raise ValidationError('Value cannot be in the past.')
+        raise ValidationError("Value cannot be in the past.")
 
-class Account(models.Model):
-    """
-    Store User data.
-    """
-    id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=100, unique=True, null=False)
-    first_name = models.CharField(max_length=100, null=False)
-    last_name = models.CharField(max_length=100, null=False)
-    email = models.EmailField(max_length=100, unique=True, null=False)
-    password = models.CharField(max_length=100, null=False)
-    deleted = models.BooleanField(default=False)
-    created_at = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        account_obj = model_to_dict(self)
-        account_obj.pop('password', None)
-
-        return self.username
 
 class Organization(models.Model):
     """
     Store Organization data.
     """
+
     id = models.AutoField(primary_key=True)
-    owner = models.ForeignKey(Account, on_delete=models.CASCADE, null=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=100, null=False)
     description = models.TextField(max_length=500, null=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,30 +24,39 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+
 class Member(models.Model):
     """
     Store Organization member data. Also class inherit Account data.
     """
+
     class OrgRoles(models.TextChoices):
-        OWNER = 'owner'
-        PM = 'project-manager'
-        CONTRIBUTOR = 'contributor'
+        OWNER = "owner"
+        PM = "project-manager"
+        CONTRIBUTOR = "contributor"
 
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(Account, on_delete=models.CASCADE, null=False, related_name="memberships")
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=False, related_name="members")
-    role = models.CharField(choices=OrgRoles.choices, max_length=100, default=OrgRoles.CONTRIBUTOR)
-    position = models.CharField(max_length=200, null=True, default="")
-    location = models.CharField(max_length=200, null=True, default="")
-    time_zone = models.CharField(max_length=200, null=True, default="")
-    avatar_url = models.CharField(max_length=200, null=True, default="")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=False, related_name="memberships"
+    )
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, null=False, related_name="members"
+    )
+    role = models.CharField(
+        choices=OrgRoles.choices, max_length=100, default=OrgRoles.CONTRIBUTOR
+    )
+    position = models.CharField(max_length=200, null=True, default="", blank=True)
+    location = models.CharField(max_length=200, null=True, default="", blank=True)
+    time_zone = models.CharField(max_length=200, null=True, default="", blank=True)
+    avatar_url = models.CharField(max_length=200, null=True, default="", blank=True)
     last_activity = models.DateTimeField(default=timezone.now)
     created_at = models.DateTimeField(default=timezone.now)
 
-
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'organization'], name='unique_user_org')
+            models.UniqueConstraint(
+                fields=["user", "organization"], name="unique_user_org"
+            )
         ]
 
     def save(self, *args, **kwargs):
@@ -84,6 +76,7 @@ class WorkSpace(models.Model):
     """
     Store Work space (project) data.
     """
+
     id = models.AutoField(primary_key=True)
     created_by = models.ForeignKey(Member, on_delete=models.CASCADE, null=False)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=False)
@@ -93,45 +86,57 @@ class WorkSpace(models.Model):
     icon_url = models.CharField(max_length=500)
     created_at = models.DateTimeField(default=timezone.now)
 
-
     def __str__(self):
         return self.name
+
 
 class WorkItem(models.Model):
     """
     Store Work item data.
     """
+
     class Status(models.TextChoices):
-        TODO = 'to do'
-        IN_PROGRESS = 'in progress'
-        REVIEW = 'review'
-        DONE = 'done'
-        TEST = 'test'
-        TEST_PASS = 'test done'
+        TODO = "to do"
+        IN_PROGRESS = "in progress"
+        REVIEW = "review"
+        DONE = "done"
+        TEST = "test"
+        TEST_PASS = "test done"
 
     class Priority(models.TextChoices):
-        LOW = 'low'
-        MEDIUM = 'medium'
-        HIGH = 'high'
-        MAJOR= 'major'
+        LOW = "low"
+        MEDIUM = "medium"
+        HIGH = "high"
+        MAJOR = "major"
 
     id = models.AutoField(primary_key=True)
     workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE, null=True)
-    created_by = models.ForeignKey(Member, on_delete=models.DO_NOTHING, related_name="report_by")
-    assigned_to = models.ForeignKey(Member, on_delete=models.DO_NOTHING, related_name="assigned_to")
+    created_by = models.ForeignKey(
+        Member, on_delete=models.DO_NOTHING, related_name="report_by"
+    )
+    assigned_to = models.ForeignKey(
+        Member, on_delete=models.DO_NOTHING, related_name="assigned_to"
+    )
     title = models.CharField(max_length=200, null=False)
     description = models.TextField(null=True, default="")
-    status = models.CharField(choices=Status.choices, max_length=11, default=Status.TODO)
-    priority = models.CharField(choices=Priority.choices, max_length=11, default=Priority.HIGH)
+    status = models.CharField(
+        choices=Status.choices, max_length=11, default=Status.TODO
+    )
+    priority = models.CharField(
+        choices=Priority.choices, max_length=11, default=Priority.HIGH
+    )
     created_at = models.DateTimeField(default=timezone.now)
     started_at = models.DateTimeField(default=timezone.now)
     due_date = models.DateTimeField(validators=[validate_not_past], null=False)
-    estimated_time = models.IntegerField(validators=[MinValueValidator(0)], null=False, default=0)
-    time_spent = models.IntegerField(validators=[MinValueValidator(0)], null=False, default=0)
+    estimated_time = models.IntegerField(
+        validators=[MinValueValidator(0)], null=False, default=0
+    )
+    time_spent = models.IntegerField(
+        validators=[MinValueValidator(0)], null=False, default=0
+    )
     last_update = models.DateTimeField(default=timezone.now)
 
-
-    def save(self,*args, **kwargs):
+    def save(self, *args, **kwargs):
         """
         Inhirited method witch will call to check validation in ORM.
         :return: validation errors if due date would be in the past.

@@ -26,7 +26,7 @@
             {% for workitem in workitem_list %}
                 <li>
 
-                    <a href="{% url 'pulse:workitem' workitem.id %}">Id: {{ workitem.id }} - {{ workspace_data.space_code }}, Title: {{ workitem.title }}, Last Update: {{ workitem.last_update }}</a>
+                    <a href="{% url 'workitem' workitem.id %}">Id: {{ workitem.id }} - {{ workspace_data.space_code }}, Title: {{ workitem.title }}, Last Update: {{ workitem.last_update }}</a>
                 </li>
             {% endfor %}
         </ul>

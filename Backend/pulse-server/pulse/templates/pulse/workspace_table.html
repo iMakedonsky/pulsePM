@@ -8,9 +8,9 @@
                         {% for workspace in workspace_list %}
                             <li>
 
-                                <a href="{% url 'pulse:workspace' workspace.id %}">{{ workspace }}</a>
+                                <a href="{% url 'workspace' workspace_id=workspace.id organization_id=workspace.organization_id %}">{{ workspace }}</a>
 
-                                <form  method="post" action="{% url 'pulse:workspace_delete' workspace.id %}">
+                                <form  method="post" action="{% url 'workspace_delete' workspace_id=workspace.id organization_id=workspace.organization_id %}">
                                     {% csrf_token %}
                                     <button type="submit">X</button>
                                 </form>
