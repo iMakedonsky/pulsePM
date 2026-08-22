@@ -39,9 +39,9 @@ urlpatterns = [
                                 name="workspace_delete",
                             ),
                             path(
-                                "workitem/<int:pk>",
+                                "workitem/<int:workitem_id>/",
                                 views.WorkItemView.as_view(),
-                                name="workitem_detail",
+                                name="workitem",
                             ),
                         ]
                     ),

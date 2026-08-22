@@ -3,7 +3,6 @@ from datetime import timezone as none_django_timezone
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -165,22 +164,22 @@ class OrganizationView(View):
 
 class WorkSpaceView(View):
     def get(self, request, *args, **kwargs):
-        pk = self.kwargs.get("pk")
+        workspace_id = self.kwargs.get("workspace_id")
 
         return render(
             request,
             "pulse/workspace.html",
             {
                 "workitem_form": AddItemForm(),
-                "workspace_data": get_object_or_404(WorkSpace, pk=pk),
-                "workitem_list": WorkItem.objects.filter(workspace_id=pk),
+                "workspace_data": get_object_or_404(WorkSpace, pk=workspace_id),
+                "workitem_list": WorkItem.objects.filter(workspace_id=workspace_id),
             },
         )
 
     def post(self, request, *args, **kwargs):
         form = AddItemForm(request.POST)
         org_id = kwargs["organization_id"]
-        workspace_id = kwargs["organization_id"]
+        workspace_id = kwargs["workspace_id"]
 
         if form.is_valid():
             new_workitem = WorkItem.objects.create(
@@ -188,16 +187,14 @@ class WorkSpaceView(View):
                 workspace_id=workspace_id,
                 created_by=Member.objects.get_or_create(
                     user=request.user, organization_id=org_id
-                ),
+                )[0],
                 assigned_to_id=int(form.cleaned_data["assignee"]),
                 description=form.cleaned_data["description"],
                 status=form.cleaned_data["status"],
                 priority=form.cleaned_data["priority"],
                 estimated_time=form.cleaned_data["estimate"],
                 time_spent=form.cleaned_data["spent"],
-                due_date=parse_datetime(form.cleaned_data["due_date"]).replace(
-                    tzinfo=none_django_timezone.utc
-                ),
+                due_date=parse_datetime(form.cleaned_data["due_date"]).replace(tzinfo=none_django_timezone.utc),
             )
             messages.success(
                 request, f"WorkItem {new_workitem.title} created successfully"
@@ -220,7 +217,7 @@ class MemberView(View):
             request,
             "pulse/profile.html",
             {
-                "profile_data": get_object_or_404(Member, pk=kwargs["pk"]),
+                "profile_data": get_object_or_404(Member, pk=kwargs["member_id"]),
             },
         )
 
@@ -231,14 +228,14 @@ class WorkItemView(View):
             request,
             "pulse/workitem.html",
             {
-                "workitem_data": get_object_or_404(WorkItem, pk=kwargs["pk"]),
+                "workitem_data": get_object_or_404(WorkItem, pk=kwargs["workitem_id"]),
             },
         )
 
 
 class DeleteWorkspace(View):
     def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(WorkSpace, pk=kwargs["pk"])
+        workspace = get_object_or_404(WorkSpace, pk=kwargs["workspace_id"])
         workspace.delete()
 
         return redirect(request.path_info)
@@ -246,7 +243,7 @@ class DeleteWorkspace(View):
 
 class DeleteMemberProfile(View):
     def post(self, request, *args, **kwargs):
-        member = get_object_or_404(Member, pk=kwargs["pk"])
+        member = get_object_or_404(Member, pk=kwargs["member_id"])
         member.delete()
 
         return redirect(request.path_info)
