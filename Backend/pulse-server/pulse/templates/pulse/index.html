@@ -14,6 +14,7 @@
     {% endfor %}
   </ul>
 {% endif %}
+<button class="btn-logout"><a href="{% url 'logout' %}">Logout</a></button>
 <h1 class="page-title">List of organizations</h1>
 <div class="container">
   {% include 'forms/base_form.html' with form=organization_form %}

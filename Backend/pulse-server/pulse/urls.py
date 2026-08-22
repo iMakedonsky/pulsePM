@@ -3,9 +3,33 @@ from django.urls import include, path
 from . import views
 
 urlpatterns = [
-    path("auth/login", views.LoginView.as_view(), name="login"),
-    path("auth/sign-up", views.RegistrationView.as_view(), name="registration"),
-    path("", views.HomePageView.as_view(), name="index"),
+    path(
+        "auth/",
+        include(
+            [
+                path(
+                    "login/",
+                    views.LoginView.as_view(),
+                    name="login"
+                ),
+                path(
+                    'signup/',
+                     views.RegistrationView.as_view(),
+                    name="signup"
+                ),
+                path(
+                    "logout/",
+                    views.logout_view,
+                    name="logout"
+                )
+            ]
+        )
+    ),
+    path(
+        "",
+        views.HomePageView.as_view(),
+        name="index"
+    ),
     path(
         "organization/<int:organization_id>/",
         include(

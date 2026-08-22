@@ -1,6 +1,7 @@
 from datetime import timezone as none_django_timezone
 
 from django.contrib import messages
+from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError
@@ -10,6 +11,7 @@ from django.utils.dateparse import parse_datetime
 from django.views.generic.base import View
 
 from pulse.models import *
+from . import urls
 
 from .forms import (
     AddItemForm,
@@ -30,12 +32,24 @@ class LoginView(View):
         )
 
     def post(self, request, *args, **kwargs):
-        form = AuthenticationForm(data=request.POST)
+        form = AuthenticationForm(request=request, data=request.POST)
 
         if form.is_valid():
-            return redirect("/home")
-
-        return render(request, "pulse/auth.html", {})
+            user = authenticate(
+                request,
+                username=form.cleaned_data["username"],
+                password=form.cleaned_data["password"]
+            )
+            if user is not None:
+                login(request, user)
+                return redirect("/")
+            else:
+                return redirect('auth/login')
+        return render(
+            request,
+            'pulse/auth.html',
+            {'login_form': form,
+        })
 
 
 class RegistrationView(View):
@@ -49,7 +63,7 @@ class RegistrationView(View):
         )
 
     def post(self, request, *args, **kwargs):
-        form = RegistrationForm(request.POST)
+        form = RegistrationForm(data=request.POST)
 
         if form.is_valid():
             try:
@@ -72,10 +86,9 @@ class RegistrationView(View):
             },
         )
 
-
-# class LogoutView(View):
-# def get(self, request, *args, **kwargs):
-
+def logout_view(request):
+    logout(request)
+    return redirect(to='login')
 
 class HomePageView(LoginRequiredMixin, View):
     login_url = "auth/login"
@@ -194,7 +207,7 @@ class WorkSpaceView(View):
                 priority=form.cleaned_data["priority"],
                 estimated_time=form.cleaned_data["estimate"],
                 time_spent=form.cleaned_data["spent"],
-                due_date=parse_datetime(form.cleaned_data["due_date"]).replace(tzinfo=none_django_timezone.utc),
+                due_date=parse_datetime(str(form.cleaned_data["due_date"])).replace(tzinfo=none_django_timezone.utc),
             )
             messages.success(
                 request, f"WorkItem {new_workitem.title} created successfully"

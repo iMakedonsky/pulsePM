@@ -16,7 +16,7 @@
         <h2>Time zone: {{ profile_data.time_zone }}</h2>
         <h2>Current location: {{ profile_data.location }}</h2>
         <h2>Last activity: {{ profile_data.last_activity }}</h2>
-        <h2>First name: {{ profile_data.user.first_name }}</h2>
+        <h2>First name: {{ profile_data.user.date_joined }}</h2>
     {% else %}
         <p>Data of the current user isn't available!</p>
     {% endif %}

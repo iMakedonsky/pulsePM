@@ -82,6 +82,6 @@ class AddItemForm(forms.Form):
         widget=forms.TextInput(attrs={"class": "form-control"})
     )
     spent = forms.IntegerField(widget=forms.TextInput(attrs={"class": "form-control"}))
-    due_date = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "2026-11-14"})
+    due_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date", "clase": "form-control"}), input_formats=["%Y-%m-%d"]
     )
