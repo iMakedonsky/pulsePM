@@ -7,11 +7,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.dateparse import parse_datetime
+from django.urls import reverse
 from django.views.generic.base import View
-
 from pulse.models import *
-from . import urls
 
 from .forms import (
     AddItemForm,
@@ -195,23 +193,26 @@ class WorkSpaceView(View):
         workspace_id = kwargs["workspace_id"]
 
         if form.is_valid():
-            new_workitem = WorkItem.objects.create(
-                title=form.cleaned_data["title"],
-                workspace_id=workspace_id,
-                created_by=Member.objects.get_or_create(
-                    user=request.user, organization_id=org_id
-                )[0],
-                assigned_to_id=int(form.cleaned_data["assignee"]),
-                description=form.cleaned_data["description"],
-                status=form.cleaned_data["status"],
-                priority=form.cleaned_data["priority"],
-                estimated_time=form.cleaned_data["estimate"],
-                time_spent=form.cleaned_data["spent"],
-                due_date=parse_datetime(str(form.cleaned_data["due_date"])).replace(tzinfo=none_django_timezone.utc),
-            )
-            messages.success(
-                request, f"WorkItem {new_workitem.title} created successfully"
-            )
+            try:
+                new_workitem = WorkItem.objects.create(
+                    title=form.cleaned_data["title"],
+                    workspace_id=workspace_id,
+                    created_by=Member.objects.get_or_create(
+                        user=request.user, organization_id=org_id
+                    )[0],
+                    assigned_to_id=int(form.cleaned_data["assignee"]),
+                    description=form.cleaned_data["description"],
+                    status=form.cleaned_data["status"],
+                    priority=form.cleaned_data["priority"],
+                    estimated_time=form.cleaned_data["estimate"],
+                    time_spent=form.cleaned_data["spent"],
+                    due_date=form.cleaned_data["due_date"]
+                )
+                messages.success(
+                    request, f"WorkItem {new_workitem.title} created successfully"
+                )
+            except ValidationError:
+                return HttpResponse(status=400, content="The due date cannot be in the past.")
             return redirect(request.path_info)
 
         return render(
@@ -246,17 +247,30 @@ class WorkItemView(View):
         )
 
 
+class DeleteOrganization(View):
+    def post(self, request, *args, **kwargs):
+        organization = get_object_or_404(Organization, pk=kwargs["organization_id"])
+        organization.delete()
+
+        return redirect(to='/')
+
 class DeleteWorkspace(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(WorkSpace, pk=kwargs["workspace_id"])
         workspace.delete()
 
-        return redirect(request.path_info)
-
+        return redirect(reverse('organization', kwargs={'organization_id': kwargs["organization_id"]}))
 
 class DeleteMemberProfile(View):
     def post(self, request, *args, **kwargs):
         member = get_object_or_404(Member, pk=kwargs["member_id"])
         member.delete()
 
-        return redirect(request.path_info)
+        return redirect(reverse('organization', kwargs={'organization_id': kwargs["organization_id"]}))
+
+class DeleteWorkItem(View):
+    def post(self, request, *args, **kwargs):
+        workitem = get_object_or_404(WorkItem, pk=kwargs["workitem_id"])
+        workitem.delete()
+
+        return redirect(reverse('workspace', kwargs={'organization_id': kwargs["organization_id"], 'workspace_id': kwargs["workspace_id"]}))

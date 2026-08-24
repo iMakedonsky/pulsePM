@@ -3,10 +3,16 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
+from datetime import date
 
 
-def validate_not_past(value):
-    if value < timezone.now():
+def validate_not_past(value) -> None | ValidationError:
+    """
+    Validate that value is not past
+    Method use datetime.date to validate if value is not past
+    :return: None | ValidationError if value is a past date.
+    """
+    if value < date.today():
         raise ValidationError("Value cannot be in the past.")
 
 
@@ -127,7 +133,7 @@ class WorkItem(models.Model):
     )
     created_at = models.DateTimeField(default=timezone.now)
     started_at = models.DateTimeField(default=timezone.now)
-    due_date = models.DateTimeField(validators=[validate_not_past], null=False)
+    due_date = models.DateField(validators=[validate_not_past], null=False)
     estimated_time = models.IntegerField(
         validators=[MinValueValidator(0)], null=False, default=0
     )

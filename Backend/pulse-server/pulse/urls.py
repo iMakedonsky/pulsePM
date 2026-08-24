@@ -25,11 +25,7 @@ urlpatterns = [
             ]
         )
     ),
-    path(
-        "",
-        views.HomePageView.as_view(),
-        name="index"
-    ),
+    path("", views.HomePageView.as_view(), name="index"),
     path(
         "organization/<int:organization_id>/",
         include(
@@ -53,6 +49,11 @@ urlpatterns = [
                     ),
                 ),
                 path(
+                    "delete/",
+                    views.DeleteOrganization.as_view(),
+                    name="organization_delete"
+                ),
+                path(
                     "workspace/<int:workspace_id>/",
                     include(
                         [
@@ -64,8 +65,18 @@ urlpatterns = [
                             ),
                             path(
                                 "workitem/<int:workitem_id>/",
-                                views.WorkItemView.as_view(),
-                                name="workitem",
+                                include([
+                                    path(
+                                        "",
+                                        views.WorkItemView.as_view(),
+                                        name="workitem"
+                                    ),
+                                    path(
+                                        "delete/",
+                                        views.DeleteWorkItem.as_view(),
+                                        name="workitem_delete"
+                                    ),
+                                ])
                             ),
                         ]
                     ),

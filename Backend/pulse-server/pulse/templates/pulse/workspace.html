@@ -30,6 +30,10 @@
                         Id: {{ workitem.id }} - {{ workspace_data.space_code }}, Title: {{ workitem.title }}, Last Update: {{ workitem.last_update }}
                     </a>
                 </li>
+                <form  method="post" action="{% url 'workitem_delete' workitem_id=workitem.id workspace_id=workitem.workspace_id organization_id=workitem.workspace.organization_id %}">
+                    {% csrf_token %}
+                    <button type="submit">X</button>
+                </form>
             {% endfor %}
         </ul>
     {% endif %}

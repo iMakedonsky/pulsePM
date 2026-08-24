@@ -150,3 +150,4 @@ vite.config.ts.timestamp-*
 Backend/pulse-server/polls/
 *.sqlite3
 *.pyc
+Backend/Notes.md
