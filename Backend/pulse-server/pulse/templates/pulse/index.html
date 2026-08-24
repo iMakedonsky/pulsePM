@@ -19,6 +19,13 @@
 <div class="container">
   {% include 'forms/base_form.html' with form=organization_form %}
   <br/>
+
+        {% for k, v in general_statistic_rows.items %}
+             <div>
+                 <h3>{{ k }}</h3>
+                <p>{{ v }}</p>
+             </div>
+        {% endfor %}
   <div class="panel">
     {% if organization_list %}
       <ul class="list">
@@ -26,6 +33,10 @@
           <li>
 
             <a href="{% url 'organization' organization.id %}">{{ organization.name }}</a>
+            <form method="post" action="{% url 'organization_delete' organization_id=organization.id %}">
+                {% csrf_token %}
+                <button type="submit">X</button>
+            </form>
           </li>
         {% endfor %}
       </ul>

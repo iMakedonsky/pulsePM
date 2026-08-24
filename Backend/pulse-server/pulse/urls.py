@@ -25,12 +25,28 @@ urlpatterns = [
             ]
         )
     ),
-    path("", views.HomePageView.as_view(), name="index"),
+    path(
+        "",
+         include(
+             [
+                 path(
+                     "",
+                     views.HomePageView.as_view(),
+                     name="index"),
+                 # path(
+                 #     "general-statistic/",
+                 #     views.GeneralReportView.as_view(),
+                 #     name="general_statistic"),
+             ]
+         )),
     path(
         "organization/<int:organization_id>/",
         include(
             [
-                path("", views.OrganizationView.as_view(), name="organization"),
+                path(
+                    "",
+                    views.OrganizationView.as_view(),
+                    name="organization"),
                 path(
                     "member/<int:member_id>/",
                     include(

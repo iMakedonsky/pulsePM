@@ -1,5 +1,3 @@
-from datetime import timezone as none_django_timezone
-
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
@@ -17,6 +15,9 @@ from .forms import (
     OrganizationNonModelForm,
     RegistrationForm,
 )
+
+# TODO: finish statistic endpoint (figure out with approach) & implement each org specific statistic
+# TODO: implement hidden/collaps button, that allows to create an entity of that kind (for each page)
 
 
 class LoginView(View):
@@ -93,12 +94,25 @@ class HomePageView(LoginRequiredMixin, View):
     redirect_field_name = "redirect_to"
 
     def get(self, request, *args, **kwargs):
+
+        general_statistic = {
+            "organizations": Organization.objects.count(),
+            "workspaces": WorkSpace.objects.count(),
+            "workitems": WorkItem.objects.count(),
+            "members": Member.objects.count(),
+        }
+
+        # for key in data_keys:
+        #     for org in Organization.objects.all():
+        #
+
         return render(
             request,
             "pulse/index.html",
             {
                 "organization_form": OrganizationNonModelForm(),
                 "organization_list": Organization.objects.all(),
+                "general_statistic_rows": general_statistic
             },
         )
 
@@ -110,6 +124,12 @@ class HomePageView(LoginRequiredMixin, View):
                 description=form.cleaned_data["description"],
                 owner_id=int(form.cleaned_data["owner"]),
             )
+
+            Member.objects.create(
+                organization_id=new_organization.id,
+                user_id=form.cleaned_data["owner"],
+                role='owner')
+
             messages.success(
                 request, f"Organization {new_organization.name} created successfully"
             )
@@ -124,10 +144,31 @@ class HomePageView(LoginRequiredMixin, View):
             },
         )
 
+# class GeneralReportView(View):
+#     def get(self, request, *args, **kwargs):
+#         data_keys = ["workspaces", "workitems", "members"]
+#
+#         # for key in data_keys:
+#         #     for org in Organization.objects.all():
+#         #
+#
+#         general_statistic = {
+#             "organizations": Organization.objects.count(),
+#             "workspaces": WorkSpace.objects.count(),
+#             "workitems": WorkItem.objects.count(),
+#             "members": Member.objects.count(),
+#         }
+#
+#         return render(
+#             request,
+#             'pulse/index.html',
+#             {
+#                 "general_statistic_rows": general_statistic
+#             }
+#         )
 
 class OrganizationView(View):
     def get(self, request, *args, **kwargs):
-
         return render(
             request,
             "pulse/organization.html",
@@ -137,10 +178,15 @@ class OrganizationView(View):
                     organization_id=kwargs["organization_id"]
                 ),
                 "member_list": Member.objects.filter(
-                    organization_id=kwargs["organization_id"]
+                        organization_id=kwargs["organization_id"],
+                        role__in=["contributor", "project-manager"]
                 ),
+                "owner": Member.objects.get(
+                    organization_id=kwargs["organization_id"],
+                    role="owner")
             },
         )
+
 
     def post(self, request, *args, **kwargs):
         form = CreateWorkspaceForm(request.POST)
@@ -259,18 +305,31 @@ class DeleteWorkspace(View):
         workspace = get_object_or_404(WorkSpace, pk=kwargs["workspace_id"])
         workspace.delete()
 
-        return redirect(reverse('organization', kwargs={'organization_id': kwargs["organization_id"]}))
+        return redirect(reverse(
+            'organization',
+            kwargs={
+                'organization_id': kwargs["organization_id"]}
+        ))
 
 class DeleteMemberProfile(View):
     def post(self, request, *args, **kwargs):
         member = get_object_or_404(Member, pk=kwargs["member_id"])
         member.delete()
 
-        return redirect(reverse('organization', kwargs={'organization_id': kwargs["organization_id"]}))
+        return redirect(reverse(
+            'organization',
+            kwargs={
+                'organization_id': kwargs["organization_id"]}
+        ))
 
 class DeleteWorkItem(View):
     def post(self, request, *args, **kwargs):
         workitem = get_object_or_404(WorkItem, pk=kwargs["workitem_id"])
         workitem.delete()
 
-        return redirect(reverse('workspace', kwargs={'organization_id': kwargs["organization_id"], 'workspace_id': kwargs["workspace_id"]}))
+        return redirect(reverse(
+            'workspace',
+            kwargs={
+                'organization_id': kwargs["organization_id"],
+                'workspace_id': kwargs["workspace_id"]}
+        ))
