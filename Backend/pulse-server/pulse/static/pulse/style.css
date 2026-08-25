@@ -27,6 +27,7 @@ body {
 .nav-content {
     display: flex;
     flex-direction: row;
+    gap: 50px;
 }
 
 .container {
@@ -85,6 +86,19 @@ body {
 
 .statistics-table tr:last-child td {
     border-bottom: 0;
+}
+
+.workitem-table {
+    margin-top: 16px;
+}
+
+.workitem-table a {
+    color: #1d4ed8;
+    text-decoration: none;
+}
+
+.workitem-table a:hover {
+    text-decoration: underline;
 }
 
 .organization-statistics {
@@ -225,13 +239,33 @@ body {
 }
 
 .create-form {
+    padding: 20px;
+    background-color: #eff6ff;
     margin-bottom: 16px;
 }
 
-li.success {
-    color: lightgreen;
+.create-form form input:not([type="submit"]),
+.create-form form textarea,
+.create-form form select,
+form input,
+form textarea,
+form select {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 10px;
+    border: 2px solid #eff6ff;
+    border-radius: 1px;
+    padding: 10px;
+}
+.create-form form label,
+form label{
+    color: #1d4ed8;
 }
 
-li.error {
-    color: red !important;
-}
+/*li.success {*/
+/*    color: lightgreen;*/
+/*}*/
+
+/*li.error {*/
+/*    color: red !important;*/
+/*}*/

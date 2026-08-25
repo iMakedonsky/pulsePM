@@ -6,7 +6,7 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
 </head>
-<body>
+<body class="page">
 <script>
     function CollapsHiden(){
         const form = document.getElementById('workitem-create-form');
@@ -14,7 +14,7 @@
         form.hidden = !expanded;
     }
 </script>
-<button onclick='{history.back()}'>Go back</button>
+<button class="back-link" onclick='{history.back()}'>Go back</button>
 
 {% if messages %}
   <ul class="messages">
@@ -35,20 +35,30 @@
     {% include 'forms/base_form.html' with form=workitem_form form_id='workitem-create-form' collapsed=True %}
 
     {% if workitem_list %}
-        <ul>
-            {% for workitem in workitem_list %}
-                <li>
-
-                    <a href="{% url 'workitem' workitem_id=workitem.id workspace_id=workitem.workspace_id organization_id=workitem.workspace.organization_id %}">
-                        Id: {{ workitem.id }} - {{ workspace_data.space_code }}, Title: {{ workitem.title }}, Last Update: {{ workitem.last_update }}
-                    </a>
-                </li>
-                <form  method="post" action="{% url 'workitem_delete' workitem_id=workitem.id workspace_id=workitem.workspace_id organization_id=workitem.workspace.organization_id %}">
-                    {% csrf_token %}
-                    <button type="submit">X</button>
-                </form>
-            {% endfor %}
-        </ul>
+        <table class="statistics-table workitem-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>CNP</th>
+                    <th>Title</th>
+                    <th>Last update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for workitem in workitem_list %}
+                    <tr>
+                        <td>{{ workitem.id }}</td>
+                        <td>{{ workspace_data.space_code }}</td>
+                        <td>
+                            <a href="{% url 'workitem' workitem_id=workitem.id workspace_id=workitem.workspace_id organization_id=workitem.workspace.organization_id %}">
+                                {{ workitem.title }}
+                            </a>
+                        </td>
+                        <td>{{ workitem.last_update }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endif %}
     {% else %}
         <p>Workspace doesn't have any items</p>

@@ -26,14 +26,8 @@
     <div class="nav-content">
         <button class="back-link btn-logout"><a href="{% url 'logout' %}">Logout</a></button>
         <h1 class="page-title">List of organizations</h1>
-
-{#        <button type="button" class="create-form-toggle"#}
-{#              onclick="CollapsHiden()">#}
-{#        Create organization#}
-{#        </button>#}
-{#        {% include 'forms/base_form.html' with form=organization_form form_id='organization-create-form' collapsed=True %}#}
-
     </div>
+
   <div class="organization-content">
     <div class="statistics-column">
       <table class="statistics-table">
@@ -55,7 +49,7 @@
 
       {% for org_id, stats in each_org_statistic.items %}
         <section class="organization-statistics">
-          <h3>Organization {{ org_id }}</h3>
+          <h3>{{ org_id }}</h3>
           <table class="statistics-table">
             <thead>
               <tr>
@@ -83,6 +77,13 @@
     </div>
 
     <div class="panel">
+
+        <button type="button" class="create-form-toggle"
+            onclick="CollapsHiden()">
+            Create organization
+        </button>
+        {% include 'forms/base_form.html' with form=organization_form form_id='organization-create-form' collapsed=True %}
+
       {% if organization_list %}
         <ul class="list">
           {% for organization in organization_list %}

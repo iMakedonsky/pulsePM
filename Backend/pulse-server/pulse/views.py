@@ -104,7 +104,7 @@ class HomePageView(LoginRequiredMixin, View):
 
         each_org_statistic = {}
         for org in Organization.objects.all():
-            each_org_statistic[org.id] = {
+            each_org_statistic[org.name] = {
                 "workspaces": WorkSpace.objects.filter(organization_id=org.id).count(),
                 "workitems": WorkItem.objects.filter(workspace__organization_id=org.id).count(),
                 "members": Member.objects.filter(organization_id=org.id).count(),
