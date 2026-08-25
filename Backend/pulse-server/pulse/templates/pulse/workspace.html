@@ -47,7 +47,13 @@
             <tbody>
                 {% for workitem in workitem_list %}
                     <tr>
-                        <td>{{ workitem.id }}</td>
+                        <td>
+                            <form  method="post" action="{% url 'workitem_delete' workitem_id=workitem.id workspace_id=workitem.workspace_id organization_id=workitem.workspace.organization_id %}">
+                                {% csrf_token %}
+                                <button type="submit">X</button>
+                            </form>
+                            {{ workitem.id }}
+                        </td>
                         <td>{{ workspace_data.space_code }}</td>
                         <td>
                             <a href="{% url 'workitem' workitem_id=workitem.id workspace_id=workitem.workspace_id organization_id=workitem.workspace.organization_id %}">
