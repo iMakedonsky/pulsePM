@@ -102,9 +102,13 @@ class HomePageView(LoginRequiredMixin, View):
             "members": Member.objects.count(),
         }
 
-        # for key in data_keys:
-        #     for org in Organization.objects.all():
-        #
+        each_org_statistic = {}
+        for org in Organization.objects.all():
+            each_org_statistic[org.id] = {
+                "workspaces": WorkSpace.objects.filter(organization_id=org.id).count(),
+                "workitems": WorkItem.objects.filter(workspace__organization_id=org.id).count(),
+                "members": Member.objects.filter(organization_id=org.id).count(),
+            }
 
         return render(
             request,
@@ -112,7 +116,8 @@ class HomePageView(LoginRequiredMixin, View):
             {
                 "organization_form": OrganizationNonModelForm(),
                 "organization_list": Organization.objects.all(),
-                "general_statistic_rows": general_statistic
+                "general_statistic_rows": general_statistic,
+                "each_org_statistic": each_org_statistic
             },
         )
 
@@ -146,7 +151,6 @@ class HomePageView(LoginRequiredMixin, View):
 
 # class GeneralReportView(View):
 #     def get(self, request, *args, **kwargs):
-#         data_keys = ["workspaces", "workitems", "members"]
 #
 #         # for key in data_keys:
 #         #     for org in Organization.objects.all():
@@ -258,7 +262,8 @@ class WorkSpaceView(View):
                     request, f"WorkItem {new_workitem.title} created successfully"
                 )
             except ValidationError:
-                return HttpResponse(status=400, content="The due date cannot be in the past.")
+                messages.error(request, "The due date cannot be in the past")
+                return redirect(request.path_info)
             return redirect(request.path_info)
 
         return render(

@@ -4,7 +4,6 @@ body {
     padding: 0;
     font-family: Arial, sans-serif;
     background: #f5f7fb;
-    color: #1f2937;
 }
 
 body {
@@ -30,9 +29,66 @@ body {
     justify-content: center;
     align-items: flex-start;
     gap: 24px;
-    flex-direction: row;
     width: 100%;
     flex-wrap: wrap;
+}
+
+.organization-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.organization-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+}
+
+.statistics-column {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.statistics {
+    width: 100%;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.statistics-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border: 1px solid #dbe3f0;
+}
+
+.statistics-table th,
+.statistics-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #dbe3f0;
+    text-align: left;
+}
+
+.statistics-table th {
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: normal;
+}
+
+.statistics-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.organization-statistics {
+    margin-top: 16px;
+}
+
+.organization-statistics h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
 }
 
 .panel {
@@ -40,8 +96,6 @@ body {
     border: 1px solid #dbe3f0;
     border-radius: 12px;
     padding: 20px;
-    min-width: 280px;
-    max-width: 480px;
     flex: 1 1 320px;
 }
 
@@ -105,8 +159,39 @@ body {
     background: #dbeafe;
 }
 
+.btn-logout {
+    align-self: flex-start;
+}
+
+.btn-logout a {
+    color: inherit;
+}
+
+.list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.list li form {
+    margin: 0;
+}
+
+.list li form button {
+    padding: 8px 10px;
+    border: 1px solid #dbe3f0;
+    border-radius: 8px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.list li form button:hover {
+    background: #dbeafe;
+}
+
 @media (max-width: 768px) {
-    .container {
+    .container,
+    .organization-content {
         flex-direction: column;
     }
 
@@ -120,6 +205,28 @@ body {
     border: 1px solid blue;
 }
 
-.success {
+.create-form-toggle {
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    cursor: pointer;
+}
+
+.create-form-toggle:hover {
+    background: #dbeafe;
+}
+
+.create-form {
+    margin-bottom: 16px;
+}
+
+li.success {
     color: lightgreen;
+}
+
+li.error {
+    color: red !important;
 }

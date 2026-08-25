@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
 </head>
 <body>
+<script>
+    function CollapsHiden(){
+        const form = document.getElementById('workitem-create-form');
+        const expanded = form.hidden;
+        form.hidden = !expanded;
+    }
+</script>
 <button onclick='{history.back()}'>Go back</button>
 
 {% if messages %}
@@ -19,7 +28,11 @@
 
     <h1>Workspace: {{ workspace_data.name }}</h1>
 
-    {% include 'forms/base_form.html' with form=workitem_form %}
+    <button type="button" class="create-form-toggle"
+            onclick="CollapsHiden()">
+        Create work item
+    </button>
+    {% include 'forms/base_form.html' with form=workitem_form form_id='workitem-create-form' collapsed=True %}
 
     {% if workitem_list %}
         <ul>

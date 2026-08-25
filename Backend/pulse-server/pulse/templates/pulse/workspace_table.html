@@ -1,6 +1,17 @@
+<script>
+    function CollapsHiden() {
+        const form = document.getElementById('workspace-create-form');
+        const expanded = form.hidden;
+        form.hidden = !expanded;
+    }
+</script>
             <section class="panel">
                 <h2>Workspaces</h2>
-                <div>
+                <button type="button" class="create-form-toggle"
+                        onclick="CollapsHiden()">
+                    Create workspace
+                </button>
+                <div id="workspace-create-form" class="create-form" hidden>
                     {% include 'forms/base_form.html' with form=workspace_form %}
                 </div>
                 {% if workspace_list %}
