@@ -24,6 +24,11 @@ body {
     text-align: center;
 }
 
+.nav-content {
+    display: flex;
+    flex-direction: row;
+}
+
 .container {
     display: flex;
     justify-content: center;
