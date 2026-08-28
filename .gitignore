@@ -153,8 +153,6 @@ __pycache__/
 .coverage
 htmlcov/
 *.dump
-/Backend/pulse-server/polls/migrations
-Backend/pulse-server/polls/
 *.sqlite3
 *.pyc
 Backend/Notes.md

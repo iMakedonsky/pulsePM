@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
+    <title>Title</title>
+  </head>
+  <body>
+    <button class="back-link" onclick='{history.back()}'>Go back</button>
+    {% if workitem_data %}
+      <h2>--General--</h2>
+      <h3>Id: {{ workitem_data.id }} - {{ workitem_data.workspace.space_code }}, Title: {{ workitem_data.title }}</h3>
+      <h3>Created by: {{ workitem_data.created_by.user.email }}</h3>
+      <h3>Assigned to: {{ workitem_data.assigned_to.user.email }}</h3>
+      <h3>Status: {{ workitem_data.status }}</h3>
+      <h3>Priority: {{ workitem_data.priority }}</h3>
+      <h2>--Description--</h2>
+      <p>{{ workitem_data.description }}</p>
+      <h2>--Time tracking--</h2>
+      <h3>Started at: {{ workitem_data.started_at }}</h3>
+      <h3>Due date: {{ workitem_data.due_date }}</h3>
+      <h3>Estimated: {{ workitem_data.estimated_time }}</h3>
+      <h3>Time spent: {{ workitem_data.time_spent }}</h3>
+    {% else %}
+      <p>Data of the current user isn't available!</p>
+    {% endif %}
+  </body>
+</html>
