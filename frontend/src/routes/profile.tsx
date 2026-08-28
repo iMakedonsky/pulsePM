@@ -1,16 +1,16 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, createFileRoute } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 
-import { ApiError, getCurrentUser } from "../lib/auth-api";
-import { currentUserQueryKey } from "../components/topbar";
+import { ApiError, getCurrentUser } from '../lib/auth-api';
+import { currentUserQueryKey } from '../components/topbar';
 
-export const Route = createFileRoute("/profile")({ component: Profile });
+export const Route = createFileRoute('/profile')({ component: Profile });
 
 function Profile() {
   const currentUser = useQuery({
     queryKey: currentUserQueryKey,
     queryFn: getCurrentUser,
-    enabled: typeof window !== "undefined",
+    enabled: typeof window !== 'undefined',
     retry: false,
   });
 
@@ -42,7 +42,7 @@ function Profile() {
       <section className="island-shell rise-in max-w-2xl rounded-3xl p-8">
         <p className="island-kicker">Your account</p>
         <h1 className="display-title mt-3 text-4xl font-bold">
-          {[first_name, last_name].filter(Boolean).join(" ") || "Profile"}
+          {[first_name, last_name].filter(Boolean).join(' ') || 'Profile'}
         </h1>
         <dl className="mt-8 grid gap-5 text-sm">
           <div>

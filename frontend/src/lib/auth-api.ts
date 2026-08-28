@@ -17,8 +17,8 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
     ...init,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
   });
 
   if (!response.ok) {
@@ -27,7 +27,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } | null;
     throw new ApiError(
       response.status,
-      body?.detail ?? "Something went wrong.",
+      body?.detail ?? 'Something went wrong.',
     );
   }
 
@@ -36,12 +36,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     : ((await response.json()) as T);
 }
 
-export const getCurrentUser = () => request<AuthUser>("/auth/me");
+export const getCurrentUser = () => request<AuthUser>('/auth/me');
 
 export const login = (email: string, password: string) =>
-  request<AuthUser>("/login", {
-    method: "POST",
+  request<AuthUser>('/login', {
+    method: 'POST',
     body: JSON.stringify({ email, password }),
   });
 
-export const logout = () => request<void>("/logout", { method: "POST" });
+export const logout = () => request<void>('/logout', { method: 'POST' });

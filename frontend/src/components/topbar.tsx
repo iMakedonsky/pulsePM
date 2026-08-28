@@ -1,26 +1,26 @@
-import { Link } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { Link } from '@tanstack/react-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
-import { getCurrentUser, login, logout } from "../lib/auth-api";
+import { getCurrentUser, login, logout } from '../lib/auth-api';
 
-export const currentUserQueryKey = ["auth", "me"] as const;
+export const currentUserQueryKey = ['auth', 'me'] as const;
 
 export function Topbar() {
   const queryClient = useQueryClient();
   const currentUser = useQuery({
     queryKey: currentUserQueryKey,
     queryFn: getCurrentUser,
-    enabled: typeof window !== "undefined",
+    enabled: typeof window !== 'undefined',
     retry: false,
   });
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const loginMutation = useMutation({
     mutationFn: () => login(email, password),
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserQueryKey, user);
-      setPassword("");
+      setPassword('');
     },
   });
   const logoutMutation = useMutation({
@@ -48,7 +48,7 @@ export function Topbar() {
               className="rounded-md bg-[var(--sea-ink)] px-3 py-2 text-white"
               onClick={() => logoutMutation.mutate()}
             >
-              {logoutMutation.isPending ? "Signing out…" : "Logout"}
+              {logoutMutation.isPending ? 'Signing out…' : 'Logout'}
             </button>
           </div>
         ) : (
@@ -82,7 +82,7 @@ export function Topbar() {
               className="rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
               disabled={loginMutation.isPending}
             >
-              {loginMutation.isPending ? "Signing in…" : "Login"}
+              {loginMutation.isPending ? 'Signing in…' : 'Login'}
             </button>
             {loginMutation.isError ? (
               <span className="text-xs text-red-700">
