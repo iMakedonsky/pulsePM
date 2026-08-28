@@ -3,6 +3,7 @@ from typing import cast
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from ninja import Router, Schema
+from pydantic import ConfigDict
 
 from users.models import User
 
@@ -19,6 +20,8 @@ class UserResponse(Schema):
     email: str
     first_name: str
     last_name: str
+
+    model_config = ConfigDict(extra='ignore')
 
 
 class AuthenticatedRequest(HttpRequest):
