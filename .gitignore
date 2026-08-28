@@ -143,8 +143,15 @@ vite.config.ts.timestamp-*
 .vite/
 
 .idea/
-
-/Backend/.venv
+.venv/
+backend/.venv/
+Backend/.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 *.dump
 /Backend/pulse-server/polls/migrations
 Backend/pulse-server/polls/

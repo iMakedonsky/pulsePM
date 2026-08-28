@@ -1,0 +1,56 @@
+[project]
+name = "project-pulsepm-backend"
+version = "0.1.0"
+description = "Django backend for Project PulsePM"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=6.1,<6.2",
+]
+
+[dependency-groups]
+dev = [
+    "djlint>=1.36.4",
+    "django-stubs[compatible-mypy]>=5.2.7",
+    "mypy>=1.17.1,<2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.1",
+    "pytest-django>=4.11.1",
+    "ruff>=0.12.11",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+exclude = ["pulse/migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ", "RUF"]
+ignore = ["DJ001", "DJ012", "E501", "RUF012"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.mypy]
+python_version = "3.13"
+plugins = ["mypy_django_plugin.main"]
+strict = true
+warn_unreachable = true
+exclude = ["pulse/migrations"]
+
+[tool.django-stubs]
+django_settings_module = "conf.settings"
+strict_settings = true
+strict_model_abstract_attrs = true
+
+[tool.djlint]
+profile = "django"
+use_gitignore = true
+indent = 2
+max_line_length = 120
+ignore = "H021,H030"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "conf.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "--strict-config --strict-markers"

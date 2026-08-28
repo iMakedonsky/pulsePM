@@ -1,55 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
-  <title>Organizations</title>
-</head>
-<body class="page">
-<script>
+  <head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
+    <title>Organizations</title>
+  </head>
+  <body class="page">
+    <script>
     function CollapsHiden(){
         const form = document.getElementById('organization-create-form');
         const expanded = form.hidden;
         form.hidden = !expanded;
     }
-</script>
-{% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-{#   Message color doesn’t switch for error with template syntax, so CSS class matching is wrong. I dont know why #}
-      <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
-<div class="container organization-container">
-    <div class="nav-content">
+    </script>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          {#   Message color doesn’t switch for error with template syntax, so CSS class matching is wrong. I dont know why #}
+          <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <div class="container organization-container">
+      <div class="nav-content">
         <button class="back-link btn-logout"><a href="{% url 'logout' %}">Logout</a></button>
         <h1 class="page-title">List of organizations</h1>
-    </div>
-
-  <div class="organization-content">
-    <div class="statistics-column">
-      <table class="statistics-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for k, v in general_statistic_rows.items %}
-            <tr>
-              <td>{{ k }}</td>
-              <td>{{ v }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-      {% for org_id, stats in each_org_statistic.items %}
-        <section class="organization-statistics">
-          <h3>{{ org_id }}</h3>
+      </div>
+      <div class="organization-content">
+        <div class="statistics-column">
           <table class="statistics-table">
             <thead>
               <tr>
@@ -58,49 +37,63 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Workspaces</td>
-                <td>{{ stats.workspaces }}</td>
-              </tr>
-              <tr>
-                <td>Items</td>
-                <td>{{ stats.workitems }}</td>
-              </tr>
-              <tr>
-                <td>Members</td>
-                <td>{{ stats.members }}</td>
-              </tr>
+              {% for k, v in general_statistic_rows.items %}
+                <tr>
+                  <td>{{ k }}</td>
+                  <td>{{ v }}</td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
-        </section>
-      {% endfor %}
-    </div>
-
-    <div class="panel">
-
-        <button type="button" class="create-form-toggle"
-            onclick="CollapsHiden()">
-            Create organization
-        </button>
-        {% include 'forms/base_form.html' with form=organization_form form_id='organization-create-form' collapsed=True %}
-
-      {% if organization_list %}
-        <ul class="list">
-          {% for organization in organization_list %}
-            <li>
-              <a href="{% url 'organization' organization.id %}">{{ organization.name }}</a>
-              <form method="post" action="{% url 'organization_delete' organization_id=organization.id %}">
-                  {% csrf_token %}
-                  <button type="submit">X</button>
-              </form>
-            </li>
+          {% for org_id, stats in each_org_statistic.items %}
+            <section class="organization-statistics">
+              <h3>{{ org_id }}</h3>
+              <table class="statistics-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Workspaces</td>
+                    <td>{{ stats.workspaces }}</td>
+                  </tr>
+                  <tr>
+                    <td>Items</td>
+                    <td>{{ stats.workitems }}</td>
+                  </tr>
+                  <tr>
+                    <td>Members</td>
+                    <td>{{ stats.members }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
           {% endfor %}
-        </ul>
-      {% else %}
-        <p>No organizations exist yet</p>
-      {% endif %}
+        </div>
+        <div class="panel">
+          <button type="button" class="create-form-toggle" onclick="CollapsHiden()">Create organization</button>
+          {% include 'forms/base_form.html' with form=organization_form form_id='organization-create-form' collapsed=True %}
+          {% if organization_list %}
+            <ul class="list">
+              {% for organization in organization_list %}
+                <li>
+                  <a href="{% url 'organization' organization.id %}">{{ organization.name }}</a>
+                  <form method="post"
+                        action="{% url 'organization_delete' organization_id=organization.id %}">
+                    {% csrf_token %}
+                    <button type="submit">X</button>
+                  </form>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>No organizations exist yet</p>
+          {% endif %}
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-</body>
+  </body>
 </html>

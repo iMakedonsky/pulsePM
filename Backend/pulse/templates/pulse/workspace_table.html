@@ -5,31 +5,26 @@
         form.hidden = !expanded;
     }
 </script>
-            <section class="panel">
-                <h2>Workspaces</h2>
-                <button type="button" class="create-form-toggle"
-                        onclick="CollapsHiden()">
-                    Create workspace
-                </button>
-                <div id="workspace-create-form" class="create-form" hidden>
-                    {% include 'forms/base_form.html' with form=workspace_form %}
-                </div>
-                {% if workspace_list %}
-                    <ul class="list">
-                        {% for workspace in workspace_list %}
-                            <li>
-
-                                <a href="{% url 'workspace' workspace_id=workspace.id organization_id=workspace.organization_id %}">{{ workspace }}</a>
-
-                                <form  method="post" action="{% url 'workspace_delete' workspace_id=workspace.id organization_id=workspace.organization_id %}">
-                                    {% csrf_token %}
-                                    <button type="submit">X</button>
-                                </form>
-
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>Haven't existed any workspace yet</p>
-                {% endif %}
-            </section>
+<section class="panel">
+  <h2>Workspaces</h2>
+  <button type="button" class="create-form-toggle" onclick="CollapsHiden()">Create workspace</button>
+  <div id="workspace-create-form" class="create-form" hidden>
+    {% include 'forms/base_form.html' with form=workspace_form %}
+  </div>
+  {% if workspace_list %}
+    <ul class="list">
+      {% for workspace in workspace_list %}
+        <li>
+          <a href="{% url 'workspace' workspace_id=workspace.id organization_id=workspace.organization_id %}">{{ workspace }}</a>
+          <form method="post"
+                action="{% url 'workspace_delete' workspace_id=workspace.id organization_id=workspace.organization_id %}">
+            {% csrf_token %}
+            <button type="submit">X</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Haven't existed any workspace yet</p>
+  {% endif %}
+</section>

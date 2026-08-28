@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     {% load static %}
     <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
     <title>Title</title>
-</head>
-<body class="page">
-<button class="back-link" onclick='{history.back()}'>Go back</button>
+  </head>
+  <body class="page">
+    <button class="back-link" onclick='{history.back()}'>Go back</button>
     {% if profile_data %}
-        <h2>Username: {{ profile_data.user.username }}, user_id: {{ profile_data.user.id }}, member_id: {{ profile_data.id }}</h2>
-        <h2>First name: {{ profile_data.user.first_name }}</h2>
-        <h2>Last name: {{ profile_data.user.last_name }}</h2>
-        <h2>Organization: {{ profile_data.organization.name }}</h2>
-        <h2>Role: {{ profile_data.role }}</h2>
-        <h2>Position: {{ profile_data.position }}</h2>
-        <h2>Time zone: {{ profile_data.time_zone }}</h2>
-        <h2>Current location: {{ profile_data.location }}</h2>
-        <h2>Last activity: {{ profile_data.last_activity }}</h2>
-        <h2>Date joined: {{ profile_data.user.date_joined }}</h2>
+      <h2>Username: {{ profile_data.user.username }}, user_id: {{ profile_data.user.id }}, member_id: {{ profile_data.id }}</h2>
+      <h2>First name: {{ profile_data.user.first_name }}</h2>
+      <h2>Last name: {{ profile_data.user.last_name }}</h2>
+      <h2>Organization: {{ profile_data.organization.name }}</h2>
+      <h2>Role: {{ profile_data.role }}</h2>
+      <h2>Position: {{ profile_data.position }}</h2>
+      <h2>Time zone: {{ profile_data.time_zone }}</h2>
+      <h2>Current location: {{ profile_data.location }}</h2>
+      <h2>Last activity: {{ profile_data.last_activity }}</h2>
+      <h2>Date joined: {{ profile_data.user.date_joined }}</h2>
     {% else %}
-        <p>Data of the current user isn't available!</p>
+      <p>Data of the current user isn't available!</p>
     {% endif %}
-</body>
+  </body>
 </html>
