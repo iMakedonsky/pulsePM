@@ -8,6 +8,11 @@ import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  server: {
+    proxy: {
+      "/api": "http://127.0.0.1:8000",
+    },
+  },
   plugins: [
     devtools(),
     // netlify(), disable this plugin until we start deploying
