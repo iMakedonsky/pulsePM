@@ -10,9 +10,13 @@
     "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "biome format --fix",
-    "lint": "biome lint --fix",
-    "check": "biome check"
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint --write .",
+    "lint:check": "biome lint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "check": "biome check . && tsc --noEmit && bun test"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
@@ -38,6 +42,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/devtools-vite": "latest",
     "@tanstack/router-cli": "^1.132.0",
+    "@types/bun": "^1.4.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

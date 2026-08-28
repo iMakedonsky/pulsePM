@@ -4,95 +4,80 @@ from . import views
 
 urlpatterns = [
     path(
-        "auth/",
+        'auth/',
         include(
             [
-                path(
-                    "login/",
-                    views.LoginView.as_view(),
-                    name="login"
-                ),
-                path(
-                    'signup/',
-                     views.RegistrationView.as_view(),
-                    name="signup"
-                ),
-                path(
-                    "logout/",
-                    views.logout_view,
-                    name="logout"
-                )
+                path('login/', views.LoginView.as_view(), name='login'),
+                path('signup/', views.RegistrationView.as_view(), name='signup'),
+                path('logout/', views.logout_view, name='logout'),
             ]
-        )
+        ),
     ),
     path(
-        "",
-         include(
-             [
-                 path(
-                     "",
-                     views.HomePageView.as_view(),
-                     name="index"),
-                 # path(
-                 #     "general-statistic/",
-                 #     views.GeneralReportView.as_view(),
-                 #     name="general_statistic"),
-             ]
-         )),
-    path(
-        "organization/<int:organization_id>/",
+        '',
         include(
             [
+                path('', views.HomePageView.as_view(), name='index'),
+                # path(
+                #     "general-statistic/",
+                #     views.GeneralReportView.as_view(),
+                #     name="general_statistic"),
+            ]
+        ),
+    ),
+    path(
+        'organization/<int:organization_id>/',
+        include(
+            [
+                path('', views.OrganizationView.as_view(), name='organization'),
                 path(
-                    "",
-                    views.OrganizationView.as_view(),
-                    name="organization"),
-                path(
-                    "member/<int:member_id>/",
+                    'member/<int:member_id>/',
                     include(
                         [
                             path(
-                                "",
+                                '',
                                 views.MemberView.as_view(),
-                                name="profile",
+                                name='profile',
                             ),
                             path(
-                                "delete/",
+                                'delete/',
                                 views.DeleteMemberProfile.as_view(),
-                                name="member_delete",
+                                name='member_delete',
                             ),
                         ]
                     ),
                 ),
                 path(
-                    "delete/",
+                    'delete/',
                     views.DeleteOrganization.as_view(),
-                    name="organization_delete"
+                    name='organization_delete',
                 ),
                 path(
-                    "workspace/<int:workspace_id>/",
+                    'workspace/<int:workspace_id>/',
                     include(
                         [
-                            path("", views.WorkSpaceView.as_view(), name="workspace"),
+                            path('', views.WorkSpaceView.as_view(), name='workspace'),
                             path(
-                                "delete/",
+                                'delete/',
                                 views.DeleteWorkspace.as_view(),
-                                name="workspace_delete",
+                                name='workspace_delete',
                             ),
                             path(
-                                "workitem/<int:workitem_id>/",
-                                include([
-                                    path(
-                                        "",
-                                        views.WorkItemView.as_view(),
-                                        name="workitem"
-                                    ),
-                                    path(
-                                        "delete/",
-                                        views.DeleteWorkItem.as_view(),
-                                        name="workitem_delete"
-                                    ),
-                                ])
+                                'workitem/<int:workitem_id>/',
+                                include(
+                                    [
+                                        path(
+                                            '',
+                                            views.WorkItemView.as_view(),
+                                            name='workitem',
+                                        ),
+                                        path(
+                                            'delete/',
+                                            views.DeleteWorkItem.as_view(),
+                                            name='workitem_delete',
+                                        ),
+                                    ]
+                                ),
                             ),
                         ]
                     ),

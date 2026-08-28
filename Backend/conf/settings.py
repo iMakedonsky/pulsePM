@@ -25,13 +25,13 @@ SECRET_KEY = 'django-insecure-mgt0xxyk=+yh6e(+&_npc&^c^430ggla&uerzys*a$6#c1teqg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list[str] = []
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    "pulse.apps.PulseConfig",
+    'pulse.apps.PulseConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

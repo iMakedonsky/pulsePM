@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     {% load static %}
     <link rel="stylesheet" href="{% static 'pulse/style.css' %}">
     <title>Organization</title>
-</head>
-<body class="page">
+  </head>
+  <body class="page">
     {% if messages %}
-    <ul class="messages">
+      <ul class="messages">
         {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
         {% endfor %}
-    </ul>
+      </ul>
     {% endif %}
     <bytton class="back-link" onclick="history.back()">Go back</bytton>
-        <div class="container">
-
-            {% include 'pulse/workspace_table.html'  %}
-
-            <div class="divider" aria-hidden="true"></div>
-
-            {% include 'pulse/member_table.html' %}
-
-        </div>
-</body>
+    <div class="container">
+      {% include 'pulse/workspace_table.html' %}
+      <div class="divider" aria-hidden="true"></div>
+      {% include 'pulse/member_table.html' %}
+    </div>
+  </body>
 </html>
