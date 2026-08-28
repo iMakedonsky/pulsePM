@@ -2,11 +2,13 @@ Welcome to your new TanStack Start app!
 
 # Getting Started
 
+This project requires [Bun](https://bun.sh/) and [Biome](https://biomejs.dev/).
+
 To run this application:
 
 ```bash
 bun install
-bun --bun run dev
+bun dev
 ```
 
 # Building For Production
@@ -14,7 +16,7 @@ bun --bun run dev
 To build this application for production:
 
 ```bash
-bun --bun run build
+bun run build
 ```
 
 ## Styling
@@ -35,9 +37,9 @@ If you prefer not to use Tailwind CSS:
 This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
 
 ```bash
-bun --bun run lint
-bun --bun run format
-bun --bun run check
+bun lint
+bun format
+bun check
 ```
 
 ## Deploy to Netlify
