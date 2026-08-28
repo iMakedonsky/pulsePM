@@ -40,20 +40,14 @@ migrations: ## Create backend database migrations
 format: format-backend format-frontend ## Format backend and frontend files
 format-backend:
 	$(UV) run ruff format .
-	$(UV) run djlint pulse/templates --reformat
+	$(UV) run djlint . --reformat --exclude .venv,.cache
 format-frontend:
 	$(BUN) format
-
-format-check-backend:
-	$(UV) run ruff format --check .
-	$(UV) run djlint pulse/templates --check
-format-check-frontend:
-	$(BUN) format:check
 
 lint: lint-backend lint-frontend ## Lint backend and frontend files
 lint-backend:
 	$(UV) run ruff check .
-	$(UV) run djlint pulse/templates --lint
+	$(UV) run djlint . --lint --exclude .venv,.cache
 lint-frontend:
 	$(BUN) lint:check
 
@@ -64,8 +58,8 @@ typecheck-frontend:
 	$(BUN) typecheck
 
 check: check-backend check-frontend ## Check formatting, lint, and types for both projects
-check-backend: format-check-backend lint-backend typecheck-backend
-check-frontend: format-check-frontend lint-frontend typecheck-frontend
+check-backend: format-backend lint-backend typecheck-backend
+check-frontend: format-frontend lint-frontend typecheck-frontend
 
 test: test-backend test-frontend ## Run all tests
 test-backend:
