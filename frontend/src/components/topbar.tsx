@@ -1,5 +1,5 @@
-import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
 import { getCurrentUser, login, logout } from '../lib/auth-api';
@@ -28,9 +28,13 @@ export function Topbar() {
     onSuccess: () =>
       queryClient.removeQueries({ queryKey: currentUserQueryKey }),
   });
+  logoutMutation.call();
 
   return (
-    <header className="border-b border-[var(--line)] bg-[var(--header-bg)]">
+    <header
+      className="border-b
+    border-[var(--line)] bg-[var(--header-bg)]"
+    >
       <div className="page-wrap flex min-h-16 items-center justify-between gap-4 py-3">
         <Link
           to="/"
