@@ -2,16 +2,16 @@ SHELL := /bin/sh
 
 BACKEND_DIR := backend
 FRONTEND_DIR := frontend
-UV := UV_CACHE_DIR=$(BACKEND_DIR)/.cache/uv uv --directory $(BACKEND_DIR)
+UV := cd $(BACKEND_DIR) && UV_CACHE_DIR=.cache/uv uv
 BUN := bun run --cwd $(FRONTEND_DIR)
 
 .DEFAULT_GOAL := help
 
 .PHONY: help install install-backend install-frontend dev dev-backend dev-frontend \
-	migrate migrations lint lint-backend lint-frontend format format-backend \
-	format-frontend format-check format-check-backend format-check-frontend \
-	typecheck typecheck-backend typecheck-frontend test test-backend test-frontend \
-	check check-backend check-frontend pre-commit-install
+	migrate migrations format format-backend format-frontend \
+	format-check-backend format-check-frontend lint lint-backend lint-frontend \
+	typecheck typecheck-backend typecheck-frontend check check-backend check-frontend \
+	test test-backend test-frontend pre-commit-install
 
 help: ## Show available commands
 	@awk 'BEGIN {FS = ":.*## "; printf "Usage: make <target>\n\n"} /^[a-zA-Z_-]+:.*## / {printf "  %-22s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -37,42 +37,41 @@ migrate: ## Apply backend database migrations
 migrations: ## Create backend database migrations
 	$(UV) run python manage.py makemigrations
 
-lint: lint-backend lint-frontend ## Lint the entire project
-lint-backend:
-	$(UV) run ruff check .
-	$(UV) run djlint pulse/templates --lint
-lint-frontend:
-	$(BUN) lint:check
-
-format: format-backend format-frontend ## Format the entire project
+format: format-backend format-frontend ## Format backend and frontend files
 format-backend:
 	$(UV) run ruff format .
 	$(UV) run djlint pulse/templates --reformat
 format-frontend:
 	$(BUN) format
 
-format-check: format-check-backend format-check-frontend ## Check formatting without edits
 format-check-backend:
 	$(UV) run ruff format --check .
 	$(UV) run djlint pulse/templates --check
 format-check-frontend:
 	$(BUN) format:check
 
-typecheck: typecheck-backend typecheck-frontend ## Type-check the entire project
+lint: lint-backend lint-frontend ## Lint backend and frontend files
+lint-backend:
+	$(UV) run ruff check .
+	$(UV) run djlint pulse/templates --lint
+lint-frontend:
+	$(BUN) lint:check
+
+typecheck: typecheck-backend typecheck-frontend ## Type-check backend and frontend code
 typecheck-backend:
 	$(UV) run mypy .
 typecheck-frontend:
 	$(BUN) typecheck
+
+check: check-backend check-frontend ## Check formatting, lint, and types for both projects
+check-backend: format-check-backend lint-backend typecheck-backend
+check-frontend: format-check-frontend lint-frontend typecheck-frontend
 
 test: test-backend test-frontend ## Run all tests
 test-backend:
 	$(UV) run pytest
 test-frontend:
 	$(BUN) test
-
-check: check-backend check-frontend ## Run all non-mutating quality checks
-check-backend: lint-backend format-check-backend typecheck-backend test-backend
-check-frontend: lint-frontend format-check-frontend typecheck-frontend test-frontend
 
 pre-commit-install: install-backend ## Install the repository Git hooks
 	$(UV) run pre-commit install

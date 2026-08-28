@@ -4,18 +4,18 @@ fail_fast: false
 repos:
   - repo: local
     hooks:
-      - id: backend-check
-        name: backend lint, format, types, and tests
-        entry: make check-backend
+      - id: check
+        name: check frontend and backend formatting, lint, and types
+        entry: make check
         language: system
         pass_filenames: false
-        files: ^(?i:backend)/|^(Makefile|\.pre-commit-config\.yaml)$
-        stages: [pre-commit, pre-push]
+        always_run: true
+        stages: [pre-commit]
 
-      - id: frontend-check
-        name: frontend lint, format, types, and tests
-        entry: make check-frontend
+      - id: test
+        name: test frontend and backend
+        entry: make test
         language: system
         pass_filenames: false
-        files: ^frontend/|^(Makefile|\.pre-commit-config\.yaml)$
-        stages: [pre-commit, pre-push]
+        always_run: true
+        stages: [pre-push]
