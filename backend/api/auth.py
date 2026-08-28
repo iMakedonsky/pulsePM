@@ -1,9 +1,8 @@
-from typing import cast
+from typing import Self, cast
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest
 from ninja import Router, Schema
-from pydantic import ConfigDict
 
 from users.models import User
 
@@ -21,7 +20,14 @@ class UserResponse(Schema):
     first_name: str
     last_name: str
 
-    model_config = ConfigDict(extra='ignore')
+    @classmethod
+    def from_user_instance(cls, user: User) -> Self:
+        return cls(
+            id=user.pk,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+        )
 
 
 class AuthenticatedRequest(HttpRequest):
@@ -36,9 +42,7 @@ def login_endpoint(request: HttpRequest, payload: LoginPayload) -> UserResponse 
     if user is None:
         return 401, {'detail': 'Invalid email or password.'}
     login(request, user)
-    if user.pk is None:
-        raise ValueError('Authenticated users must have a primary key.')
-    return UserResponse(**user.__dict__)
+    return UserResponse.from_user_instance(user)
 
 
 @router.post('/logout', response={204: None})
@@ -51,4 +55,4 @@ def logout_endpoint(request: HttpRequest) -> tuple[int, None]:
 def current_user(request: HttpRequest) -> UserResponse | tuple[int, dict[str, str]]:
     if not request.user.is_authenticated:
         return 401, {'detail': 'Authentication required.'}
-    return UserResponse(**cast(AuthenticatedRequest, request).user.__dict__)
+    return UserResponse.from_user_instance(cast(AuthenticatedRequest, request).user)
