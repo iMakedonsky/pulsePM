@@ -14,6 +14,7 @@ import { Topbar } from '../components/topbar';
 import appCss from '../styles.css?url';
 
 import type { QueryClient } from '@tanstack/react-query';
+import { ToastProvider } from '#/context/ToastMessage.tsx';
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -48,8 +49,10 @@ function RootLayout() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Topbar />
-      <Outlet />
+      <ToastProvider>
+        <Topbar />
+        <Outlet />
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

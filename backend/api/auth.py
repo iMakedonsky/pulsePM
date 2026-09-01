@@ -1,12 +1,17 @@
 from typing import Self, cast
-
 from django.contrib.auth import authenticate, login, logout
+from django.db.utils import IntegrityError
 from django.http import HttpRequest
 from ninja import Router, Schema
 
 from users.models import User
 
 router = Router(tags=['Authentication'])
+
+
+class RegisterPayload(Schema):
+    email: str
+    password: str
 
 
 class LoginPayload(Schema):
@@ -34,6 +39,19 @@ class AuthenticatedRequest(HttpRequest):
     """A request whose user has been verified as the project's User model."""
 
     user: User
+
+
+@router.post('/register', response={200: UserResponse, 400: dict})
+def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> UserResponse | tuple[int, dict[str, str]]:
+    try:
+        create_new_user = User.objects.create_user(email=payload.email, password=payload.password)
+
+        login(request, create_new_user)
+        return UserResponse.from_user_instance(create_new_user)
+    except ValueError:
+        return 400, {'detail': 'Provided email is invalid.'}
+    except IntegrityError:
+        return 400, {'detail': 'User already exists with the same email.'}
 
 
 @router.post('/login', response={200: UserResponse, 401: dict})

@@ -38,6 +38,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const getCurrentUser = () => request<AuthUser>('/auth/me');
 
+export const signUp = (email: string, password: string) =>
+  request<AuthUser>('/register', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+
 export const login = (email: string, password: string) =>
   request<AuthUser>('/login', {
     method: 'POST',

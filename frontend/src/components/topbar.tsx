@@ -3,10 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { getCurrentUser, login, logout } from '../lib/auth-api';
+import { useToast } from '../context/ToastMessage.tsx';
+import { RegistrationModal } from '../components/UI/RegistrationModal.tsx';
 
 export const currentUserQueryKey = ['auth', 'me'] as const;
 
 export function Topbar() {
+  const { addToast } = useToast();
   const queryClient = useQueryClient();
   const currentUser = useQuery({
     queryKey: currentUserQueryKey,
@@ -14,13 +17,25 @@ export function Topbar() {
     enabled: typeof window !== 'undefined',
     retry: false,
   });
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  // Registration state
+  const [isVisible, setVisible] = useState<boolean>(false);
+  // Login fields
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const loginMutation = useMutation({
     mutationFn: () => login(email, password),
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserQueryKey, user);
       setPassword('');
+      setVisible(false);
+      addToast(
+        `${user.first_name ? user.first_name : 'user'} was logged in!`,
+        'success',
+      );
+    },
+    onError: (error) => {
+      addToast(error.message, error.name);
     },
   });
   const logoutMutation = useMutation({
@@ -53,6 +68,8 @@ export function Topbar() {
           </div>
         ) : (
           <form
+            id="login-form"
+            name="login"
             className="flex flex-wrap items-center justify-end gap-2"
             onSubmit={(event) => {
               event.preventDefault();
@@ -79,18 +96,30 @@ export function Topbar() {
             />
             <button
               type="submit"
-              className="rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
+              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? 'Signing in…' : 'Login'}
             </button>
-            {loginMutation.isError ? (
-              <span className="text-xs text-red-700">
-                {loginMutation.error.message}
-              </span>
-            ) : null}
+            <button
+              type="button"
+              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
+              onClick={() => setVisible(true)}
+              disabled={loginMutation.isPending}
+            >
+              Sign Up
+            </button>
+            {/*{loginMutation.isError ? (*/}
+            {/*  <span className="text-xs text-red-700">*/}
+            {/*    {loginMutation.error.message}*/}
+            {/*  </span>*/}
+            {/*) : null}*/}
           </form>
         )}
+        <RegistrationModal
+          isVisible={isVisible}
+          onClose={() => setVisible(false)}
+        />
       </div>
     </header>
   );
