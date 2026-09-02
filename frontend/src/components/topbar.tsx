@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-
 import { getCurrentUser, login, logout } from '../lib/auth-api';
 
 export const currentUserQueryKey = ['auth', 'me'] as const;
@@ -25,21 +24,13 @@ export function Topbar() {
   });
   const logoutMutation = useMutation({
     mutationFn: logout,
-    onSuccess: () =>
-      queryClient.removeQueries({ queryKey: currentUserQueryKey }),
+    onSuccess: () => queryClient.removeQueries({ queryKey: currentUserQueryKey }),
   });
-  logoutMutation.call();
 
   return (
-    <header
-      className="border-b
-    border-[var(--line)] bg-[var(--header-bg)]"
-    >
+    <header className="border-[var(--line)] border-bbg-[var(--header-bg)]">
       <div className="page-wrap flex min-h-16 items-center justify-between gap-4 py-3">
-        <Link
-          to="/"
-          className="display-title text-xl font-bold no-underline text-[var(--sea-ink)]"
-        >
+        <Link to="/" className="display-title font-bold text-[var(--sea-ink)] text-xl no-underline">
           PulsePM
         </Link>
         {currentUser.data ? (
@@ -83,16 +74,12 @@ export function Topbar() {
             />
             <button
               type="submit"
-              className="rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
+              className="rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? 'Signing in…' : 'Login'}
             </button>
-            {loginMutation.isError ? (
-              <span className="text-xs text-red-700">
-                {loginMutation.error.message}
-              </span>
-            ) : null}
+            {loginMutation.isError ? <span className="text-red-700 text-xs">{loginMutation.error.message}</span> : null}
           </form>
         )}
       </div>

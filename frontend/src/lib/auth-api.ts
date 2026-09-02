@@ -25,15 +25,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const body = (await response.json().catch(() => null)) as {
       detail?: string;
     } | null;
-    throw new ApiError(
-      response.status,
-      body?.detail ?? 'Something went wrong.',
-    );
+    throw new ApiError(response.status, body?.detail ?? 'Something went wrong.');
   }
 
-  return response.status === 204
-    ? (undefined as T)
-    : ((await response.json()) as T);
+  return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
 export const getCurrentUser = () => request<AuthUser>('/auth/me');
