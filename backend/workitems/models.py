@@ -10,7 +10,7 @@ from organizations.models import Member, WorkSpace
 
 
 def validate_not_past(value: date) -> None:
-    if value < date.today():
+    if value < timezone.localdate():
         raise ValidationError('Value cannot be in the past.')
 
 
@@ -21,7 +21,7 @@ class WorkItem(models.Model):
         REVIEW = 'review'
         DONE = 'done'
         TEST = 'test'
-        TEST_PASS = 'test done'
+        TEST_PASS = 'test done'  # noqa: S105 - a workflow status, not a credential
 
     class Priority(models.TextChoices):
         LOW = 'low'
@@ -43,9 +43,9 @@ class WorkItem(models.Model):
     time_spent = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     last_update = models.DateTimeField(default=timezone.now)
 
+    def __str__(self) -> str:
+        return self.title
+
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_clean()
         super().save(*args, **kwargs)
-
-    def __str__(self) -> str:
-        return self.title

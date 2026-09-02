@@ -73,7 +73,7 @@ class WorkItemView(View):
 
 
 class DeleteWorkItem(View):
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def post(self, _request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         get_object_or_404(WorkItem, pk=kwargs['workitem_id']).delete()
         return redirect(
             reverse(

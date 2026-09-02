@@ -1,11 +1,10 @@
-import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { getCurrentUser, login, logout } from '../lib/auth-api';
+import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-api';
 import { useToast } from '../context/ToastMessage.tsx';
 import { RegistrationModal } from '../components/UI/RegistrationModal.tsx';
-import { currentUserQueryKey } from '@/lib/auth-api';
 
 export function Topbar() {
   const { addToast } = useToast();
@@ -39,17 +38,13 @@ export function Topbar() {
   });
   const logoutMutation = useMutation({
     mutationFn: logout,
-    onSuccess: () =>
-      queryClient.removeQueries({ queryKey: currentUserQueryKey }),
+    onSuccess: () => queryClient.removeQueries({ queryKey: currentUserQueryKey }),
   });
 
   return (
-    <header className="border-b border-[var(--line)] bg-[var(--header-bg)]">
+    <header className="border-[var(--line)] border-bbg-[var(--header-bg)]">
       <div className="page-wrap flex min-h-16 items-center justify-between gap-4 py-3">
-        <Link
-          to="/"
-          className="display-title text-xl font-bold no-underline text-[var(--sea-ink)]"
-        >
+        <Link to="/" className="display-title font-bold text-[var(--sea-ink)] text-xl no-underline">
           PulsePM
         </Link>
         {currentUser.data ? (

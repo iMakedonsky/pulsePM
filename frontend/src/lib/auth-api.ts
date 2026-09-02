@@ -1,16 +1,19 @@
-export type AuthUser = {
+export interface AuthUser {
   id: number;
   email: string;
   first_name: string;
   last_name: string;
-};
+}
+
+export const currentUserQueryKey = ['auth', 'me'] as const;
 
 export class ApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
     super(message);
+    this.name = 'ApiError';
+    this.status = status;
   }
 }
 
@@ -27,15 +30,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const body = (await response.json().catch(() => null)) as {
       detail?: string;
     } | null;
-    throw new ApiError(
-      response.status,
-      body?.detail ?? 'Something went wrong.',
-    );
+    throw new ApiError(response.status, body?.detail ?? 'Something went wrong.');
   }
 
-  return response.status === 204
-    ? (undefined as T)
-    : ((await response.json()) as T);
+  return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
 export const getCurrentUser = () => request<AuthUser>('/auth/me');

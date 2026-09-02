@@ -116,18 +116,18 @@ class MemberView(View):
 
 
 class DeleteOrganization(View):
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def post(self, _request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         get_object_or_404(Organization, pk=kwargs['organization_id']).delete()
         return redirect(to='/')
 
 
 class DeleteWorkspace(View):
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def post(self, _request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         get_object_or_404(WorkSpace, pk=kwargs['workspace_id']).delete()
         return redirect(reverse('organization', kwargs={'organization_id': kwargs['organization_id']}))
 
 
 class DeleteMemberProfile(View):
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def post(self, _request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         get_object_or_404(Member, pk=kwargs['member_id']).delete()
         return redirect(reverse('organization', kwargs={'organization_id': kwargs['organization_id']}))

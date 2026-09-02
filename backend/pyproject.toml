@@ -23,21 +23,148 @@ dev = [
 [tool.ruff]
 target-version = "py313"
 line-length = 120
-exclude = ["*/migrations"]
+# Third-party code and generated schema churn must not gate the lint run.
+extend-exclude = [".cache", ".venv", "**/migrations/**"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "DJ", "RUF"]
-ignore = ["DJ001", "DJ012", "E501", "RUF012"]
+# Preset: every rule Ruff ships, then subtract the ones that are wrong for this
+# codebase. New rules are opt-out rather than opt-in, so upgrades tighten us.
+#
+# Ruff has no circular-import rule. What guards against cycles here is PLC0415
+# (no imports inside functions -- the usual way a cycle gets papered over) plus
+# TC004/TC005, which keep TYPE_CHECKING blocks honest. Deliberately no extra
+# dependency for this; the frontend gets real cycle detection from Biome's
+# suspicious/noImportCycles.
+select = ["ALL"]
+ignore = [
+    # -- Conflicts with the Ruff formatter (see Ruff's formatter-compat list) --
+    "COM812",  # missing-trailing-comma
+    "COM819",  # prohibited-trailing-comma
+    "ISC001",  # single-line-implicit-string-concatenation
+    "W191",    # tab-indentation
+    "E111",    # indentation-with-invalid-multiple
+    "E114",    # indentation-with-invalid-multiple-comment
+    "E117",    # over-indented
+    "D206",    # docstring-tab-indentation
+    "D300",    # triple-single-quotes
+    "Q000",    # bad-quotes-inline-string
+    "Q001",    # bad-quotes-multiline-string
+    "Q002",    # bad-quotes-docstring
+    "Q003",    # avoidable-escaped-quote
+
+    # -- Deliberate policy choices --
+    "CPY001",  # missing-copyright-notice: this repo does not use file headers
+    "D100",    # undocumented-public-module: modules are small and self-evident
+    "D101",    # undocumented-public-class
+    "D102",    # undocumented-public-method
+    "D103",    # undocumented-public-function
+    "D104",    # undocumented-public-package
+    "D105",    # undocumented-magic-method
+    "D106",    # undocumented-public-nested-class
+    "D107",    # undocumented-public-init
+    "ANN401",  # any-type: Django's `*args: Any, **kwargs: Any` view signatures
+    "EM101",   # raw-string-in-exception: hoisting every message to a local
+    "EM102",   # f-string-in-exception:   variable buys nothing here
+    "TRY003",  # raise-vanilla-args: same reasoning as EM101/EM102
+    "RUF012",  # mutable-class-default: django-stubs already models this
+    # Types are referenced as real symbols, not strings; a TYPE_CHECKING block
+    # plus quotes is reserved for a genuine cycle (see users/managers.py).
+    "TC001",   # typing-only-first-party-import
+    "TC002",   # typing-only-third-party-import
+    "TC003",   # typing-only-standard-library-import
+    "TC006",   # runtime-cast-value: `cast(User, x)`, not `cast("User", x)`
+
+    # -- Pre-existing debt; each needs a schema migration to clear --
+    "DJ001",   # null=True on a string field (organizations/workitems models)
+]
+# Never let `--fix` silently delete commented-out code; a human decides.
+unfixable = ["ERA001"]
+
+[tool.ruff.lint.per-file-ignores]
+# Django's generated entrypoint defers the import on purpose.
+"manage.py" = ["PLC0415"]
+# Settings are a flat namespace of constants by design.
+"conf/settings.py" = ["S105"]
+"**/tests.py" = [
+    "S101",    # assert is how pytest works
+    "S105",    # hardcoded passwords are fixtures here
+    "S106",
+    "PLR2004", # magic values are the point of a test
+    "PT009",   # django.test.TestCase assertions are idiomatic for the client
+]
+
+[tool.ruff.lint.flake8-annotations]
+mypy-init-return = true
+
+[tool.ruff.lint.flake8-bugbear]
+# Django resolves these lazily/at import time by design.
+extend-immutable-calls = ["django.urls.path", "django.urls.re_path", "ninja.Router"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint.flake8-tidy-imports]
+# `from .models import ...` is the house style; only reaching up past the
+# current package (`from ..other import ...`) is banned.
+ban-relative-imports = "parents"
+
+[tool.ruff.lint.flake8-type-checking]
+# TC004/TC005/TC008/TC010 stay on: they catch imports that are genuinely wrong.
+# These bases evaluate their annotations at runtime, so their imports must stay.
+runtime-evaluated-base-classes = [
+    "django.db.models.Model",
+    "ninja.Schema",
+    "pydantic.BaseModel",
+]
+
+[tool.ruff.lint.flake8-unused-arguments]
+ignore-variadic-names = true
+
+[tool.ruff.lint.isort]
+known-first-party = ["api", "conf", "organizations", "users", "workitems"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+max-args = 6
 
 [tool.ruff.format]
 quote-style = "single"
+docstring-code-format = true
 
 [tool.mypy]
 python_version = "3.13"
 plugins = ["mypy_django_plugin.main"]
+# `strict` is the preset; everything below is strictness `strict` does not yet imply.
 strict = true
+extra_checks = true
 warn_unreachable = true
-exclude = ["(^|/)migrations/"]
+strict_bytes = true
+strict_equality = true
+local_partial_types = true
+disallow_any_unimported = true
+disallow_any_generics = true
+disallow_untyped_decorators = true
+no_implicit_reexport = true
+enable_error_code = [
+    "deprecated",                 # flag @deprecated APIs at the call site
+    "exhaustive-match",           # a match over an enum must cover every member
+    "ignore-without-code",        # bare `# type: ignore` hides the next bug
+    "narrowed-type-not-subtype",  # TypeIs must narrow to a real subtype
+    "possibly-undefined",         # names only bound on some branches
+    "redundant-expr",             # conditions that cannot change the outcome
+    "redundant-self",             # unnecessary explicit Self annotations
+    "truthy-bool",                # `if some_object:` where it is always truthy
+    "truthy-iterable",            # `if some_list_returning_call:`
+    "unimported-reveal",          # reveal_type used without importing it
+    "unused-awaitable",           # awaitables dropped on the floor
+    "unused-ignore",              # `# type: ignore` that no longer suppresses
+]
+# `mutable-override` is deliberately off: Django's declarative class attributes
+# (ModelAdmin.list_display, Meta.constraints, AccessMixin.login_url, ...) are
+# tuples narrowing a mutable base annotation, so it fires on idiomatic code.
+exclude = ["(^|/)(migrations|\\.venv|\\.cache)/"]
 
 [tool.django-stubs]
 django_settings_module = "conf.settings"
