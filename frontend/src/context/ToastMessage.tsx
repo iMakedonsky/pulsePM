@@ -1,17 +1,11 @@
-import { createContext, type ReactNode, useContext, useState } from 'react';
+import { type ReactNode, useState } from 'react';
+import { CreateToastContext, type ToastType } from './toast-context.ts';
 
-export type ToastType = 'Success' | 'Error';
-
-type ToastContexType = {
-  addToast: (message: string, type: ToastType) => void;
-};
-type ToastMessage = {
+interface ToastMessage {
   id: number;
   message: string;
   type: ToastType;
-};
-
-const CreateToastContext = createContext<ToastContexType | null>(null);
+}
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -20,11 +14,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const id: number = Date.now();
     const newToast: ToastMessage = { id, message, type };
 
-    setToasts((toasts) => [...toasts, newToast]);
+    setToasts((responseMessage) => [...responseMessage, newToast]);
 
     setTimeout(() => {
       // it fetches current toast and then call filter method which return new array with without previous toast
-      setToasts((toasts) => toasts.filter((toast) => toast.id !== id));
+      setToasts((setOfToasts) => setOfToasts.filter((toast) => toast.id !== id));
     }, 5000); // Toast will be deleted after 5s
   };
   return (
@@ -36,7 +30,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             className={`w-full max-w-md rounded-md border px-4 py-3 text-center shadow-sm backdrop-blur-sm ${toast.type === 'Error' ? 'border-red-300 bg-red-100 text-[var(--sea-ink)]' : 'border-[var(--line)] bg-cyan-100 text-[var(--sea-ink)]'}`}
             key={toast.id}
           >
-            <h2 className="text-lg font-semibold">{toast.type}</h2>
+            <h2 className="font-semibold text-lg">{toast.type}</h2>
             <p className="text-sm">{toast.message}</p>
           </div>
         ))}
@@ -44,9 +38,3 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     </CreateToastContext.Provider>
   );
 }
-
-export const useToast = (): ToastContexType => {
-  const ctx = useContext(CreateToastContext);
-  if (!ctx) throw new Error('useToast must be used within a ToastProvider');
-  return ctx;
-};

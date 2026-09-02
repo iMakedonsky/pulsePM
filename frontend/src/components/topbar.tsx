@@ -1,10 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
-
-import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-api';
-import { useToast } from '../context/ToastMessage.tsx';
+import { useId, useState } from 'react';
 import { RegistrationModal } from '../components/UI/RegistrationModal.tsx';
+import { useToast } from '../context/toast-context.ts';
+import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-api';
 
 export function Topbar() {
   const { addToast } = useToast();
@@ -15,10 +14,10 @@ export function Topbar() {
     enabled: typeof window !== 'undefined',
     retry: false,
   });
-
   // Registration state
   const [isVisible, setVisible] = useState<boolean>(false);
   // Login fields
+  const loginFormId = useId();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const loginMutation = useMutation({
@@ -27,10 +26,7 @@ export function Topbar() {
       queryClient.setQueryData(currentUserQueryKey, user);
       setPassword('');
       setVisible(false);
-      addToast(
-        `${user.first_name ? user.first_name : 'user'} was logged in!`,
-        'Success',
-      );
+      addToast(`${user.first_name ? user.first_name : 'user'} was logged in!`, 'Success');
     },
     onError: (error) => {
       addToast(error.message, 'Error');
@@ -42,7 +38,7 @@ export function Topbar() {
   });
 
   return (
-    <header className="border-[var(--line)] border-bbg-[var(--header-bg)]">
+    <header className="border-[var(--line)] border-b bg-[var(--header-bg)]">
       <div className="page-wrap flex min-h-16 items-center justify-between gap-4 py-3">
         <Link to="/" className="display-title font-bold text-[var(--sea-ink)] text-xl no-underline">
           PulsePM
@@ -63,7 +59,7 @@ export function Topbar() {
           </div>
         ) : (
           <form
-            id="login-form"
+            id={loginFormId}
             name="login"
             className="flex flex-wrap items-center justify-end gap-2"
             onSubmit={(event) => {
@@ -92,7 +88,7 @@ export function Topbar() {
             <button
               aria-label="Log in"
               type="submit"
-              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
+              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? 'Signing in…' : 'Login'}
@@ -100,7 +96,7 @@ export function Topbar() {
             <button
               aria-label="Open registration form"
               type="button"
-              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
+              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
               onClick={() => setVisible(true)}
               disabled={loginMutation.isPending}
             >
@@ -113,10 +109,7 @@ export function Topbar() {
             {/*) : null}*/}
           </form>
         )}
-        <RegistrationModal
-          isVisible={isVisible}
-          onClose={() => setVisible(false)}
-        />
+        <RegistrationModal isVisible={isVisible} onClose={() => setVisible(false)} />
       </div>
     </header>
   );

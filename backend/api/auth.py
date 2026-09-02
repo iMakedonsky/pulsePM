@@ -47,7 +47,8 @@ class AuthenticatedRequest(HttpRequest):
 @router.post('/register', response={200: UserResponse, 400: dict})
 def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> UserResponse | tuple[int, dict[str, str]]:
     try:
-        # Validation password is cool feature, but it slows down the development process :) If you would like to, just comment it.
+        # Validation password is cool feature, but it slows down the development process :)
+        # If you would like to, just comment it.
         validate_password(payload.password)
         create_new_user = User.objects.create_user(email=payload.email, password=payload.password)
 

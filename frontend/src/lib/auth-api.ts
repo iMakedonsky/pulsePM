@@ -5,8 +5,6 @@ export interface AuthUser {
   last_name: string;
 }
 
-export const currentUserQueryKey = ['auth', 'me'] as const;
-
 export class ApiError extends Error {
   readonly status: number;
 
