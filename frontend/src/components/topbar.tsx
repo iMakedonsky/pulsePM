@@ -1,9 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { getCurrentUser, login, logout } from '../lib/auth-api';
-
-export const currentUserQueryKey = ['auth', 'me'] as const;
+import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-api';
 
 export function Topbar() {
   const queryClient = useQueryClient();

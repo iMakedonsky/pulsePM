@@ -34,12 +34,12 @@ class Member(models.Model):
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'organization'], name='unique_user_org')]
 
+    def __str__(self) -> str:
+        return self.user.email
+
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_clean()
         super().save(*args, **kwargs)
-
-    def __str__(self) -> str:
-        return self.user.email
 
 
 class WorkSpace(models.Model):

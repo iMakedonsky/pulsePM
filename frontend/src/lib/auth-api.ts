@@ -1,16 +1,19 @@
-export type AuthUser = {
+export interface AuthUser {
   id: number;
   email: string;
   first_name: string;
   last_name: string;
-};
+}
+
+export const currentUserQueryKey = ['auth', 'me'] as const;
 
 export class ApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
     super(message);
+    this.name = 'ApiError';
+    this.status = status;
   }
 }
 

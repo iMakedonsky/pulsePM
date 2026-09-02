@@ -8,31 +8,90 @@
   "files": {
     "ignoreUnknown": false,
     "includes": [
-      "**/src/**/*",
-      "**/.vscode/**/*",
-      "**/index.html",
-      "**/vite.config.ts",
+      "**",
+      "!**/.netlify",
+      "!**/.tanstack",
+      "!**/dist",
       "!**/src/routeTree.gen.ts",
-      "!**/src/styles.css"
+      "!**/src/styles.css",
+      "!**/bun.lock"
     ]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "lineWidth": 128
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 128,
+    "formatWithErrors": false
   },
   "assist": {
+    "enabled": true,
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": "on",
+        "useSortedKeys": "off"
       }
     }
   },
   "linter": {
     "enabled": true,
+    "domains": {
+      "react": "all",
+      "test": "all",
+      "project": "all",
+      "types": "all"
+    },
     "rules": {
       "recommended": true,
+
+      "a11y": {
+        "recommended": true,
+        "noStaticElementInteractions": "error",
+        "useSemanticElements": "error"
+      },
+
+      "complexity": {
+        "recommended": true,
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": { "maxAllowedComplexity": 15 }
+        },
+        "noUselessStringConcat": "error",
+        "noUselessUndefined": "error",
+        "noVoid": "error",
+        "useDateNow": "error",
+        "useIndexOf": "error",
+        "useSimplifiedLogicExpression": "error",
+        "useWhile": "error"
+      },
+
+      "correctness": {
+        "recommended": true,
+        "noPrivateImports": "error",
+        "noUndeclaredDependencies": "error",
+        "noUndeclaredVariables": "error",
+        "noUnusedFunctionParameters": "error",
+        "noUnusedImports": "error",
+        "noUnusedPrivateClassMembers": "error",
+        "noUnusedVariables": "error",
+        "useImportExtensions": "off"
+      },
+
       "nursery": {
+        "recommended": true,
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error",
+        "noProto": "error",
+        "noReturnAssign": "error",
+        "noScriptUrl": "error",
+        "noShadow": "error",
+        "noUnnecessaryConditions": "error",
+        "useAwaitThenable": "error",
+        "useConsistentMethodSignatures": "error",
+        "useErrorCause": "off",
+        "useExhaustiveSwitchCases": "error",
+        "useNullishCoalescing": "error",
         "useSortedClasses": {
           "level": "error",
           "fix": "safe",
@@ -40,12 +99,130 @@
             "functions": ["cn", "clsx", "cva", "twMerge"]
           }
         }
+      },
+
+      "performance": {
+        "recommended": true,
+        "noBarrelFile": "error",
+        "noDelete": "error",
+        "noDynamicNamespaceImportAccess": "error",
+        "noNamespaceImport": "error",
+        "noReExportAll": "error",
+        "useTopLevelRegex": "error"
+      },
+
+      "security": {
+        "recommended": true,
+        "noBlankTarget": "error",
+        "noDangerouslySetInnerHtml": "error",
+        "noGlobalEval": "error",
+        "noSecrets": "error"
+      },
+
+      "style": {
+        "recommended": true,
+        "noCommonJs": "error",
+        "noEnum": "error",
+        "noInferrableTypes": "error",
+        "noNamespace": "error",
+        "noNestedTernary": "error",
+        "noNonNullAssertion": "error",
+        "noParameterAssign": "error",
+        "noParameterProperties": "error",
+        "noProcessEnv": "error",
+        "noSubstr": "error",
+        "noUselessElse": "error",
+        "noYodaExpression": "error",
+        "useAsConstAssertion": "error",
+        "useAtIndex": "error",
+        "useBlockStatements": "error",
+        "useCollapsedIf": "error",
+        "useConsistentArrayType": {
+          "level": "error",
+          "options": { "syntax": "shorthand" }
+        },
+        "useConsistentBuiltinInstantiation": "error",
+        "useConsistentObjectDefinitions": "error",
+        "useConsistentTypeDefinitions": "error",
+        "useDefaultParameterLast": "error",
+        "useExportType": "error",
+        "useFragmentSyntax": "error",
+        "useImportType": "error",
+        "useNodeAssertStrict": "error",
+        "useNodejsImportProtocol": "error",
+        "useNumberNamespace": "error",
+        "useReadonlyClassProperties": "error",
+        "useSelfClosingElements": "error",
+        "useShorthandAssign": "error",
+        "useShorthandFunctionType": "error",
+        "useTemplate": "error",
+        "useThrowNewError": "error",
+        "useThrowOnlyError": "error",
+        "useUnifiedTypeSignatures": "error"
+      },
+
+      "suspicious": {
+        "recommended": true,
+        "noAlert": "error",
+        "noBitwiseOperators": "error",
+        "noConsole": {
+          "level": "error",
+          "options": { "allow": ["error", "warn"] }
+        },
+        "noConstEnum": "error",
+        "noDocumentCookie": "error",
+        "noEmptyBlockStatements": "error",
+        "noEvolvingTypes": "error",
+        "noExplicitAny": "error",
+        "noImplicitAnyLet": "error",
+        "noImportCycles": "error",
+        "noSkippedTests": "error",
+        "noTsIgnore": "error",
+        "useAwait": "error",
+        "useErrorMessage": "error",
+        "useGuardForIn": "error",
+        "useNumberToFixedDigitsArgument": "error"
       }
     }
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "single"
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false
     }
-  }
+  },
+  "json": {
+    "formatter": { "enabled": true },
+    "linter": { "enabled": true }
+  },
+  "css": {
+    "formatter": { "enabled": true },
+    "linter": { "enabled": true }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "correctness": { "noUnresolvedImports": "off" },
+          "style": { "noNonNullAssertion": "off" },
+          "suspicious": { "noExplicitAny": "off" }
+        }
+      }
+    },
+    {
+      "includes": ["**/vite.config.ts", "**/*.config.ts"],
+      "linter": {
+        "rules": {
+          "style": { "noDefaultExport": "off" },
+          "correctness": { "noNodejsModules": "off" }
+        }
+      }
+    }
+  ]
 }

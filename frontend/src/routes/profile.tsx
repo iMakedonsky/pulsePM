@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { currentUserQueryKey } from '../components/topbar';
-import { ApiError, getCurrentUser } from '../lib/auth-api';
+import { ApiError, currentUserQueryKey, getCurrentUser } from '../lib/auth-api';
 
 export const Route = createFileRoute('/profile')({ component: Profile });
 
@@ -13,7 +12,9 @@ function Profile() {
     retry: false,
   });
 
-  if (currentUser.isLoading || currentUser.isPending) return <main className="page-wrap py-16">Loading profile…</main>;
+  if (currentUser.isLoading || currentUser.isPending) {
+    return <main className="page-wrap py-16">Loading profile…</main>;
+  }
   if (currentUser.error instanceof ApiError && currentUser.error.status === 401) {
     return (
       <main className="page-wrap py-16">
@@ -27,7 +28,9 @@ function Profile() {
       </main>
     );
   }
-  if (!currentUser.data) return null;
+  if (!currentUser.data) {
+    return null;
+  }
 
   const { first_name, last_name, email, id } = currentUser.data;
   return (
