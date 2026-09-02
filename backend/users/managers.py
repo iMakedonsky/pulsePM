@@ -1,10 +1,8 @@
 from typing import TYPE_CHECKING, Any
 
-# from cfgv import ValidationError
+from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-
-from django.contrib.auth.base_user import BaseUserManager
 
 if TYPE_CHECKING:
     from .models import User
@@ -19,8 +17,8 @@ class UserManager(BaseUserManager['User']):
             raise ValueError('The email address must be provided.')
         try:
             validate_email(email)
-        except ValidationError:
-            raise ValueError('Enter a valid email address.')
+        except ValidationError as err:
+            raise ValueError('Enter a valid email address.') from err
 
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)

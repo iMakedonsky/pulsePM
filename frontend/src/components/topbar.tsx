@@ -5,8 +5,7 @@ import { useState } from 'react';
 import { getCurrentUser, login, logout } from '../lib/auth-api';
 import { useToast } from '../context/ToastMessage.tsx';
 import { RegistrationModal } from '../components/UI/RegistrationModal.tsx';
-
-export const currentUserQueryKey = ['auth', 'me'] as const;
+import { currentUserQueryKey } from '@/lib/auth-api';
 
 export function Topbar() {
   const { addToast } = useToast();
@@ -31,11 +30,11 @@ export function Topbar() {
       setVisible(false);
       addToast(
         `${user.first_name ? user.first_name : 'user'} was logged in!`,
-        'success',
+        'Success',
       );
     },
     onError: (error) => {
-      addToast(error.message, error.name);
+      addToast(error.message, 'Error');
     },
   });
   const logoutMutation = useMutation({
@@ -59,6 +58,7 @@ export function Topbar() {
               {currentUser.data.first_name || currentUser.data.email}
             </Link>
             <button
+              aria-label="Log out"
               type="button"
               className="rounded-md bg-[var(--sea-ink)] px-3 py-2 text-white"
               onClick={() => logoutMutation.mutate()}
@@ -95,6 +95,7 @@ export function Topbar() {
               required
             />
             <button
+              aria-label="Log in"
               type="submit"
               className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
               disabled={loginMutation.isPending}
@@ -102,6 +103,7 @@ export function Topbar() {
               {loginMutation.isPending ? 'Signing in…' : 'Login'}
             </button>
             <button
+              aria-label="Open registration form"
               type="button"
               className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white"
               onClick={() => setVisible(true)}

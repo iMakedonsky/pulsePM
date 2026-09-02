@@ -14,6 +14,8 @@ export class ApiError extends Error {
   }
 }
 
+export const currentUserQueryKey = ['auth', 'me'] as const;
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
     ...init,

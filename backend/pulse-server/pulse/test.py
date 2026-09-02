@@ -1,13 +1,12 @@
 from django.test import TestCase
+
 from users.models import User
 
 
 class PulseTest(TestCase):
-    def setUp(self):
-        User.objects.create_user(username='1ttest', password='')
+    def setUp(self) -> None:
+        User.objects.create_user(email='1ttest@example.com', password='')
 
-    def test_user_create(self):
-        # self.assertEqual(create_user.save(), ValidationError)
-        # self.assertEqual(create_user.save(), ValueError)
-        user = User.objects.filter(username='1ttest').values_list('username', flat=True)
-        self.assertEqual(user[0], '1ttest')
+    def test_user_create(self) -> None:
+        user = User.objects.filter(email='1ttest@example.com').values_list('email', flat=True)
+        self.assertEqual(user[0], '1ttest@example.com')
