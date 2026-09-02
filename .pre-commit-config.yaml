@@ -6,7 +6,7 @@ repos:
     hooks:
       - id: backend-check
         name: backend formatting, lint, and types
-        entry: make check-backend
+        entry: make fix-backend
         language: system
         pass_filenames: false
         files: ^(backend/|Makefile$|\.pre-commit-config\.yaml$)
@@ -14,7 +14,7 @@ repos:
 
       - id: frontend-check
         name: frontend formatting, lint, and types
-        entry: make check-frontend
+        entry: make fix-frontend
         language: system
         pass_filenames: false
         files: ^(frontend/|Makefile$|\.pre-commit-config\.yaml$)

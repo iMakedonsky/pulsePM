@@ -10,7 +10,7 @@ BUN := bun run --cwd $(FRONTEND_DIR)
 .PHONY: help install install-backend install-frontend dev dev-backend dev-frontend \
 	migrate migrations format format-backend format-frontend \
 	format-check-backend format-check-frontend lint lint-backend lint-frontend \
-	typecheck typecheck-backend typecheck-frontend check check-backend check-frontend \
+	typecheck typecheck-backend typecheck-frontend fix fix-backend fix-frontend \
 	test test-backend test-frontend pre-commit-install
 
 help: ## Show available commands
@@ -57,9 +57,15 @@ typecheck-backend:
 typecheck-frontend:
 	$(BUN) typecheck
 
-check: check-backend check-frontend ## Check formatting, lint, and types for both projects
-check-backend: format-backend lint-backend typecheck-backend
-check-frontend: format-frontend lint-frontend typecheck-frontend
+fix: fix-backend fix-frontend ## Format, autofix lint, and type-check both projects
+fix-backend:
+	$(UV) run ruff format .
+	$(UV) run ruff check --fix .
+	$(UV) run djlint . --reformat --lint --exclude .venv,.cache
+	$(UV) run mypy .
+fix-frontend:
+	$(BUN) fix
+	$(BUN) typecheck
 
 test: test-backend test-frontend ## Run all tests
 test-backend:
