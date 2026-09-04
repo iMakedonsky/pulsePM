@@ -156,3 +156,4 @@ htmlcov/
 *.sqlite3
 *.pyc
 Backend/Notes.md
+install.cmd

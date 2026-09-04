@@ -1,9 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { RegistrationModal } from '../components/UI/RegistrationModal.tsx';
+import { useToast } from '../context/toast-context.ts';
 import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-api';
 
 export function Topbar() {
+  const { addToast } = useToast();
   const queryClient = useQueryClient();
   const currentUser = useQuery({
     queryKey: currentUserQueryKey,
@@ -11,13 +14,22 @@ export function Topbar() {
     enabled: typeof window !== 'undefined',
     retry: false,
   });
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const [isRegistrationFormVisible, setIsRegistrationFormVisible] = useState<boolean>(false);
+
+  const loginFormId = useId();
+  const [LoginEmail, setLoginEmail] = useState<string>('');
+  const [LoginPassword, setLoginPassword] = useState<string>('');
   const loginMutation = useMutation({
-    mutationFn: () => login(email, password),
+    mutationFn: () => login(LoginEmail, LoginPassword),
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserQueryKey, user);
-      setPassword('');
+      setLoginPassword('');
+      setIsRegistrationFormVisible(false);
+      addToast(`${user.first_name ? user.first_name : 'user'} was logged in!`, 'Success');
+    },
+    onError: (error) => {
+      addToast(error.message, 'Error');
     },
   });
   const logoutMutation = useMutation({
@@ -26,7 +38,7 @@ export function Topbar() {
   });
 
   return (
-    <header className="border-[var(--line)] border-bbg-[var(--header-bg)]">
+    <header className="border-[var(--line)] border-b bg-[var(--header-bg)]">
       <div className="page-wrap flex min-h-16 items-center justify-between gap-4 py-3">
         <Link to="/" className="display-title font-bold text-[var(--sea-ink)] text-xl no-underline">
           PulsePM
@@ -37,6 +49,7 @@ export function Topbar() {
               {currentUser.data.first_name || currentUser.data.email}
             </Link>
             <button
+              aria-label="Log out"
               type="button"
               className="rounded-md bg-[var(--sea-ink)] px-3 py-2 text-white"
               onClick={() => logoutMutation.mutate()}
@@ -46,6 +59,8 @@ export function Topbar() {
           </div>
         ) : (
           <form
+            id={loginFormId}
+            name="login"
             className="flex flex-wrap items-center justify-end gap-2"
             onSubmit={(event) => {
               event.preventDefault();
@@ -56,8 +71,8 @@ export function Topbar() {
               aria-label="Email"
               className="rounded-md border border-[var(--line)] bg-white px-2 py-1.5 text-sm"
               type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={LoginEmail}
+              onChange={(event) => setLoginEmail(event.target.value)}
               placeholder="Email"
               required
             />
@@ -65,21 +80,34 @@ export function Topbar() {
               aria-label="Password"
               className="rounded-md border border-[var(--line)] bg-white px-2 py-1.5 text-sm"
               type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              value={LoginPassword}
+              onChange={(event) => setLoginPassword(event.target.value)}
               placeholder="Password"
               required
             />
             <button
+              aria-label="Log in"
               type="submit"
-              className="rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
+              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? 'Signing in…' : 'Login'}
             </button>
-            {loginMutation.isError ? <span className="text-red-700 text-xs">{loginMutation.error.message}</span> : null}
+            <button
+              aria-label="Open registration form"
+              type="button"
+              className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
+              onClick={() => setIsRegistrationFormVisible(true)}
+              disabled={loginMutation.isPending}
+            >
+              Sign Up
+            </button>
           </form>
         )}
+        <RegistrationModal
+          isRegistrationFormVisible={isRegistrationFormVisible}
+          onClose={() => setIsRegistrationFormVisible(false)}
+        />
       </div>
     </header>
   );

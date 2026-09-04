@@ -5,8 +5,6 @@ export interface AuthUser {
   last_name: string;
 }
 
-export const currentUserQueryKey = ['auth', 'me'] as const;
-
 export class ApiError extends Error {
   readonly status: number;
 
@@ -16,6 +14,8 @@ export class ApiError extends Error {
     this.status = status;
   }
 }
+
+export const currentUserQueryKey = ['auth', 'me'] as const;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
@@ -35,6 +35,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const getCurrentUser = () => request<AuthUser>('/auth/me');
+
+export const signUp = (email: string, password: string) =>
+  request<AuthUser>('/register', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
 
 export const login = (email: string, password: string) =>
   request<AuthUser>('/login', {

@@ -75,3 +75,5 @@ test-frontend:
 
 pre-commit-install: install-backend ## Install the repository Git hooks
 	$(UV) run pre-commit install
+
+check-all: typecheck lint format
