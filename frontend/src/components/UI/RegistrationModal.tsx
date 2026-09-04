@@ -13,8 +13,8 @@ export function RegistrationModal({
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [signUpEmail, setSignUpEmail] = useState<string>('');
+  const [signUpPassword, setSignUpPassword] = useState<string>('');
 
   const uid = useId();
   const formId = `${uid}-form`;
@@ -22,10 +22,10 @@ export function RegistrationModal({
   const passwordId = `${uid}-password`;
 
   const signUpMutation = useMutation({
-    mutationFn: () => signUp(email, password),
+    mutationFn: () => signUp(signUpEmail, signUpPassword),
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserQueryKey, user);
-      setPassword('');
+      setSignUpPassword('');
 
       // TODO: User should have opportunity to enter f_name and l_name, to show user name in ToastMessage
       addToast(`Account created successfully!`, 'Success');
@@ -65,8 +65,8 @@ export function RegistrationModal({
               id={emailId}
               className="rounded-md border border-[var(--line)] bg-white px-2 py-1.5 text-sm"
               type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={signUpEmail}
+              onChange={(event) => setSignUpEmail(event.target.value)}
               placeholder="Email"
               required
             />
@@ -77,8 +77,8 @@ export function RegistrationModal({
               id={passwordId}
               className="w-full rounded-md border border-[var(--line)] bg-white px-2 py-1.5 text-sm"
               type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              value={signUpPassword}
+              onChange={(event) => setSignUpPassword(event.target.value)}
               placeholder="Password"
               required
             />

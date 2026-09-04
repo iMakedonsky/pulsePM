@@ -15,17 +15,17 @@ export function Topbar() {
     retry: false,
   });
 
-  const [isRegistrationFormVisible, setVisible] = useState<boolean>(false);
+  const [isRegistrationFormVisible, setIsRegistrationFormVisible] = useState<boolean>(false);
 
   const loginFormId = useId();
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [LoginEmail, setLoginEmail] = useState<string>('');
+  const [LoginPassword, setLoginPassword] = useState<string>('');
   const loginMutation = useMutation({
-    mutationFn: () => login(email, password),
+    mutationFn: () => login(LoginEmail, LoginPassword),
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserQueryKey, user);
-      setPassword('');
-      setVisible(false);
+      setLoginPassword('');
+      setIsRegistrationFormVisible(false);
       addToast(`${user.first_name ? user.first_name : 'user'} was logged in!`, 'Success');
     },
     onError: (error) => {
@@ -71,8 +71,8 @@ export function Topbar() {
               aria-label="Email"
               className="rounded-md border border-[var(--line)] bg-white px-2 py-1.5 text-sm"
               type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={LoginEmail}
+              onChange={(event) => setLoginEmail(event.target.value)}
               placeholder="Email"
               required
             />
@@ -80,8 +80,8 @@ export function Topbar() {
               aria-label="Password"
               className="rounded-md border border-[var(--line)] bg-white px-2 py-1.5 text-sm"
               type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              value={LoginPassword}
+              onChange={(event) => setLoginPassword(event.target.value)}
               placeholder="Password"
               required
             />
@@ -97,14 +97,17 @@ export function Topbar() {
               aria-label="Open registration form"
               type="button"
               className="cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
-              onClick={() => setVisible(true)}
+              onClick={() => setIsRegistrationFormVisible(true)}
               disabled={loginMutation.isPending}
             >
               Sign Up
             </button>
           </form>
         )}
-        <RegistrationModal isRegistrationFormVisible={isRegistrationFormVisible} onClose={() => setVisible(false)} />
+        <RegistrationModal
+          isRegistrationFormVisible={isRegistrationFormVisible}
+          onClose={() => setIsRegistrationFormVisible(false)}
+        />
       </div>
     </header>
   );
