@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.http import HttpRequest
 from ninja import Router, Schema
+from ninja.errors import HttpError
+from pydantic import EmailStr
 
 from users.models import User
 
@@ -13,7 +15,7 @@ router = Router(tags=['Authentication'])
 
 
 class RegisterPayload(Schema):
-    email: str
+    email: EmailStr
     password: str
 
 
@@ -44,22 +46,32 @@ class AuthenticatedRequest(HttpRequest):
     user: User
 
 
-@router.post('/register', response={200: UserResponse, 400: dict})
+@router.post('/register', response={200: UserResponse})
 def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> UserResponse | tuple[int, dict[str, str]]:
     try:
-        # Validation password is cool feature, but it slows down the development process :)
-        # If you would like to, just comment it.
         validate_password(payload.password)
-        create_new_user = User.objects.create_user(email=payload.email, password=payload.password)
+    except ValidationError as exc:
+        raise HttpError(
+            400,
+            'Provided password is invalid.',
+        ) from exc
 
-        login(request, create_new_user)
-        return UserResponse.from_user_instance(create_new_user)
-    except ValueError:
-        return 400, {'detail': 'Provided email is invalid.'}
-    except ValidationError:
-        return 400, {'detail': 'Provided password is invalid.'}
-    except IntegrityError:
-        return 400, {'detail': 'User already exists with the same email.'}
+    try:
+        user = User.objects.create_user(
+            email=payload.email,
+            password=payload.password,
+        )
+    except IntegrityError as exc:
+        if User.objects.filter(email=payload.email).exists():
+            raise HttpError(
+                409,
+                'User already exists with the same email.',
+            ) from exc
+        raise
+
+    login(request, user)
+
+    return UserResponse.from_user_instance(user)
 
 
 @router.post('/login', response={200: UserResponse, 401: dict})

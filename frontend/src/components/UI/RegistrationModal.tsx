@@ -3,7 +3,13 @@ import { type JSX, useId, useState } from 'react';
 import { useToast } from '#/context/toast-context.ts';
 import { currentUserQueryKey, signUp } from '@/lib/auth-api';
 
-export function RegistrationModal({ isVisible, onClose }: { isVisible: boolean; onClose: () => void }): JSX.Element {
+export function RegistrationModal({
+  isRegistrationFormVisible,
+  onClose,
+}: {
+  isRegistrationFormVisible: boolean;
+  onClose: () => void;
+}): JSX.Element {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
 
@@ -32,7 +38,7 @@ export function RegistrationModal({ isVisible, onClose }: { isVisible: boolean; 
 
   return (
     <div
-      className={`fixed inset-0 z-40 items-center justify-center bg-black/30 backdrop-blur-sm ${isVisible ? 'flex' : 'hidden'}`}
+      className={`fixed inset-0 z-40 items-center justify-center bg-black/30 backdrop-blur-sm ${isRegistrationFormVisible ? 'flex' : 'hidden'}`}
     >
       <div className="relative rounded-xl border border-[var(--line)] bg-[var(--foam)]">
         <button

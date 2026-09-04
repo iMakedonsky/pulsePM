@@ -14,9 +14,9 @@ export function Topbar() {
     enabled: typeof window !== 'undefined',
     retry: false,
   });
-  // Registration state
-  const [isVisible, setVisible] = useState<boolean>(false);
-  // Login fields
+
+  const [isRegistrationFormVisible, setVisible] = useState<boolean>(false);
+
   const loginFormId = useId();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -102,14 +102,9 @@ export function Topbar() {
             >
               Sign Up
             </button>
-            {/*{loginMutation.isError ? (*/}
-            {/*  <span className="text-xs text-red-700">*/}
-            {/*    {loginMutation.error.message}*/}
-            {/*  </span>*/}
-            {/*) : null}*/}
           </form>
         )}
-        <RegistrationModal isVisible={isVisible} onClose={() => setVisible(false)} />
+        <RegistrationModal isRegistrationFormVisible={isRegistrationFormVisible} onClose={() => setVisible(false)} />
       </div>
     </header>
   );
