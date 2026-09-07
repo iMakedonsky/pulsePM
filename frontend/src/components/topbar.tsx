@@ -7,6 +7,7 @@ import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-
 
 export function Topbar() {
   const { addToast } = useToast();
+
   const queryClient = useQueryClient();
   const currentUser = useQuery({
     queryKey: currentUserQueryKey,

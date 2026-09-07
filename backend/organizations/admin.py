@@ -3,10 +3,20 @@ from django.contrib import admin
 from .models import Member, Organization, WorkSpace
 
 
+class WorkspaceInline(admin.TabularInline):
+    model = WorkSpace
+    fields = ('name', 'space_code', 'created_by')
+    readonly_fields = ('id',)
+    extra = 0
+    can_add_related = False
+    can_change_related = False
+
+
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = ('name', 'owner', 'created_at')
     readonly_fields = ('id', 'created_at')
+    inlines = [WorkspaceInline]
 
 
 @admin.register(Member)
