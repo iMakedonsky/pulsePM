@@ -6,7 +6,7 @@ from organizations.models import Member
 from .models import User
 
 
-class MemberInline(admin.TabularInline):
+class MemberInline(admin.TabularInline[Member, User]):
     model = Member
     extra = 0
     fields = (

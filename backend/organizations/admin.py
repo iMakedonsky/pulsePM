@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import Member, Organization, WorkSpace
 
 
-class WorkspaceInline(admin.TabularInline):
+class WorkspaceInline(admin.TabularInline[WorkSpace, Organization]):
     model = WorkSpace
     fields = ('name', 'space_code', 'created_by')
     readonly_fields = ('id',)

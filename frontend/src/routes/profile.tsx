@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { ApiError, currentUserQueryKey, getCurrentUser } from '../lib/auth-api';
+import {
+  ApiError,
+  currentUserQueryKey,
+  getCurrentUser,
+  getUserMemberShip, type MemberShip,
+} from '../lib/auth-api';
 
 export const Route = createFileRoute('/profile')({ component: Profile });
 
@@ -12,6 +17,13 @@ function Profile() {
     enabled: typeof window !== 'undefined',
     retry: false,
   });
+
+  const userMemberShip = useQuery({
+    queryKey: currentUserQueryKey,
+    queryFn: getUserMemberShip,
+    enabled: typeof window !== 'undefined',
+    retry: false
+      });
 
   if (currentUser.isLoading || currentUser.isPending) {
     return <main className="page-wrap py-16">Loading profile…</main>;
@@ -34,6 +46,7 @@ function Profile() {
   }
 
   const { first_name, last_name, email, id } = currentUser.data;
+  const {member_id, organization, role, position, last_activity}: MemberShip = userMemberShip.data
   return (
     <main className="page-wrap py-16">
       <section className="island-shell rise-in max-w-2xl rounded-3xl p-8">
@@ -49,6 +62,22 @@ function Profile() {
           <div>
             <dt className="font-semibold text-[var(--sea-ink-soft)]">Member ID</dt>
             <dd className="mt-1 text-lg">{id}</dd>
+          </div>
+        </dl>
+      </section>
+      <section className="island-shell rise-in max-w-2xl rounded-3xl p-8">
+        <p className="island-kicker">Your account</p>
+        <h1 className="display-title mt-3 font-bold text-4xl">
+          {[first_name, last_name].filter(Boolean).join(' ') || 'Profile'}
+        </h1>
+        <dl className="mt-8 grid gap-5 text-sm">
+          <div>
+            <dt className="font-semibold text-[var(--sea-ink-soft)]">Member ID</dt>
+            <dd className="mt-1 text-lg">{id}</dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-[var(--sea-ink-soft)]">Email</dt>
+            <dd className="mt-1 text-lg">{email}</dd>
           </div>
         </dl>
       </section>

@@ -1,0 +1,17 @@
+from ninja import NinjaAPI
+
+from users.api import router_membership, router_profile
+from users.auth import router as auth_router
+
+description = """
+A web app designed for startups, companies, and individuals 
+to manage projects using Agile principles. Centralize project tracking, 
+documentation, and reminders in one environment, 
+making it simple to prioritize goals, 
+allocate resources, and fulfill client needs.
+"""
+api = NinjaAPI(title='PulsePM API', version='1.0.0', description=description)
+
+api.add_router('/auth/', auth_router)
+router_profile.add_router('/memberships/', router_membership)
+api.add_router('/user/', router_profile)
