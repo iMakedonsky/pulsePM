@@ -6,17 +6,10 @@ from django.http import HttpRequest
 from ninja import Router
 from ninja.errors import HttpError
 
-from api.schema import LoginPayload, RegisterPayload
 from users.models import User
-from users.schema import UserResponse
+from users.schema import LoginPayload, RegisterPayload, UserResponse
 
 router = Router(tags=['Authentication'])
-
-
-class AuthenticatedRequest(HttpRequest):
-    """A request whose user has been verified as the project's User model."""
-
-    user: User
 
 
 @router.post('/register', response={200: UserResponse, 400: dict, 409: dict})
@@ -47,11 +40,11 @@ def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> UserRes
     return UserResponse.from_user_instance(user)
 
 
-@router.post('/login', response={200: UserResponse, 401: dict})
+@router.post('/login', response={200: UserResponse, 400: dict})
 def login_endpoint(request: HttpRequest, payload: LoginPayload) -> UserResponse | tuple[int, dict[str, str]]:
     user = authenticate(request, username=payload.email, password=payload.password)
     if user is None:
-        return 401, {'detail': 'Invalid email or password.'}
+        return 400, {'detail': 'Invalid email or password.'}
     login(request, user)
     return UserResponse.from_user_instance(user)
 

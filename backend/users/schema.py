@@ -11,28 +11,22 @@ class UserProfileSchema(Schema):
     """If we add profile update endoit in details,
     that schema will return full user information in Organization.
     """
+
     avatar_url: str
     email: EmailStr
     username: str
     first_name: str
     last_name: str
 
-class GetListParticipation(Schema):
-    id: int
-    organization: int
-    role: str
-    position: str
-    last_activity: AwareDatetime
 
-    @classmethod
-    def from_participation_instance(cls, member: Member) -> Self:
-        return cls(
-            id=member.pk,
-            organization=member.organization,
-            role=member.role,
-            position=member.position,
-            last_activity=member.last_activity,
-        )
+class RegisterPayload(Schema):
+    email: EmailStr
+    password: str
+
+
+class LoginPayload(Schema):
+    email: str
+    password: str
 
 
 class UserResponse(Schema):
@@ -48,4 +42,26 @@ class UserResponse(Schema):
             email=user.email,
             first_name=user.first_name,
             last_name=user.last_name,
+        )
+
+
+class OrganizationBrief(Schema):
+    id: int
+    name: str
+
+class GetListParticipation(Schema):
+    id: int
+    organization: OrganizationBrief
+    role: str
+    position: str
+    last_activity: AwareDatetime
+
+    @classmethod
+    def from_participation_instance(cls, member: Member) -> Self:
+        return cls(
+            id=member.pk,
+            organization=member.organization,
+            role=member.role,
+            position=member.position,
+            last_activity=member.last_activity,
         )

@@ -6,11 +6,11 @@ export interface AuthUser {
 }
 
 export interface MemberShip {
-  id: number,
-  organization: number,
-  role: string,
-  position: string,
-  last_activity: string
+  id: number;
+  organization: {id: number, name: string};
+  role: string;
+  position: string;
+  last_activity: string;
 }
 
 export class ApiError extends Error {
@@ -24,6 +24,7 @@ export class ApiError extends Error {
 }
 
 export const currentUserQueryKey = ['auth', 'me'] as const;
+export const userMembershipQueryKey = ['auth', 'me', 'membership'] as const;
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
@@ -44,7 +45,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const getCurrentUser = () => request<AuthUser>('/user/profile');
 
-export const getUserMemberShip = () => request<MemberShip>("user/membership")
+export const getUserMemberShip = () => request<MemberShip[]>('/user/memberships');
 
 export const signUp = (email: string, password: string) =>
   request<AuthUser>('/auth/register', {
