@@ -1,13 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-
-import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip, userMembershipQueryKey } from '../lib/auth-api';
+import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip } from '../lib/auth-api';
 
 export const Route = createFileRoute('/profile')({ component: Profile });
 
 function Profile() {
-
   const currentUser = useQuery({
     queryKey: currentUserQueryKey,
     queryFn: getCurrentUser,
@@ -17,7 +15,7 @@ function Profile() {
 
   // TODO: Consider how better to rewrite userMemberShip, the reason is 'enabled'
   const userMemberShip = useQuery({
-    queryKey: userMembershipQueryKey,
+    queryKey: [...currentUserQueryKey, 'membership'],
     queryFn: getUserMemberShip,
     enabled: !!currentUser.data, // don't fire until authenticated
     retry: false,
@@ -46,7 +44,6 @@ function Profile() {
   const { first_name, last_name, email, id } = currentUser.data;
   // If the 'data' variable returns an underfind, it will be an empty array. This is to avoid a type error.
   const listMembership = userMemberShip.data ?? [];
-  console.log(listMembership)
 
   return (
     <main className="page-wrap py-16">
@@ -72,7 +69,7 @@ function Profile() {
             <p>User haven't participated in any organizations yet!</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-b-3xl rounded-t-3xl rounded-r-5xl rounded-l-5xl">
+          <div className="overflow-hidden rounded-t-3xl rounded-r-5xl rounded-b-3xl rounded-l-5xl">
             <table className="w-full table-fixed rounded-lg border border-[var(--sea-ink)] p-2 text-center">
               <thead>
                 <tr>
@@ -87,7 +84,11 @@ function Profile() {
                 {listMembership.map((member) => (
                   <tr key={member.id} className="relative border border-[var(--sea-ink)] hover:bg-[var(--sand)]">
                     <td className="p-2">
-                      <Link to={`/organization/${member.organization.id}`} className="after:absolute after:inset-0">
+                      <Link
+                        to={`/organization/$organizationId`}
+                        params={{ organizationId: String(member.organization.id) }}
+                        className="after:absolute after:inset-0"
+                      >
                         {member.organization.id}
                       </Link>
                     </td>
@@ -108,7 +109,7 @@ function Profile() {
             <p>User doesn't have any invitations!</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-b-3xl rounded-t-3xl rounded-r-5xl rounded-l-5xl">
+          <div className="overflow-hidden rounded-t-3xl rounded-r-5xl rounded-b-3xl rounded-l-5xl">
             <table className="w-full table-fixed rounded-lg border border-[var(--sea-ink)] p-2 text-center">
               <thead>
                 <tr>

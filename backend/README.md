@@ -2,6 +2,10 @@
 
 The backend is a Django 6.1 application using SQLite locally. uv owns dependency resolution, the Python virtual environment, and every Python quality command. Ruff handles Python linting and formatting, djLint handles Django templates, mypy with django-stubs provides strict Django-aware type checking, and pytest-django runs tests.
 
+## API swagger docu
+
+http://127.0.0.1:8000/api/docs#/
+
 ## Prerequisites
 
 - Python 3.13 or newer

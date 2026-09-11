@@ -13,7 +13,7 @@ router = Router(tags=['Authentication'])
 
 
 @router.post('/register', response={200: UserResponse, 400: dict, 409: dict})
-def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> UserResponse | tuple[int, dict[str, str]]:
+def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> User | tuple[int, dict[str, str]]:
     try:
         validate_password(payload.password)
     except ValidationError as exc:
@@ -37,16 +37,16 @@ def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> UserRes
 
     login(request, user)
 
-    return UserResponse.from_user_instance(user)
+    return user
 
 
 @router.post('/login', response={200: UserResponse, 400: dict})
-def login_endpoint(request: HttpRequest, payload: LoginPayload) -> UserResponse | tuple[int, dict[str, str]]:
+def login_endpoint(request: HttpRequest, payload: LoginPayload) -> User | tuple[int, dict[str, str]]:
     user = authenticate(request, username=payload.email, password=payload.password)
     if user is None:
         return 400, {'detail': 'Invalid email or password.'}
     login(request, user)
-    return UserResponse.from_user_instance(user)
+    return user
 
 
 @router.post('/logout', response={204: None})

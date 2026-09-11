@@ -1,22 +1,18 @@
-from typing import Self
+from ninja import ModelSchema, Schema
+from pydantic import EmailStr
 
-from ninja import Schema
-from pydantic import AwareDatetime, EmailStr
-
-from organizations.models import Member
+from organizations.models import Member, Organization
 from users.models import User
 
 
-class UserProfileSchema(Schema):
-    """If we add profile update endoit in details,
-    that schema will return full user information in Organization.
-    """
+class UserProfileSchema(ModelSchema):
+    """Full profile view; extend when a profile-update endpoint is added."""
 
-    avatar_url: str
-    email: EmailStr
-    username: str
-    first_name: str
-    last_name: str
+    avatar_url: str = ''
+
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name']
 
 
 class RegisterPayload(Schema):
@@ -29,39 +25,21 @@ class LoginPayload(Schema):
     password: str
 
 
-class UserResponse(Schema):
-    id: int
-    email: str
-    first_name: str
-    last_name: str
-
-    @classmethod
-    def from_user_instance(cls, user: User) -> Self:
-        return cls(
-            id=user.pk,
-            email=user.email,
-            first_name=user.first_name,
-            last_name=user.last_name,
-        )
+class UserResponse(ModelSchema):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name', 'last_name']
 
 
-class OrganizationBrief(Schema):
-    id: int
-    name: str
+class OrganizationBrief(ModelSchema):
+    class Meta:
+        model = Organization
+        fields = ['id', 'name']
 
-class GetListParticipation(Schema):
-    id: int
+
+class GetListParticipation(ModelSchema):
     organization: OrganizationBrief
-    role: str
-    position: str
-    last_activity: AwareDatetime
 
-    @classmethod
-    def from_participation_instance(cls, member: Member) -> Self:
-        return cls(
-            id=member.pk,
-            organization=member.organization,
-            role=member.role,
-            position=member.position,
-            last_activity=member.last_activity,
-        )
+    class Meta:
+        model = Member
+        fields = ['id', 'role', 'position', 'last_activity']
