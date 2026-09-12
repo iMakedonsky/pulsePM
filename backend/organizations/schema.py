@@ -7,7 +7,7 @@ from users.models import User
 class OrganizationSchema(ModelSchema):
     class Meta:
         model = Organization
-        fields = ['owner', 'name', 'description']
+        fields = ['id', 'owner', 'name', 'description']
 
 
 class OrganizationPayload(Schema):

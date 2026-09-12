@@ -93,8 +93,8 @@ function Profile() {
                       </Link>
                     </td>
                     <td className="p-2">{member.organization.name}</td>
-                    <td className="p-2">{member.position}</td>
                     <td className="p-2">{member.role}</td>
+                    <td className="p-2">{member.position}</td>
                     <td className="p-2">{member.last_activity}</td>
                   </tr>
                 ))}

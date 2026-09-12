@@ -8,6 +8,7 @@ dependencies = [
     "django>=6.1,<6.2",
     "django-invitations>=2.1.0",
     "django-ninja>=1.6.3",
+    "django-stubs-ext>=6.1.0",
     "pydantic[email]>=2.13.4",
 ]
 

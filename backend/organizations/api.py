@@ -36,6 +36,7 @@ def create_organization(
     user = cast(AuthenticatedRequest, request).user
     try:
         organization = Organization.objects.create(owner_id=user.pk, name=payload.name, description=payload.description)
+        Member.objects.create(user=user, organization=organization, role=Member.OrgRoles.OWNER)
     except ValidationError as exc:
         raise HttpError(400, 'Organization must have name') from exc
     return organization

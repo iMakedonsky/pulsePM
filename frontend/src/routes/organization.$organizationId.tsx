@@ -39,6 +39,7 @@ function OrganizationDashboard() {
       </main>
     );
   }
+  // handle the error status with an access/not-found state instead of silently returning.
   if (!organizationData.data) {
     return null;
   }
