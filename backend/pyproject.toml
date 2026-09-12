@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "django>=6.1,<6.2",
+    "django-invitations>=2.1.0",
     "django-ninja>=1.6.3",
+    "django-stubs-ext>=6.1.0",
     "pydantic[email]>=2.13.4",
 ]
 
@@ -166,6 +168,11 @@ enable_error_code = [
 # (ModelAdmin.list_display, Meta.constraints, AccessMixin.login_url, ...) are
 # tuples narrowing a mutable base annotation, so it fires on idiomatic code.
 exclude = ["(^|/)(migrations|\\.venv|\\.cache)/"]
+
+# django-invitations ships no type information (no py.typed marker).
+[[tool.mypy.overrides]]
+module = "invitations.*"
+ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "conf.settings"

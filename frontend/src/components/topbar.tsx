@@ -7,6 +7,7 @@ import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-
 
 export function Topbar() {
   const { addToast } = useToast();
+
   const queryClient = useQueryClient();
   const currentUser = useQuery({
     queryKey: currentUserQueryKey,
@@ -48,13 +49,16 @@ export function Topbar() {
             <Link to="/profile" className="nav-link">
               {currentUser.data.first_name || currentUser.data.email}
             </Link>
+
             <button
               aria-label="Log out"
               type="button"
               className="rounded-md bg-[var(--sea-ink)] px-3 py-2 text-white"
               onClick={() => logoutMutation.mutate()}
             >
-              {logoutMutation.isPending ? 'Signing out…' : 'Logout'}
+              <Link to="/" className="no-underline">
+                {logoutMutation.isPending ? 'Signing out…' : 'Logout'}
+              </Link>
             </button>
           </div>
         ) : (
