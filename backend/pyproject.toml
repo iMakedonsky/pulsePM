@@ -10,6 +10,8 @@ dependencies = [
     "django-ninja>=1.6.3",
     "django-stubs-ext>=6.1.0",
     "pydantic[email]>=2.13.4",
+    "requests>=2.34.2",
+    "uuid7>=0.1.0",
 ]
 
 [dependency-groups]

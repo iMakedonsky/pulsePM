@@ -1,5 +1,6 @@
 from typing import Any, cast
 
+import requests
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest, HttpResponse
@@ -7,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic.base import View
 
+from conf.settings import EMAIL_SERVICE_HOST, EMAIL_HTTP_PORT
 from users.models import User
 from workitems.models import WorkItem
 
@@ -33,6 +35,7 @@ class HomePageView(LoginRequiredMixin, View):
             }
             for organization in Organization.objects.all()
         }
+        response = requests.get(f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1/message/')
         return render(
             request,
             'pulse/index.html',
@@ -41,6 +44,7 @@ class HomePageView(LoginRequiredMixin, View):
                 'organization_list': Organization.objects.all(),
                 'general_statistic_rows': general_statistic,
                 'each_org_statistic': each_org_statistic,
+                'responces': response,
             },
         )
 

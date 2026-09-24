@@ -86,6 +86,14 @@ DATABASES = {
     }
 }
 
+# Mailpit module
+# https://mailpit.axllent.org/docs/api-v1/view.html#get-/api/v1/info
+
+EMAIL_SERVICE_HOST = '127.0.0.1'
+EMAIL_HTTP_PORT = 8025
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+FROM_EMAIL = 'mailpit@test.com'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

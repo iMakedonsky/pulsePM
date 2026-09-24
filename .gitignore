@@ -158,3 +158,4 @@ htmlcov/
 Backend/Notes.md
 install.cmd
 todoNotes.md
+migrations/*
