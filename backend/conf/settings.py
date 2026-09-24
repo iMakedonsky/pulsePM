@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
+import django_stubs_ext
+
+django_stubs_ext.monkeypatch()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'invitations',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +86,14 @@ DATABASES = {
     }
 }
 
+# Mailpit module
+# https://mailpit.axllent.org/docs/api-v1/view.html#get-/api/v1/info
+
+EMAIL_SERVICE_HOST = '127.0.0.1'
+EMAIL_HTTP_PORT = 8025
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+FROM_EMAIL = 'mailpit@test.com'
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

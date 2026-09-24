@@ -18,12 +18,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from api.urls import api
+from api.routers import api
 
 urlpatterns = [
     path('api/', api.urls),
     path('', include('users.urls')),
     path('', include('organizations.urls')),
     path('', include('workitems.urls')),
+    path('invitations/', include('invitations.urls', namespace='invitations')),
     path('admin/', admin.site.urls),
 ]

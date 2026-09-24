@@ -95,5 +95,12 @@
         </div>
       </div>
     </div>
+  <div>
+    {% if response %}
+      {% for mail in response %}
+        <p>{{mail}}</p>
+      {% endfor %}
+    {% endif %}
+  </div>
   </body>
 </html>

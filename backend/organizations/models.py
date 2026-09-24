@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from django.conf import settings
@@ -7,12 +8,16 @@ from django.utils import timezone
 
 class Organization(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=False, blank=False)
     description = models.TextField(max_length=500, null=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return self.name
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Member(models.Model):
@@ -36,6 +41,23 @@ class Member(models.Model):
 
     def __str__(self) -> str:
         return self.user.email
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class OrgInvitation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid7(), editable=False)
+    email = models.EmailField(max_length=254, unique=False)
+    sender = models.ForeignKey(Member, on_delete=models.CASCADE)
+    org_invite = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True)
+    text_message = models.TextField(max_length=500, null=True, default='Invitation :)')
+    accepted = models.BooleanField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self) -> str:
+        return str(self.id)
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_clean()
