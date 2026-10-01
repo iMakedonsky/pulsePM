@@ -48,11 +48,11 @@ class Member(models.Model):
 
 
 class OrgInvitation(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid7(), editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid7, editable=False)
     email = models.EmailField(max_length=254, unique=False)
     sender = models.ForeignKey(Member, on_delete=models.CASCADE)
     org_invite = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True)
-    text_message = models.TextField(max_length=500, null=True, default='Invitation :)')
+    text_message = models.TextField(max_length=500, null=False, default='Invitation :)')
     accepted = models.BooleanField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 

@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic.base import View
 
-from conf.settings import EMAIL_SERVICE_HOST, EMAIL_HTTP_PORT
+from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST
 from users.models import User
 from workitems.models import WorkItem
 
@@ -35,7 +35,7 @@ class HomePageView(LoginRequiredMixin, View):
             }
             for organization in Organization.objects.all()
         }
-        response = requests.get(f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1/message/')
+        response = requests.get(f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1/message/', timeout=5)
         return render(
             request,
             'pulse/index.html',

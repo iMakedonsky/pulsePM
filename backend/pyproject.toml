@@ -3,7 +3,7 @@ name = "pulsePM"
 version = "0.1.0"
 description = "Django backend for Project PulsePM"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "django>=6.1,<6.2",
     "django-invitations>=2.1.0",
@@ -26,7 +26,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py314"
 line-length = 120
 # Third-party code and generated schema churn must not gate the lint run.
 extend-exclude = [".cache", ".venv", "**/migrations/**"]
@@ -139,7 +139,7 @@ quote-style = "single"
 docstring-code-format = true
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.14"
 plugins = ["mypy_django_plugin.main"]
 # `strict` is the preset; everything below is strictness `strict` does not yet imply.
 strict = true
