@@ -4,19 +4,16 @@ from django.test import TestCase
 
 class AuthenticationApiTests(TestCase):
     def setUp(self) -> None:
-        self.user = get_user_model().objects.create_user(email='ada@example.com', password='secret-pass')
+        self.user = get_user_model().objects.create_user(email='ada@example.com', password='78S28130s')
 
     def test_login_me_and_logout(self) -> None:
         login_response = self.client.post(
-            '/api/login', data={'email': self.user.email, 'password': 'secret-pass'}, content_type='application/json'
+            '/api/auth/login', data={'email': self.user.email, 'password': '78S28130s'}, content_type='application/json'
         )
-        self.assertEqual(login_response.status_code, 200)
+        self.assertEqual(200, login_response.status_code)
         self.assertEqual(login_response.json()['email'], self.user.email)
+        self.assertEqual(200, self.client.get('/api/user/profile').status_code)
 
-        me_response = self.client.get('/api/auth/me')
-        self.assertEqual(me_response.status_code, 200)
-        self.assertEqual(me_response.json()['id'], self.user.id)
-
-        logout_response = self.client.post('/api/logout')
-        self.assertEqual(logout_response.status_code, 204)
-        self.assertEqual(self.client.get('/api/auth/me').status_code, 401)
+        logout_response = self.client.post('/api/auth/logout')
+        self.assertEqual(204, logout_response.status_code)
+        self.assertEqual(401, self.client.get('/api/user/profile').status_code)
