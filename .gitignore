@@ -159,3 +159,5 @@ Backend/Notes.md
 install.cmd
 todoNotes.md
 migrations/*
+
+# add ssh key to git push commits from terminal
