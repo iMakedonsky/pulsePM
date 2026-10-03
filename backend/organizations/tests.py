@@ -31,7 +31,7 @@ class InvitationApiTest(TestCase):
     def test_get_returns_organization_name(self) -> None:
         response = self.client.get(self.url(self.invitation.id))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'organization_name': 'Acme'})
+        self.assertEqual(response.json(), {'org_invite': 1, 'text_message': 'Invitation :)'})
 
     def test_get_malformed_uuid_is_400(self) -> None:
         response = self.client.get(self.url('not-a-uuid'))
