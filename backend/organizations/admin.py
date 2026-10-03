@@ -14,7 +14,6 @@ from .models import Member, Organization, OrgInvitation, WorkSpace
 class WorkspaceInline(admin.TabularInline[WorkSpace, Organization]):
     model = WorkSpace
     fields = ('name', 'space_code', 'created_by')
-    readonly_fields = ('id',)
     extra = 0
     can_add_related = False
     can_change_related = False

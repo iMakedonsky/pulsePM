@@ -26,10 +26,6 @@ export interface WorkspaceTypes {
   created_by: number;
 }
 
-export interface MembeList {
-  id: number;
-}
-
 export class ApiError extends Error {
   readonly status: number;
 

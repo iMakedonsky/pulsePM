@@ -1,6 +1,6 @@
 from ninja import ModelSchema, Schema
 
-from organizations.models import Member, Organization, WorkSpace
+from organizations.models import Member, Organization, OrgInvitation, WorkSpace
 from users.models import User
 
 
@@ -11,7 +11,7 @@ class OrganizationSchema(ModelSchema):
 
 
 class OrganizationPayload(Schema):
-    owner_id: int
+    user_id: int
     name: str
     description: str
 
@@ -34,3 +34,18 @@ class WorkspaceSchema(ModelSchema):
     class Meta:
         model = WorkSpace
         fields = ['id', 'name', 'space_code', 'created_by']
+
+
+class InvitationSchema(ModelSchema):
+    class Meta:
+        model = OrgInvitation
+        fields = ['org_invite', 'text_message']
+
+
+class InvitationPayload(Schema):
+    accepted: bool
+
+
+class InvitationUpdateSchema(Schema):
+    accepted: bool
+    member: MemberSchema | None = None

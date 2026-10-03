@@ -40,11 +40,11 @@ def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> User | 
     return user
 
 
-@router.post('/login', response={200: UserResponse, 400: dict})
+@router.post('/login', response={200: UserResponse, 401: dict})
 def login_endpoint(request: HttpRequest, payload: LoginPayload) -> User | tuple[int, dict[str, str]]:
     user = authenticate(request, username=payload.email, password=payload.password)
     if user is None:
-        return 400, {'detail': 'Invalid email or password.'}
+        return 401, {'detail': 'Invalid email or password.'}
     login(request, user)
     return user
 
