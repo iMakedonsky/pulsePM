@@ -84,17 +84,16 @@ def get_invitation(request: HttpRequest, invitation_id: str) -> OrgInvitation:  
     """Return the invitation for a UUID string, raising 400 if malformed and 404 if absent."""
     try:
         invitation_uuid = uuid.UUID(invitation_id)
+
+        invitation = get_object_or_404(OrgInvitation, pk=invitation_uuid)
     except ValueError as exc:
         raise HttpError(400, 'Invalid data') from exc
-
-    invitation = OrgInvitation.objects.select_related('org_invite').filter(pk=invitation_uuid).first()
-
-    if invitation is None or invitation.org_invite is None:
-        raise HttpError(404, "Invitation doesn't exist or invalid UUID")
+    except Http404 as exc:
+        raise HttpError(404, 'Invitation with that ID does not exist.') from exc
     return invitation
 
 
-@invitation_router.patch('/{invitation_id}', response={200: InvitationUpdateSchema, 400: dict, 404: dict})
+@invitation_router.patch('/{invitation_id}/accept', response={200: InvitationUpdateSchema, 400: dict, 404: dict})
 def update_invitation(
     request: HttpRequest, invitation_id: str, payload: InvitationPayload
 ) -> dict[str, bool | Member | None]:
@@ -103,10 +102,11 @@ def update_invitation(
         invitation.accepted = False
         invitation.save()
         return {'accepted': invitation.accepted, 'member': None}
+    try:
+        user = get_object_or_404(User, email__iexact=invitation.email)
+    except Http404 as exc:
+        raise HttpError(404, 'User with the invitation email is not registered.') from exc
 
-    user = User.objects.filter(email__iexact=invitation.email).first()
-    if user is None:
-        raise HttpError(404, 'User with the invitation email is not registered.')
     member, _ = Member.objects.get_or_create(user=user, organization=invitation.org_invite)
     invitation.accepted = True
     invitation.save()
