@@ -44,7 +44,7 @@ class OrgInvitationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         self, request: HttpRequest, obj: OrgInvitation, form: ModelForm[OrgInvitation], change: bool
     ) -> None:
         payload: dict[str, Any] = {
-            'from': {
+        'from': {
                 'Email': FROM_EMAIL,
                 'Name': FROM_EMAIL,
             },

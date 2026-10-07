@@ -13,7 +13,8 @@ router = Router(tags=['Authentication'])
 
 
 @router.post('/register', response={200: UserResponse, 400: dict, 409: dict})
-def register_endpoint(request: HttpRequest, payload: RegisterPayload) -> User | tuple[int, dict[str, str]]:
+def register_endpoint(request: HttpRequest, payload: RegisterPayload, token: str | None) -> User | tuple[int, dict[str, str]]:
+    # TODO: add token validation.
     try:
         validate_password(payload.password)
     except ValidationError as exc:
