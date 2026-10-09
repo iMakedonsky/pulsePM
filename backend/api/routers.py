@@ -1,7 +1,8 @@
 from ninja import NinjaAPI
 from ninja.security import SessionAuth
 
-from organizations.api import invitation_router, members_router, organization_router, workspace_router
+from organizations.api import members_router, organization_router, workspace_router
+from organizations.invitation import invitation_router
 from users.api import router_membership, router_profile
 from users.auth import router as auth_router
 

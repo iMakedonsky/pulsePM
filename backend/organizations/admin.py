@@ -2,6 +2,7 @@ from typing import Any, override
 
 import requests
 from django.contrib import admin, messages
+from django.core import signing
 from django.forms import ModelForm
 from django.http import HttpRequest
 from requests import HTTPError, RequestException
@@ -35,16 +36,18 @@ class MemberAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
 @admin.register(OrgInvitation)
 class OrgInvitationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
-    list_display = ('id', 'email', 'sender', 'org_invite', 'created_at')
+    list_display = ('id', 'email', 'sender', 'org_invite', 'created_at', 'accepted')
     list_filter = ('id', 'created_at')
-    readonly_fields = ('created_at', 'accepted')
+    readonly_fields = ('created_at', 'accepted', 'expired_at')
 
     @override
     def save_model(
         self, request: HttpRequest, obj: OrgInvitation, form: ModelForm[OrgInvitation], change: bool
     ) -> None:
+        encode_id = signing.dumps(obj.id.int)
+
         payload: dict[str, Any] = {
-        'from': {
+            'from': {
                 'Email': FROM_EMAIL,
                 'Name': FROM_EMAIL,
             },
@@ -55,7 +58,7 @@ class OrgInvitationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
                 }
             ],
             'subject': f'Invitation to org {obj.org_invite}',
-            'text': str(obj.text_message + '\n' + f'{FRONTED_HOST}/invitation/{obj.id}'),
+            'text': str(obj.text_message + '\n' + f'{FRONTED_HOST}/invitation/{encode_id}'),
         }
         try:
             response = requests.post(

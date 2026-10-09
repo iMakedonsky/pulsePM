@@ -1,4 +1,3 @@
-import uuid
 from typing import cast
 
 from django.core.exceptions import ValidationError
@@ -8,11 +7,8 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizations.models import Member, Organization, OrgInvitation, WorkSpace
+from organizations.models import Member, Organization, WorkSpace
 from organizations.schema import (
-    InvitationPayload,
-    InvitationSchema,
-    InvitationUpdateSchema,
     MemberSchema,
     OrganizationPayload,
     OrganizationSchema,
@@ -23,7 +19,6 @@ from users.models import User
 organization_router = Router(tags=['Organizations'])
 workspace_router = Router(tags=['Organizations'])
 members_router = Router(tags=['Organizations'])
-invitation_router = Router(tags=['Invitations'])
 
 
 class AuthenticatedRequest(HttpRequest):

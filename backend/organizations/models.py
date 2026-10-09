@@ -1,9 +1,15 @@
+import datetime
 import uuid
+from datetime import timedelta
 from typing import Any
 
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+
+
+def expired_date_at() -> datetime.datetime:
+    return timezone.now() + timedelta(minutes=30)
 
 
 class Organization(models.Model):
@@ -55,6 +61,7 @@ class OrgInvitation(models.Model):
     text_message = models.TextField(max_length=500, null=False, default='Invitation :)')
     accepted = models.BooleanField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    expired_at = models.DateTimeField(default=expired_date_at)
 
     def __str__(self) -> str:
         return str(self.id)

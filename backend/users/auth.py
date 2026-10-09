@@ -1,11 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.utils import IntegrityError
 from django.http import HttpRequest
 from ninja import Router
 from ninja.errors import HttpError
 
+from organizations.invitation import get_invitation, update_invitation
+from organizations.schema import InvitationPayload
 from users.models import User
 from users.schema import LoginPayload, RegisterPayload, UserResponse
 
@@ -13,8 +16,9 @@ router = Router(tags=['Authentication'])
 
 
 @router.post('/register', response={200: UserResponse, 400: dict, 409: dict})
-def register_endpoint(request: HttpRequest, payload: RegisterPayload, token: str | None) -> User | tuple[int, dict[str, str]]:
-    # TODO: add token validation.
+def register_endpoint(
+    request: HttpRequest, payload: RegisterPayload, token: str | None = None
+) -> User | tuple[int, dict[str, str]]:
     try:
         validate_password(payload.password)
     except ValidationError as exc:
@@ -23,11 +27,21 @@ def register_endpoint(request: HttpRequest, payload: RegisterPayload, token: str
             'Provided password is invalid.',
         ) from exc
 
+    if token:
+        # Validate the token before creating the user, so a bad token leaves nothing behind.
+        invitation = get_invitation(request, token)['invitation']
+        if invitation.email.lower() != payload.email.lower():
+            raise HttpError(400, 'Registration email does not match the invitation.')
+
     try:
-        user = User.objects.create_user(
-            email=payload.email,
-            password=payload.password,
-        )
+        # Atomic: if accepting the invitation fails, the new user is rolled back too.
+        with transaction.atomic():
+            user = User.objects.create_user(
+                email=payload.email,
+                password=payload.password,
+            )
+            if token:
+                update_invitation(request, InvitationPayload(accepted=True), token)
     except IntegrityError as exc:
         if User.objects.filter(email=payload.email).exists():
             raise HttpError(
@@ -35,8 +49,6 @@ def register_endpoint(request: HttpRequest, payload: RegisterPayload, token: str
                 'User already exists with the same email.',
             ) from exc
         raise
-
-    login(request, user)
 
     return user
 

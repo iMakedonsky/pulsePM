@@ -1,3 +1,5 @@
+from typing import TypedDict
+
 from ninja import ModelSchema, Schema
 
 from organizations.models import Member, Organization, OrgInvitation, WorkSpace
@@ -39,7 +41,19 @@ class WorkspaceSchema(ModelSchema):
 class InvitationSchema(ModelSchema):
     class Meta:
         model = OrgInvitation
-        fields = ['org_invite', 'text_message']
+        fields = ['org_invite', 'accepted', 'email', 'text_message']
+
+
+class InvitationResponse(Schema):
+    invitation: InvitationSchema
+    invitation_token: str
+
+
+class InvitationResult(TypedDict):
+    """What `get_invitation` returns in Python: the live model, not its serialised schema."""
+
+    invitation: OrgInvitation
+    invitation_token: str
 
 
 class InvitationPayload(Schema):
