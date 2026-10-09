@@ -10,15 +10,25 @@ from ninja.errors import HttpError
 from organizations.invitation import get_invitation, update_invitation
 from organizations.schema import InvitationPayload
 from users.models import User
-from users.schema import LoginPayload, RegisterPayload, UserResponse
+from users.schema import (
+    BadRequestError,
+    ConflictError,
+    GoneError,
+    LoginPayload,
+    NotFoundError,
+    RegisterPayload,
+    UnauthorizedError,
+    UserResponse,
+)
 
 router = Router(tags=['Authentication'])
 
 
-@router.post('/register', response={200: UserResponse, 400: dict, 409: dict})
-def register_endpoint(
-    request: HttpRequest, payload: RegisterPayload, token: str | None = None
-) -> User | tuple[int, dict[str, str]]:
+@router.post(
+    '/register',
+    response={200: UserResponse, 400: BadRequestError, 404: NotFoundError, 409: ConflictError, 410: GoneError},
+)
+def register_endpoint(request: HttpRequest, payload: RegisterPayload, token: str | None = None) -> User:
     try:
         validate_password(payload.password)
     except ValidationError as exc:
@@ -28,7 +38,6 @@ def register_endpoint(
         ) from exc
 
     if token:
-        # Validate the token before creating the user, so a bad token leaves nothing behind.
         invitation = get_invitation(request, token)['invitation']
         if invitation.email.lower() != payload.email.lower():
             raise HttpError(400, 'Registration email does not match the invitation.')
@@ -42,6 +51,8 @@ def register_endpoint(
             )
             if token:
                 update_invitation(request, InvitationPayload(accepted=True), token)
+    except ValueError as exc:
+        raise HttpError(400, str(exc)) from exc
     except IntegrityError as exc:
         if User.objects.filter(email=payload.email).exists():
             raise HttpError(
@@ -53,11 +64,11 @@ def register_endpoint(
     return user
 
 
-@router.post('/login', response={200: UserResponse, 401: dict})
-def login_endpoint(request: HttpRequest, payload: LoginPayload) -> User | tuple[int, dict[str, str]]:
+@router.post('/login', response={200: UserResponse, 401: UnauthorizedError})
+def login_endpoint(request: HttpRequest, payload: LoginPayload) -> User:
     user = authenticate(request, username=payload.email, password=payload.password)
     if user is None:
-        return 401, {'detail': 'Invalid email or password.'}
+        raise HttpError(401, 'Invalid email or password.')
     login(request, user)
     return user
 

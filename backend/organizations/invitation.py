@@ -11,6 +11,7 @@ from organizations.schema import (
     InvitationPayload,
     InvitationResponse,
     InvitationResult,
+    InvitationUpdateResult,
     InvitationUpdateSchema,
 )
 from users.models import User
@@ -41,13 +42,14 @@ def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:
 
 
 @invitation_router.patch(
-    '/{invite_token}/accept', response={200: InvitationUpdateSchema, 302: dict, 400: dict, 404: dict}
+    '/{invite_token}/accept',
+    response={200: InvitationUpdateSchema, 400: dict, 404: dict, 409: dict, 410: dict},
 )
 def update_invitation(
     request: HttpRequest,
     payload: InvitationPayload,
     invite_token: str,
-) -> dict[str, bool | Member | None]:
+) -> InvitationUpdateResult:
     invitation = get_invitation(request, invite_token)['invitation']
     if not payload.accepted:
         invitation.accepted = False
@@ -58,15 +60,16 @@ def update_invitation(
     if not user:
         raise HttpError(404, 'User with that email does not exist.')
 
-    if not invite_token:
-        raise HttpError(400, 'Invite token was missed') from None
     try:
         signing.loads(invite_token, max_age=1800)
 
     except SignatureExpired as exc:
         raise HttpError(410, 'Invitation token has expired!') from exc
 
-    member, _ = Member.objects.get_or_create(user=user, organization=invitation.org_invite)
+    member, created_bool = Member.objects.get_or_create(user=user, organization=invitation.org_invite)
+    if not created_bool:
+        raise HttpError(409, f'The user {user} is already invited to organization {invitation.org_invite}.')
+
     invitation.accepted = True
     invitation.save()
     return {'accepted': invitation.accepted, 'member': member}

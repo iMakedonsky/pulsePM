@@ -1,9 +1,11 @@
 from typing import TypedDict
 
 from ninja import ModelSchema, Schema
+from pydantic import Field
 
 from organizations.models import Member, Organization, OrgInvitation, WorkSpace
 from users.models import User
+from users.schema import ErrorSchema
 
 
 class OrganizationSchema(ModelSchema):
@@ -13,7 +15,6 @@ class OrganizationSchema(ModelSchema):
 
 
 class OrganizationPayload(Schema):
-    user_id: int
     name: str
     description: str
 
@@ -56,6 +57,13 @@ class InvitationResult(TypedDict):
     invitation_token: str
 
 
+class InvitationUpdateResult(TypedDict):
+    """What `update_invitation` returns in Python: the live member model, not its serialised schema."""
+
+    accepted: bool
+    member: Member | None
+
+
 class InvitationPayload(Schema):
     accepted: bool
 
@@ -63,3 +71,27 @@ class InvitationPayload(Schema):
 class InvitationUpdateSchema(Schema):
     accepted: bool
     member: MemberSchema | None = None
+
+
+class OrganizationBadRequestError(ErrorSchema):
+    detail: str = Field(examples=['Name: This field cannot be blank.'])
+
+
+class OrganizationForbiddenError(ErrorSchema):
+    detail: str = Field(examples=['Current User is not a member of the Organization.'])
+
+
+class OrganizationNotFoundError(ErrorSchema):
+    detail: str = Field(examples=['Organization with that ID does not exist.'])
+
+
+class WorkspacesNotFoundError(ErrorSchema):
+    detail: str = Field(examples=['This organization has no workspaces yet.'])
+
+
+class MembersNotFoundError(ErrorSchema):
+    detail: str = Field(examples=['This organization has no members yet.'])
+
+
+class OrganizationConflictError(ErrorSchema):
+    detail: str = Field(examples=['User already owns an organization.'])

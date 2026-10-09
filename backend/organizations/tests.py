@@ -84,12 +84,21 @@ class InvitationApiTest(TestCase):
         self.invitation.refresh_from_db()
         self.assertTrue(self.invitation.accepted)
 
-    def test_patch_accept_twice_returns_same_member(self) -> None:
+    def test_patch_accept_twice_is_409(self) -> None:
         first = self.accept(self.token)
         second = self.accept(self.token)
-        self.assertEqual(second.status_code, 200)
-        self.assertEqual(first.json()['member']['id'], second.json()['member']['id'])
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 409)
         self.assertEqual(Member.objects.filter(user=self.invitee).count(), 1)
+        self.invitation.refresh_from_db()
+        self.assertTrue(self.invitation.accepted)
+
+    def test_patch_accept_when_already_member_is_409_and_leaves_state(self) -> None:
+        Member.objects.create(user=self.invitee, organization=self.organization)
+        response = self.accept(self.token)
+        self.assertEqual(response.status_code, 409)
+        self.invitation.refresh_from_db()
+        self.assertIsNone(self.invitation.accepted)
 
     def test_patch_accept_unregistered_email_is_404_and_leaves_state(self) -> None:
         self.invitee.delete()

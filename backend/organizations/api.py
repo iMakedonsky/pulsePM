@@ -10,9 +10,15 @@ from ninja.errors import HttpError
 from organizations.models import Member, Organization, WorkSpace
 from organizations.schema import (
     MemberSchema,
+    MembersNotFoundError,
+    OrganizationBadRequestError,
+    OrganizationConflictError,
+    OrganizationForbiddenError,
+    OrganizationNotFoundError,
     OrganizationPayload,
     OrganizationSchema,
     WorkspaceSchema,
+    WorkspacesNotFoundError,
 )
 from users.models import User
 
@@ -34,21 +40,32 @@ def assert_membership(request: HttpRequest, org_id: int) -> None:
         raise HttpError(403, 'Current User is not a member of the Organization.')
 
 
-@organization_router.post('/create', response={200: OrganizationSchema, 400: dict, 403: dict})
-def create_organization(
-    request: HttpRequest, payload: OrganizationPayload
-) -> Organization | tuple[int, dict[str, str]]:
+@organization_router.post(
+    '/create',
+    response={200: OrganizationSchema, 400: OrganizationBadRequestError, 409: OrganizationConflictError},
+)
+def create_organization(request: HttpRequest, payload: OrganizationPayload) -> Organization:
     user = cast(AuthenticatedRequest, request).user
+    if Organization.objects.filter(owner=user.pk).exists():
+        raise HttpError(409, 'User already owns an organization.')
     try:
         organization = Organization.objects.create(owner_id=user.pk, name=payload.name, description=payload.description)
         Member.objects.create(user=user, organization=organization, role=Member.OrgRoles.OWNER)
     except ValidationError as exc:
-        raise HttpError(400, str(exc.message)) from exc
+        raise HttpError(400, '; '.join(exc.messages)) from exc
     return organization
 
 
-@organization_router.get('/{org_id}', response={200: OrganizationSchema, 403: dict, 404: dict})
-def get_organization(request: HttpRequest, org_id: int) -> Organization | tuple[int, dict[str, str]]:
+@organization_router.get(
+    '/{org_id}',
+    response={
+        200: OrganizationSchema,
+        400: OrganizationBadRequestError,
+        403: OrganizationForbiddenError,
+        404: OrganizationNotFoundError,
+    },
+)
+def get_organization(request: HttpRequest, org_id: int) -> Organization:
     assert_membership(request, org_id)
     try:
         return get_object_or_404(Organization, pk=org_id)
@@ -56,7 +73,15 @@ def get_organization(request: HttpRequest, org_id: int) -> Organization | tuple[
         raise HttpError(404, 'Organization with that ID does not exist.') from exc
 
 
-@workspace_router.get('{org_id}/workspaces', response={200: list[WorkspaceSchema], 403: dict, 404: dict})
+@workspace_router.get(
+    '{org_id}/workspaces',
+    response={
+        200: list[WorkspaceSchema],
+        400: OrganizationBadRequestError,
+        403: OrganizationForbiddenError,
+        404: WorkspacesNotFoundError,
+    },
+)
 def list_workspaces(request: HttpRequest, org_id: int) -> QuerySet[WorkSpace]:
     assert_membership(request, org_id)
     workspaces = WorkSpace.objects.filter(organization=org_id).select_related('organization')
@@ -65,7 +90,15 @@ def list_workspaces(request: HttpRequest, org_id: int) -> QuerySet[WorkSpace]:
     return workspaces
 
 
-@members_router.get('{org_id}/members', response={200: list[MemberSchema], 403: dict, 404: dict})
+@members_router.get(
+    '{org_id}/members',
+    response={
+        200: list[MemberSchema],
+        400: OrganizationBadRequestError,
+        403: OrganizationForbiddenError,
+        404: MembersNotFoundError,
+    },
+)
 def list_members(request: HttpRequest, org_id: int) -> QuerySet[Member]:
     assert_membership(request, org_id)
     members = Member.objects.filter(organization=org_id).select_related('user', 'organization')
