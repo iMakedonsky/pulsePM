@@ -3,11 +3,15 @@ name = "pulsePM"
 version = "0.1.0"
 description = "Django backend for Project PulsePM"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "django>=6.1,<6.2",
+    "django-invitations>=2.1.0",
     "django-ninja>=1.6.3",
+    "django-stubs-ext>=6.1.0",
     "pydantic[email]>=2.13.4",
+    "requests>=2.34.2",
+    "uuid7>=0.1.0",
 ]
 
 [dependency-groups]
@@ -22,7 +26,7 @@ dev = [
 ]
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py314"
 line-length = 120
 # Third-party code and generated schema churn must not gate the lint run.
 extend-exclude = [".cache", ".venv", "**/migrations/**"]
@@ -135,7 +139,7 @@ quote-style = "single"
 docstring-code-format = true
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.14"
 plugins = ["mypy_django_plugin.main"]
 # `strict` is the preset; everything below is strictness `strict` does not yet imply.
 strict = true
@@ -166,6 +170,11 @@ enable_error_code = [
 # (ModelAdmin.list_display, Meta.constraints, AccessMixin.login_url, ...) are
 # tuples narrowing a mutable base annotation, so it fires on idiomatic code.
 exclude = ["(^|/)(migrations|\\.venv|\\.cache)/"]
+
+# django-invitations ships no type information (no py.typed marker).
+[[tool.mypy.overrides]]
+module = "invitations.*"
+ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "conf.settings"
