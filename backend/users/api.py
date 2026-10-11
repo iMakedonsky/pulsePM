@@ -7,7 +7,12 @@ from ninja.errors import HttpError
 
 from organizations.models import Member
 from users.models import User
-from users.schema import GetListParticipation, UserResponse
+from users.schema import (
+    GetListParticipation,
+    MembershipNotFoundError,
+    SessionUnauthorizedError,
+    UserResponse,
+)
 
 router_profile = Router(tags=['Profile'])
 router_membership = Router(tags=['Profile'])
@@ -19,12 +24,15 @@ class AuthenticatedRequest(HttpRequest):
     user: User
 
 
-@router_profile.get('/profile', response={200: UserResponse, 401: dict})
+@router_profile.get('/profile', response={200: UserResponse, 401: SessionUnauthorizedError})
 def current_user(request: HttpRequest) -> User:
     return cast(AuthenticatedRequest, request).user
 
 
-@router_membership.get('/', response={200: list[GetListParticipation], 401: dict, 404: dict})
+@router_membership.get(
+    '/',
+    response={200: list[GetListParticipation], 401: SessionUnauthorizedError, 404: MembershipNotFoundError},
+)
 def participation(request: HttpRequest) -> QuerySet[Member]:
     user = cast(AuthenticatedRequest, request).user
     membership = Member.objects.filter(user=user.pk).select_related('organization')

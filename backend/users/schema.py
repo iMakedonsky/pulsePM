@@ -34,7 +34,9 @@ class ErrorSchema(Schema):
 class BadRequestError(ErrorSchema):
     detail: str = Field(
         examples=[
-            'Provided password is invalid; Registration email does not match the invitation; Invalid data',
+            'Provided password is invalid.',
+            'Registration email does not match the invitation.',
+            'Invalid data',
         ]
     )
 
@@ -46,7 +48,8 @@ class UnauthorizedError(ErrorSchema):
 class NotFoundError(ErrorSchema):
     detail: str = Field(
         examples=[
-            'Invitation with that ID does not exist; User with that email does not exist.',
+            'Invitation with that ID does not exist.',
+            'User with that email does not exist.',
         ]
     )
 
@@ -56,7 +59,15 @@ class ConflictError(ErrorSchema):
 
 
 class GoneError(ErrorSchema):
-    detail: str = Field(examples=['Invitation expired!', 'Token expired!', 'Invitation token has expired!'])
+    detail: str = Field(examples=['Invitation expired!', 'Token invalid!', 'Invitation token has expired!'])
+
+
+class SessionUnauthorizedError(ErrorSchema):
+    detail: str = Field(examples=['Unauthorized'])
+
+
+class MembershipNotFoundError(ErrorSchema):
+    detail: str = Field(examples=["User haven't participated yet."])
 
 
 class UserResponse(ModelSchema):

@@ -30,7 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS: list[str] = []
 
-FRONTED_HOST: str = 'http://localhost:3000'
+FRONTED_ORIGIN: str = 'http://localhost:3000'
 
 # Application definition
 
