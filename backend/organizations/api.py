@@ -9,6 +9,7 @@ from ninja.errors import HttpError
 
 from organizations.models import Member, Organization, WorkSpace
 from organizations.schema import (
+    InvalidOrganizationIdError,
     MemberSchema,
     MembersNotFoundError,
     OrganizationBadRequestError,
@@ -60,7 +61,7 @@ def create_organization(request: HttpRequest, payload: OrganizationPayload) -> O
     '/{org_id}',
     response={
         200: OrganizationSchema,
-        400: OrganizationBadRequestError,
+        400: InvalidOrganizationIdError,
         403: OrganizationForbiddenError,
         404: OrganizationNotFoundError,
     },
@@ -77,7 +78,7 @@ def get_organization(request: HttpRequest, org_id: int) -> Organization:
     '{org_id}/workspaces',
     response={
         200: list[WorkspaceSchema],
-        400: OrganizationBadRequestError,
+        400: InvalidOrganizationIdError,
         403: OrganizationForbiddenError,
         404: WorkspacesNotFoundError,
     },
@@ -94,7 +95,7 @@ def list_workspaces(request: HttpRequest, org_id: int) -> QuerySet[WorkSpace]:
     '{org_id}/members',
     response={
         200: list[MemberSchema],
-        400: OrganizationBadRequestError,
+        400: InvalidOrganizationIdError,
         403: OrganizationForbiddenError,
         404: MembersNotFoundError,
     },
