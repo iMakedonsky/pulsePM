@@ -7,7 +7,7 @@ from django.forms import ModelForm
 from django.http import HttpRequest
 from requests import HTTPError, RequestException
 
-from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST, FROM_EMAIL, FRONTED_HOST
+from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST, FROM_EMAIL, FRONTED_ORIGIN
 
 from .models import Member, Organization, OrgInvitation, WorkSpace
 
@@ -58,7 +58,7 @@ class OrgInvitationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
                 }
             ],
             'subject': f'Invitation to org {obj.org_invite}',
-            'text': str(obj.text_message + '\n' + f'{FRONTED_HOST}/invitation/{encode_id}'),
+            'text': str(obj.text_message + '\n' + f'{FRONTED_ORIGIN}/invitation/{encode_id}'),
         }
         try:
             response = requests.post(

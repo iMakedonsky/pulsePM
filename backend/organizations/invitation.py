@@ -8,9 +8,15 @@ from ninja.errors import HttpError
 
 from organizations.models import Member, OrgInvitation
 from organizations.schema import (
+    InvitationBadRequestError,
+    InvitationConflictError,
+    InvitationGoneError,
+    InvitationNotFoundError,
     InvitationPayload,
     InvitationResponse,
     InvitationResult,
+    InvitationUpdateGoneError,
+    InvitationUpdateNotFoundError,
     InvitationUpdateResult,
     InvitationUpdateSchema,
 )
@@ -19,7 +25,15 @@ from users.models import User
 invitation_router = Router(tags=['Temporary Invitations'])
 
 
-@invitation_router.get('/{invite_token}', response={200: InvitationResponse, 400: dict, 404: dict, 410: dict})
+@invitation_router.get(
+    '/{invite_token}',
+    response={
+        200: InvitationResponse,
+        400: InvitationBadRequestError,
+        404: InvitationNotFoundError,
+        410: InvitationGoneError,
+    },
+)
 def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:  # noqa: ARG001
     """Return the invitation for a signed token.
 
@@ -33,7 +47,7 @@ def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:
         if invitation.expired_at <= timezone.now() or invitation.accepted is False:
             raise HttpError(410, 'Invitation expired!')
     except BadSignature as exc:
-        raise HttpError(410, 'Token expired!') from exc
+        raise HttpError(410, 'Token invalid!') from exc
     except ValueError as exc:
         raise HttpError(400, 'Invalid data') from exc
     except Http404 as exc:
@@ -43,7 +57,13 @@ def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:
 
 @invitation_router.patch(
     '/{invite_token}/accept',
-    response={200: InvitationUpdateSchema, 400: dict, 404: dict, 409: dict, 410: dict},
+    response={
+        200: InvitationUpdateSchema,
+        400: InvitationBadRequestError,
+        404: InvitationUpdateNotFoundError,
+        409: InvitationConflictError,
+        410: InvitationUpdateGoneError,
+    },
 )
 def update_invitation(
     request: HttpRequest,
