@@ -19,6 +19,11 @@ class OrganizationPayload(Schema):
     description: str
 
 
+class OrganizationUpdatePayload(Schema):
+    name: str | None = None
+    description: str | None = None
+
+
 class UserBrief(ModelSchema):
     class Meta:
         model = User
