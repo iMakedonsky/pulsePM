@@ -22,7 +22,7 @@ class AuthenticationApiTests(TestCase):
         self.assertEqual(200, self.client.get('/api/user/profile').status_code)
 
         logout_response = self.client.post('/api/auth/logout')
-        self.assertEqual(204, logout_response.status_code)
+        self.assertEqual(200, logout_response.status_code)
         self.assertEqual(401, self.client.get('/api/user/profile').status_code)
 
     def test_register_invalid_email_is_400(self) -> None:

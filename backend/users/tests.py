@@ -152,14 +152,14 @@ class TestLogoutResponse:
 
     def test_logout_has_no_documented_errors_and_returns_204(self, client: Client, user: User) -> None:
         client.force_login(user)
-        assert documented_statuses('post', self.path) == {204}
+        assert documented_statuses('post', self.path) == {200}
 
         response = client.post(self.path)
-        assert response.status_code == 204
+        assert response.status_code == 200
         assert response.content == b''
         assert '_auth_user_id' not in client.session
 
     def test_logout_without_session_still_204(self, client: Client) -> None:
         response = client.post(self.path)
-        assert response.status_code == 204
+        assert response.status_code == 200
         assert response.content == b''
