@@ -18,6 +18,7 @@ from organizations.schema import (
     OrganizationNotFoundError,
     OrganizationPayload,
     OrganizationSchema,
+    OrganizationUpdatePayload,
     WorkspaceSchema,
     WorkspacesNotFoundError,
 )
@@ -72,6 +73,49 @@ def get_organization(request: HttpRequest, org_id: int) -> Organization:
         return get_object_or_404(Organization, pk=org_id)
     except Http404 as exc:
         raise HttpError(404, 'Organization with that ID does not exist.') from exc
+
+
+@organization_router.patch(
+    '/{org_id}/update',
+    response={
+        200: OrganizationSchema,
+        400: OrganizationBadRequestError,
+        403: OrganizationForbiddenError,
+        404: OrganizationNotFoundError,
+    },
+)
+def update_organization(request: HttpRequest, org_id: int, payload: OrganizationUpdatePayload) -> Organization:
+    assert_membership(request, org_id)
+    try:
+        organization = get_object_or_404(Organization, pk=org_id)
+    except Http404 as exc:
+        raise HttpError(404, 'Organization with that ID does not exist.') from exc
+    changes = payload.dict(exclude_unset=True)
+    for field, value in changes.items():
+        setattr(organization, field, value)
+    try:
+        organization.save()
+    except ValidationError as exc:
+        raise HttpError(400, '; '.join(exc.messages)) from exc
+    return organization
+
+
+@organization_router.delete(
+    '/{org_id}/delete',
+    response={
+        200: None,
+        403: OrganizationForbiddenError,
+        404: OrganizationNotFoundError,
+    },
+)
+def delete_organization(request: HttpRequest, org_id: int) -> tuple[int, None]:
+    assert_membership(request, org_id)
+    try:
+        organization = get_object_or_404(Organization, pk=org_id)
+    except Http404 as exc:
+        raise HttpError(404, 'Organization with that ID does not exist.') from exc
+    organization.delete()
+    return 200, None
 
 
 @workspace_router.get(

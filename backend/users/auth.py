@@ -73,7 +73,7 @@ def login_endpoint(request: HttpRequest, payload: LoginPayload) -> User:
     return user
 
 
-@router.post('/logout', response={204: None})
+@router.post('/logout', response={200: None})
 def logout_endpoint(request: HttpRequest) -> tuple[int, None]:
     logout(request)
-    return 204, None
+    return 200, None
