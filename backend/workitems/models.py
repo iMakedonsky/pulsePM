@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-from organizations.models import Member, WorkSpace
+from organizations.models import Member, Organization, WorkSpace
 
 
 def validate_not_past(value: date) -> None:
@@ -29,11 +29,12 @@ class WorkItem(models.Model):
         HIGH = 'high'
         MAJOR = 'major'
 
-    workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE, null=True)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE, null=True, blank=True)
     created_by = models.ForeignKey(Member, on_delete=models.DO_NOTHING, related_name='report_by')
     assigned_to = models.ForeignKey(Member, on_delete=models.DO_NOTHING, related_name='assigned_to')
     title = models.CharField(max_length=200)
-    description = models.TextField(null=True, default='')
+    description = models.TextField(null=True, blank=True, default='')
     status = models.CharField(choices=Status.choices, max_length=11, default=Status.TODO)
     priority = models.CharField(choices=Priority.choices, max_length=11, default=Priority.HIGH)
     created_at = models.DateTimeField(default=timezone.now)
