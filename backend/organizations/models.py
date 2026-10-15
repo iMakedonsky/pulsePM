@@ -8,25 +8,30 @@ from django.db import models
 from django.utils import timezone
 
 
-def expired_date_at() -> datetime.datetime:
-    return timezone.now() + timedelta(minutes=30)
-
-
-class Organization(models.Model):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, null=False, blank=False)
-    description = models.TextField(max_length=500, null=True, default='')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:
-        return self.name
+class BaseModel(models.Model):
+    class Meta:
+        abstract = True
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_clean()
         super().save(*args, **kwargs)
 
 
-class Member(models.Model):
+def expired_date_at() -> datetime.datetime:
+    return timezone.now() + timedelta(minutes=30)
+
+
+class Organization(BaseModel):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, null=False, blank=False, unique=True)
+    description = models.TextField(max_length=500, null=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Member(BaseModel):
     class OrgRoles(models.TextChoices):
         OWNER = 'owner'
         PM = 'project-manager'
@@ -48,12 +53,8 @@ class Member(models.Model):
     def __str__(self) -> str:
         return self.user.email
 
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        self.full_clean()
-        super().save(*args, **kwargs)
 
-
-class OrgInvitation(models.Model):
+class OrgInvitation(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid7, editable=False)
     email = models.EmailField(max_length=254, unique=False)
     sender = models.ForeignKey(Member, on_delete=models.CASCADE)
@@ -66,12 +67,8 @@ class OrgInvitation(models.Model):
     def __str__(self) -> str:
         return str(self.id)
 
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        self.full_clean()
-        super().save(*args, **kwargs)
 
-
-class WorkSpace(models.Model):
+class WorkSpace(BaseModel):
     created_by = models.ForeignKey(Member, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)

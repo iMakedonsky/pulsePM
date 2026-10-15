@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizations.invitation import get_invitation, update_invitation
+from organizations.invitation import accept_invitation, get_invitation
 from organizations.schema import InvitationPayload
 from users.models import User
 from users.schema import (
@@ -50,7 +50,7 @@ def register_endpoint(request: HttpRequest, payload: RegisterPayload, token: str
                 password=payload.password,
             )
             if token:
-                update_invitation(request, InvitationPayload(accepted=True), token)
+                accept_invitation(request, InvitationPayload(accepted=True), token)
     except ValueError as exc:
         raise HttpError(400, str(exc)) from exc
     except IntegrityError as exc:
