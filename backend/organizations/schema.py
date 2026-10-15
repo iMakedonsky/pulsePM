@@ -115,7 +115,7 @@ class InvitationNotFoundError(ErrorSchema):
 
 
 class InvitationGoneError(ErrorSchema):
-    detail: str = Field(examples=['Invitation expired!', 'Token invalid!'])
+    detail: str = Field(examples=['Token invalid!', 'Invitation token has expired!'])
 
 
 class InvitationUpdateNotFoundError(ErrorSchema):
@@ -127,4 +127,4 @@ class InvitationConflictError(ErrorSchema):
 
 
 class InvitationUpdateGoneError(ErrorSchema):
-    detail: str = Field(examples=['Invitation expired!', 'Token invalid!', 'Invitation token has expired!'])
+    detail: str = Field(examples=['Token invalid!', 'Invitation token has expired!'])

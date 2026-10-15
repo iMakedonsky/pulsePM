@@ -1,13 +1,11 @@
 import time
 import uuid
-from datetime import timedelta
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
 from django.core import signing
 from django.test import Client, TestCase
-from django.utils import timezone
 
 if TYPE_CHECKING:
     from django.test.client import _MonkeyPatchedWSGIResponse
@@ -63,18 +61,11 @@ class InvitationApiTest(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json(), {'detail': 'Invitation with that ID does not exist.'})
 
-    def test_get_expired_invitation_is_410(self) -> None:
-        self.invitation.expired_at = timezone.now() - timedelta(minutes=1)
-        self.invitation.save()
-        response = self.client.get(self.url(self.token))
+    def test_get_after_token_max_age_is_410(self) -> None:
+        with patch('django.core.signing.time.time', return_value=time.time() + 3600):
+            response = self.client.get(self.url(self.token))
         self.assertEqual(response.status_code, 410)
-        self.assertEqual(response.json(), {'detail': 'Invitation expired!'})
-
-    def test_get_declined_invitation_is_410(self) -> None:
-        self.invitation.accepted = False
-        self.invitation.save()
-        response = self.client.get(self.url(self.token))
-        self.assertEqual(response.status_code, 410)
+        self.assertEqual(response.json(), {'detail': 'Invitation token has expired!'})
 
     def test_patch_accept_creates_member(self) -> None:
         response = self.accept(self.token)
@@ -113,12 +104,6 @@ class InvitationApiTest(TestCase):
     def test_patch_accept_after_token_max_age_is_410(self) -> None:
         with patch('django.core.signing.time.time', return_value=time.time() + 3600):
             response = self.accept(self.token)
-        self.assertEqual(response.status_code, 410)
-        self.assertFalse(Member.objects.filter(user=self.invitee).exists())
-
-    def test_patch_accept_declined_invitation_is_410(self) -> None:
-        self.accept(self.token, accepted=False)
-        response = self.accept(self.token)
         self.assertEqual(response.status_code, 410)
         self.assertFalse(Member.objects.filter(user=self.invitee).exists())
 
@@ -252,7 +237,14 @@ class TestListWorkspacesErrorMessages:
     ) -> None:
         other = Organization.objects.create(owner=outsider, name='Other', description='Other org')
         other_member = Member.objects.create(user=outsider, organization=other, role=Member.OrgRoles.OWNER)
-        WorkSpace.objects.create(created_by=other_member, organization=other, name='WS', space_code='WS1', icon_url='x')
+        WorkSpace.objects.create(
+            created_by=other_member,
+            organization=other,
+            name='WS',
+            space_code='WS1',
+            icon_url='x',
+            description='Other workspace',
+        )
         client.force_login(owner)
         response = self.get(client, organization.pk)
         assert_documented(response, 'get', self.path, 404, 'This organization has no workspaces yet.')

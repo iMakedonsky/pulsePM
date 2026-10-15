@@ -1,6 +1,5 @@
 import time
 import uuid
-from datetime import timedelta
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
@@ -9,7 +8,6 @@ from django.contrib.auth import authenticate, get_user_model
 from django.core import signing
 from django.core.signing import TimestampSigner, b64_encode
 from django.test import Client
-from django.utils import timezone
 
 from api.openapi_docs import documented_messages, documented_statuses
 from organizations.models import Member, Organization, OrgInvitation
@@ -103,13 +101,6 @@ class TestRegisterErrorMessages:
         response = post_register(client, 'new@example.com', PASSWORD, 'not-a-signed-token')
         assert_documented(response, 410, self.path)
         assert response.json() == {'detail': 'Token invalid!'}
-
-    def test_expired_invitation_is_410(self, client: Client, invitation: OrgInvitation) -> None:
-        invitation.expired_at = timezone.now() - timedelta(minutes=1)
-        invitation.save()
-        response = post_register(client, invitation.email, PASSWORD, signing.dumps(invitation.id.int))
-        assert_documented(response, 410, self.path)
-        assert response.json() == {'detail': 'Invitation expired!'}
 
     def test_token_older_than_max_age_is_410(self, client: Client, invitation: OrgInvitation) -> None:
         token = signing.dumps(invitation.id.int)

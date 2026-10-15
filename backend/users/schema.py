@@ -59,7 +59,7 @@ class ConflictError(ErrorSchema):
 
 
 class GoneError(ErrorSchema):
-    detail: str = Field(examples=['Invitation expired!', 'Token invalid!', 'Invitation token has expired!'])
+    detail: str = Field(examples=['Token invalid!', 'Invitation token has expired!'])
 
 
 class SessionUnauthorizedError(ErrorSchema):
