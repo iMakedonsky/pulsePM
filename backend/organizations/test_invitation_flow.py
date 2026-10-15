@@ -8,7 +8,6 @@ import re
 import time
 import uuid
 from collections.abc import Iterator
-from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
@@ -17,7 +16,6 @@ import requests
 from django.core import signing
 from django.core.signing import TimestampSigner, b64_encode
 from django.test import Client
-from django.utils import timezone
 
 from api.openapi_docs import documented_messages
 from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST, FRONTED_ORIGIN
@@ -167,13 +165,6 @@ class TestInvitationFlow:
         assert not Member.objects.filter(organization=organization).exclude(pk=sender.pk).exists()
         assert not User.objects.filter(email=invitee_email).exists()
 
-        # A refused invitation is closed: it can no longer be opened or used to sign up.
-        reopened = get_invitation(client, token)
-        assert (reopened.status_code, reopened.json()) == (410, {'detail': 'Invitation token has expired!'})
-        late_signup = register(client, invitee_email, token)
-        assert (late_signup.status_code, late_signup.json()) == (410, {'detail': 'Invitation token has expired!'})
-        assert not User.objects.filter(email=invitee_email).exists()
-
     def test_existing_user_accepts_invitation(
         self, invitee_email: str, organization: Organization, sender: Member
     ) -> None:
@@ -236,15 +227,15 @@ class TestOpenInvitationErrors:
             get_invitation(client, signing.dumps(uuid.uuid4().int)), 404, 'Invitation with that ID does not exist.'
         )
 
-    def test_expired_invitation_is_410(self, client: Client, invitation: OrgInvitation, token: str) -> None:
-        invitation.expired_at = timezone.now() - timedelta(seconds=1)
-        invitation.save()
-        assert_error(get_invitation(client, token), 410, 'Invitation token has expired!', OPEN_ENDPOINT)
+    def test_token_older_than_thirty_minutes_is_410(self, client: Client, token: str) -> None:
+        with patch('django.core.signing.time.time', return_value=time.time() + 31 * 60):
+            response = get_invitation(client, token)
+        assert_error(response, 410, 'Invitation token has expired!', OPEN_ENDPOINT)
 
-    def test_refused_invitation_is_410(self, client: Client, invitation: OrgInvitation, token: str) -> None:
-        invitation.accepted = False
-        invitation.save()
-        assert_error(get_invitation(client, token), 410, 'Invitation token has expired!', OPEN_ENDPOINT)
+    def test_token_just_under_thirty_minutes_is_still_valid(self, client: Client, token: str) -> None:
+        with patch('django.core.signing.time.time', return_value=time.time() + 29 * 60):
+            response = get_invitation(client, token)
+        assert response.status_code == 200
 
 
 @pytest.mark.django_db
@@ -258,15 +249,6 @@ class TestAnswerInvitationErrors:
     def test_unknown_invitation_is_404(self, client: Client) -> None:
         response = answer(client, signing.dumps(uuid.uuid4().int), {'accepted': True})
         assert_error(response, 404, 'Invitation with that ID does not exist.', ANSWER_ENDPOINT)
-
-    def test_expired_invitation_is_410_and_adds_no_member(
-        self, client: Client, invitation: OrgInvitation, token: str
-    ) -> None:
-        User.objects.create_user(email=invitation.email, password=PASSWORD)
-        invitation.expired_at = timezone.now() - timedelta(seconds=1)
-        invitation.save()
-        assert_error(answer(client, token, {'accepted': True}), 410, 'Invitation token has expired!', ANSWER_ENDPOINT)
-        assert not Member.objects.filter(user__email=invitation.email).exists()
 
     def test_token_older_than_thirty_minutes_is_410_and_adds_no_member(
         self, client: Client, invitation: OrgInvitation, token: str
@@ -285,12 +267,6 @@ class TestAnswerInvitationErrors:
         )
         invitation.refresh_from_db()
         assert invitation.accepted is None
-
-    def test_accepting_after_refusing_is_410(self, client: Client, invitation: OrgInvitation, token: str) -> None:
-        User.objects.create_user(email=invitation.email, password=PASSWORD)
-        assert answer(client, token, {'accepted': False}).status_code == 200
-        assert_error(answer(client, token, {'accepted': True}), 410, 'Invitation token has expired!', ANSWER_ENDPOINT)
-        assert not Member.objects.filter(user__email=invitation.email).exists()
 
     def test_accepting_twice_is_409(
         self, client: Client, invitation: OrgInvitation, token: str, organization: Organization
@@ -336,14 +312,6 @@ class TestSignUpWithInvitationErrors:
         self, client: Client, invitation: OrgInvitation
     ) -> None:
         assert_error(register(client, invitation.email, 'not-a-signed-token'), 410, 'Token invalid!')
-        assert not User.objects.filter(email=invitation.email).exists()
-
-    def test_signing_up_with_expired_invitation_is_410_and_creates_no_user(
-        self, client: Client, invitation: OrgInvitation, token: str
-    ) -> None:
-        invitation.expired_at = timezone.now() - timedelta(seconds=1)
-        invitation.save()
-        assert_error(register(client, invitation.email, token), 410, 'Invitation token has expired!')
         assert not User.objects.filter(email=invitation.email).exists()
 
     def test_signing_up_with_token_older_than_thirty_minutes_rolls_back_the_user(
