@@ -35,7 +35,6 @@ class AuthenticatedRequest(HttpRequest):
 
 
 def assert_membership(request: HttpRequest, org_id: int) -> None:
-    """Raise 403 unless the requesting user is a member of the organization."""
     user = cast(AuthenticatedRequest, request).user
     if not Member.objects.filter(user=user.pk, organization=org_id).exists():
         raise HttpError(403, 'Current User is not a member of the Organization.')

@@ -2,7 +2,6 @@ from django.core import signing
 from django.core.signing import BadSignature, SignatureExpired
 from django.http import Http404, HttpRequest
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from ninja import Router
 from ninja.errors import HttpError
 
@@ -40,12 +39,10 @@ def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:
     Raises 400 if malformed, 404 if absent and 410 if the invitation is expired.
     """
     try:
-        decoded_uuid = signing.loads(invite_token)
-
+        decoded_uuid = signing.loads(invite_token, max_age=1800)
         invitation = get_object_or_404(OrgInvitation, pk=decoded_uuid)
-
-        if invitation.expired_at <= timezone.now() or invitation.accepted is False:
-            raise HttpError(410, 'Invitation expired!')
+    except SignatureExpired as exc:
+        raise HttpError(410, 'Invitation token has expired!') from exc
     except BadSignature as exc:
         raise HttpError(410, 'Token invalid!') from exc
     except ValueError as exc:
@@ -65,7 +62,7 @@ def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:
         410: InvitationUpdateGoneError,
     },
 )
-def update_invitation(
+def accept_invitation(
     request: HttpRequest,
     payload: InvitationPayload,
     invite_token: str,
@@ -79,12 +76,6 @@ def update_invitation(
     user = User.objects.filter(email__iexact=invitation.email).first()
     if not user:
         raise HttpError(404, 'User with that email does not exist.')
-
-    try:
-        signing.loads(invite_token, max_age=1800)
-
-    except SignatureExpired as exc:
-        raise HttpError(410, 'Invitation token has expired!') from exc
 
     member, created_bool = Member.objects.get_or_create(user=user, organization=invitation.org_invite)
     if not created_bool:
