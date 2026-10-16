@@ -26,7 +26,7 @@ function OrganizationDashboard() {
   if (organizationData.isLoading || organizationData.isPending) {
     return <main className="page-wrap py-16">Loading profile…</main>;
   }
-  if (organizationData.error instanceof ApiError && organizationData.error.status === 401) {
+  if (organizationData.error) {
     return (
       <main className="page-wrap py-16">
         <section className="island-shell rounded-2xl p-8">

@@ -13,7 +13,6 @@ function Profile() {
     retry: false,
   });
 
-  // TODO: Consider how better to rewrite userMemberShip, the reason is 'enabled'
   const userMemberShip = useQuery({
     queryKey: [...currentUserQueryKey, 'membership'],
     queryFn: getUserMemberShip,
@@ -43,7 +42,7 @@ function Profile() {
 
   const { first_name, last_name, email, id } = currentUser.data;
   // If the 'data' variable returns an underfind, it will be an empty array. This is to avoid a type error.
-  const listMembership = userMemberShip.data ?? [];
+  const membershipsList = userMemberShip.data ?? [];
 
   return (
     <main className="page-wrap py-16">
@@ -81,7 +80,7 @@ function Profile() {
                 </tr>
               </thead>
               <tbody className="w-full">
-                {listMembership.map((member) => (
+                {membershipsList.map((member) => (
                   <tr key={member.id} className="relative border border-[var(--sea-ink)] hover:bg-[var(--sand)]">
                     <td className="p-2">
                       <Link
@@ -99,27 +98,6 @@ function Profile() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-      <section className="island-shell rise-in mt-5 max-w-5xl rounded-3xl">
-        {userMemberShip.error instanceof ApiError && userMemberShip.error.status === 404 ? (
-          <div className="max-w-full content-center p-5 align-center">
-            <p>User doesn't have any invitations!</p>
-          </div>
-        ) : (
-          <div className="overflow-hidden rounded-t-3xl rounded-r-5xl rounded-b-3xl rounded-l-5xl">
-            <table className="w-full table-fixed rounded-lg border border-[var(--sea-ink)] p-2 text-center">
-              <thead>
-                <tr>
-                  <th className="rounded-md border border-[var(--sea-ink)] p-2">ID</th>
-                  <th className="rounded-md border border-[var(--sea-ink)] p-2">link</th>
-                  <th className="rounded-md border border-[var(--sea-ink)] p-2">date</th>
-                  <th className="rounded-md border border-[var(--sea-ink)] p-2">status</th>
-                </tr>
-              </thead>
-              <tbody className="w-full" />
             </table>
           </div>
         )}
