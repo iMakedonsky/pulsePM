@@ -39,7 +39,7 @@ class WorkItem(models.Model):
     priority = models.CharField(choices=Priority.choices, max_length=11, default=Priority.HIGH)
     created_at = models.DateTimeField(default=timezone.now)
     started_at = models.DateTimeField(default=timezone.now)
-    due_date = models.DateField(validators=[validate_not_past])
+    due_date = models.DateField(validators=[validate_not_past], blank=True, null=True)
     estimated_time = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     time_spent = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     last_update = models.DateTimeField(default=timezone.now)
