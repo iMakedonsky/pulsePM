@@ -1,0 +1,402 @@
+[33mcommit 690e07a7bf884006c0054a43c0eae85c732891fc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/djnago/invitation[m[33m)[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Fri Oct 9 02:40:50 2026 +0200
+
+    backend: fix types and pre-commit issues
+
+[33mcommit a97d261139290013a26582b5d892eae3335f37a5[m[33m ([m[1;31morigin/feature/djnago/invitation[m[33m)[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Wed Oct 7 09:32:32 2026 +0200
+
+    add: desided to seperete invitation feature, stuck on signature implementatnion with timestamp
+
+[33mcommit 857cba73f6f56522eb6105d2246611fa66768774[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Tue Oct 6 09:18:53 2026 +0200
+
+    new flow of acceptiong invitation
+
+[33mcommit d0e3637d71767d76429e3084a17eea704c913f49[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Sun Oct 4 00:37:10 2026 +0200
+
+    since I've overide expected responce, the curret invitation test isn't relevant
+
+[33mcommit 54af8aff4f91157fda0ffe186cd22d0e947a2f5c[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Sun Oct 4 00:32:46 2026 +0200
+
+    add: enpoints, which responsible for acceptiong invitation
+
+[33mcommit 117e4655ccbf0dd5eab0ae6eed17ed115600d7d7[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Fri Oct 2 23:33:19 2026 +0200
+
+    shh key
+
+[33mcommit 75bf58497d0e2936c673c0c9c244f33e9b4807aa[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Oct 2 00:11:19 2026 +0200
+
+    modified: .python-version to 3.14
+
+[33mcommit 53b18ba2f9cf316a3c58f7a9fe35d8fed1287f1f[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Oct 2 00:09:40 2026 +0200
+
+    add: finnaly implement correct basic responce validation for requests in OrgInvitations AdminModel; fix: typeck issue with python version mismatch
+
+[33mcommit 9af90f864a56df529c65e1200a047aed70c6078b[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Thu Sep 24 18:32:46 2026 +0300
+
+    add: first api that indlude post method
+
+[33mcommit b24e957e478015f357c4f8526f4c6c033b504f49[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Wed Sep 16 00:07:16 2026 +0200
+
+    add: Mailpit binary, that was launched
+
+[33mcommit d1c7ac984a41075a8aa0faf00ac4e0ffd753f111[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Sat Sep 12 21:15:55 2026 +0200
+
+    fix copilot finted issues and implemnt couple suggestions
+
+[33mcommit 713262178f10dafe7f20a440d1eeaca784e743ca[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Sat Sep 12 08:22:57 2026 +0200
+
+    fix: tests (unrelevant auth tests); add: test, that check access to diferent requests
+
+[33mcommit eb0a653b222d2c665e7ab7734bbf2e2ba46157a4[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Sat Sep 12 00:19:28 2026 +0200
+
+    add: organization CRUD, nested workspace/member routes, ModelSchema rewrite; profile, org detail page
+
+[33mcommit c1e08567cbfb6b3a5cff93b291cb44a35f15b2be[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Thu Sep 10 01:20:58 2026 +0200
+
+    add: organization data endpoint, rewrite schemas, was implemented SessionAuth, nested profile routes
+
+[33mcommit 11065dfdac88199838784508b593e89ae32a423b[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Wed Sep 9 02:33:07 2026 +0200
+
+    add: was implemented memberships endpoints to display list of membership, createted seperete schemas and routers to each application
+
+[33mcommit df5999291677a0d60c026920547c63d2c3cb5a5f[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Tue Sep 8 01:24:52 2026 +0200
+
+    add: member, workspace inline tables are displayed
+
+[33mcommit 5d1c3f64935fc50cf37051941fcaf0d540126ba9[m[33m ([m[1;31morigin/feature/toast/auth[m[33m)[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Sep 4 12:33:08 2026 +0200
+
+    modified: changed varible names
+
+[33mcommit e29af0990d47500a71b8108cf76d01c9f4e22245[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Sep 4 03:50:14 2026 +0200
+
+    fixed varible name issues, and other things, which i dont want describe
+
+[33mcommit c3a6e598688b50702f98b218f5411b3a371213aa[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Thu Sep 3 03:22:16 2026 +0200
+
+    chore: remove accidentally committed Claude Code installer
+
+[33mcommit 7ea8ac20f5772781b42c928587759a1821d8793b[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Wed Sep 2 21:08:06 2026 +0200
+
+    fix: all linter issues
+
+[33mcommit 3ea2956ee067f8f442d5a72e67290b08745b8966[m
+Merge: cebff54 055a5e7
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Wed Sep 2 18:20:17 2026 +0200
+
+    Merge branch 'main' into feature/toast/auth
+
+[33mcommit cebff5468aa16b74e969173ceb1fef598be6c55e[m
+Merge: b4fc367 ef2f678
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Wed Sep 2 18:06:20 2026 +0200
+
+    fixies: import patterns
+
+[33mcommit b4fc367002c260f69d253d8a70edcab9d81ef47e[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Wed Sep 2 17:52:38 2026 +0200
+
+    fixies: fixied raised issues and erors by lint
+
+[33mcommit ef2f678d12361b20e5c8e16e365b40fd3d1f18a9[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Wed Sep 2 15:29:36 2026 +0200
+
+    Potential fix for pull request finding
+    
+    Co-authored-by: Copilot Autofix powered by AI <175728472+Copilot@users.noreply.github.com>
+
+[33mcommit 055a5e7021cc83abf667f665b1fe0fe35f871e64[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Tue Sep 1 21:01:24 2026 -0400
+
+    add an improved CI/pre-commit config and fix certain violations
+
+[33mcommit f3aa55acfe3e590222acccf03f4c473dfbf3a218[m
+Merge: fa76bd8 d967177
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Tue Sep 1 20:31:53 2026 -0400
+
+    Merge pull request #1 from iMakedonsky/feature/diagram
+    
+    add diagram
+
+[33mcommit d9671777b2a97f22cdd44e0e1d0b5da71b8ab1c2[m[33m ([m[1;31morigin/feature/diagram[m[33m)[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Tue Sep 1 20:31:01 2026 -0400
+
+    add an improved CI/pre-commit config and fix certain violations
+
+[33mcommit 95ddf6c4688b87a3319fc1ba2ea7b833a6f80a28[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Wed Sep 2 01:41:06 2026 +0200
+
+    add: registration form wih basic form assabiliteis(labls name, ids); new registration endpoint
+
+[33mcommit ce9129416347a897f7122d5ff88e3765495a4aad[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 17:25:31 2026 -0400
+
+    call logout mutation
+
+[33mcommit eaf72deb9b5b74c598739e579eaae6884215c31f[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 16:59:00 2026 -0400
+
+    add diagram
+
+[33mcommit fa76bd87db211dfc1c6ec3b9e91c71876e20eb16[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 01:32:22 2026 -0400
+
+    add sample api connection
+
+[33mcommit 8b394cf530f3cc4cd45379e76b6f218263427b2b[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 01:24:40 2026 -0400
+
+    add sample api connection
+
+[33mcommit 57ab0b1c3f8b23cd917fe640c095d6f2e8c44d9a[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 01:23:16 2026 -0400
+
+    add sample api connection
+
+[33mcommit 226d2bfc127ab01e5e73a2d20bf9961eca0cc214[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 01:19:10 2026 -0400
+
+    add sample api connection
+
+[33mcommit 64d1f5f2fe3fbafd05935397698b71d79f90f10d[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:43:39 2026 -0400
+
+    add CI
+
+[33mcommit d6771e8a45e1e62b0446805564720fa8ba08f791[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:59 2026 -0400
+
+    remove obsolete directory
+
+[33mcommit 5bd41107a5278ebbc2508acb32ba0aa8d3dc186a[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:58 2026 -0400
+
+    fix lint config
+
+[33mcommit 81046a188bbc6792dd96ce74b63c5a76ae941927[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:58 2026 -0400
+
+    split apps into multiple
+
+[33mcommit 191ebe2ac058e9066ba79096fd7561a6f3b0f8da[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:58 2026 -0400
+
+    add django linter and strong typing
+
+[33mcommit 5191b2603a53384ec14f6dfec4f2971acda50f91[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:58 2026 -0400
+
+    upgrade django backend for uv
+
+[33mcommit d65d8c48eb8a4d9d8b8f39c3092052da69acd7e0[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:58 2026 -0400
+
+    fix lint issue
+
+[33mcommit 4d58e2b69ff0ff0f5c1f8a02f52079e4d8e33e48[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:58 2026 -0400
+
+    add initial frontend template
+
+[33mcommit 28f5ca425810a4ba3a8aa088e6ec0c53e821a1d2[m
+Author: Oleksandr Mashianov <mashianov@gmail.com>
+Date:   Fri Aug 28 00:37:58 2026 -0400
+
+    move files for better structure
+
+[33mcommit 0ce0f169aa9908eafa608902929cfa5034e02b42[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Wed Aug 26 01:20:45 2026 +0200
+
+    add: forgot to add delete button
+
+[33mcommit faabfa96598efa87884a82db6593743c867707a9[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Tue Aug 25 22:16:57 2026 +0200
+
+    add: colapss/hidden button for each list page, generete statistic report for each enetity
+
+[33mcommit 32516a377fccb75dcda04333758bcc75643d185b[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Tue Aug 25 17:32:52 2026 +0200
+
+    clean css chashe
+
+[33mcommit 071981d4196fba67e3a4b7ce0a67cedbf371a6e8[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Tue Aug 25 16:54:02 2026 +0200
+
+    implement collaps/hidden form feature
+
+[33mcommit a233bdc8c92b3b57219cc35f83d017d8222108f9[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Tue Aug 25 01:51:21 2026 +0200
+
+    add: each entity has delete button, fix redirect issues
+
+[33mcommit c43696daf5e526a22d293452c5a0bf63fa8db934[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Mon Aug 24 18:17:56 2026 +0200
+
+    fix: all PR isses
+
+[33mcommit 280e603db4aea4848481fec1d187d01b49e02229[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Sun Aug 23 01:30:59 2026 +0200
+
+    add: implemented full auth cycle (login, sign-up, logout); fixed: paths; TODO: fix forbinden 403(token refresh)
+
+[33mcommit d08d0a7b76da75691e9392eff1f86d353040c868[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Sat Aug 22 16:28:56 2026 +0200
+
+    continue fix due_date
+
+[33mcommit 8ab754b6d3fd5ae7728f5da7ff180cbedf8c1bc1[m
+Merge: 568ebef 93eb2ee
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Sat Aug 22 01:16:06 2026 +0200
+
+    Merge pull request #3 from GlebVollodin/detached
+    
+    'Detached' was overridden and fixed most of the issues that had appeared.
+
+[33mcommit 93eb2ee77ad0b70affbbd4e11d7cc97c689af7f6[m
+Author: Alex Mashianov <omashianov@intersog.com>
+Date:   Fri Aug 21 17:07:33 2026 -0400
+
+    SPACE-0 implement first 3 layers of views
+
+[33mcommit 2f15864cc97afaf6ab2e7117f4373a25a16ea9c2[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Aug 21 22:02:05 2026 +0200
+
+    Progress: implementation of auth sys and overiding Account entity to User by default
+
+[33mcommit 092498dc6a6d96e49d20110920066222db0739ed[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Aug 21 00:52:12 2026 +0200
+
+    fixies from last PR
+
+[33mcommit 477b6eeca48e9ee6d303e5d83ca1a852c4383ccb[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Tue Aug 18 03:19:04 2026 +0200
+
+    overide: FBVs to CBVs; implemented іспÐмÐпленменнтованно свтворÐThe creation of organizations, workspaces, and items has been implementedж ; delete workspaces
+
+[33mcommit 8577f9a760a18bcaa6b9172d104ae114ddc0b5ac[m
+Author: Alex Mashianov <omashianov@intersog.com>
+Date:   Fri Aug 14 16:53:27 2026 -0400
+
+    PULSE-1 implement a demo of function views
+
+[33mcommit 568ebef8471da8d92dd120a9413f9ffcb7fd773f[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Aug 14 21:56:45 2026 +0200
+
+    midify: gitignore
+
+[33mcommit e895d32b1f6b5e709dbb5f19ac2905a5dc453657[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Fri Aug 14 21:10:44 2026 +0200
+
+    last features
+
+[33mcommit 199eea3c44cf49f72fb276848a02aa4ac379fee1[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Mon Aug 10 11:33:51 2026 +0200
+
+    init: have started new empty project
+
+[33mcommit af0c558a6f8c1c3885d96cf45a0a372ae21b646d[m
+Merge: 71cfe0d 6a5f66f
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Sun Aug 9 00:10:36 2026 +0200
+
+    Merge pull request #1 from GlebVollodin/tutor
+    
+    tutoriing: last is admin fields design 7 part
+
+[33mcommit 6a5f66f360ba819946beb6814b45b78a8d8a15cf[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Sat Aug 8 23:57:21 2026 +0200
+
+    tutoriing: last is admin fields design 7 part
+
+[33mcommit 71cfe0da5f1114afd4557e1c47af3713820a2768[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Thu Aug 6 20:42:02 2026 +0200
+
+    intro: have completed 1, 2nd django tutor
+
+[33mcommit 3718eb2d0cc2159273884030e56151e4587ab756[m
+Author: Hleb Volodin <glebvollodin@gmail.com>
+Date:   Thu Aug 6 16:54:11 2026 +0200
+
+    Initialization: I created two seperete dirs(Backend, Frontend); I have create empty Djnago project(Backend); Also have connected PostgreSQL and config DB Pycharm env
+
+[33mcommit f4ea2995485ce114cec1b3aeb20ca21150a31e8b[m
+Author: GlebVollodin <glebvollodin@gmail.com>
+Date:   Mon Aug 3 12:49:31 2026 +0200
+
+    Initial commit

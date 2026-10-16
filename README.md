@@ -8,8 +8,31 @@ Project PulsePM is a monorepo containing a typed Django application and a TanSta
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - [Bun](https://bun.sh/docs/installation)
 - GNU Make (the macOS Command Line Tools version is sufficient)
+- [Mailpit](https://mailpit.axllent.org/docs/install/), a local SMTP server with a web UI for testing emails
 
 No global Python packages, Biome installation, or manually activated virtual environment are required.
+
+### Installing Mailpit
+
+**Linux & macOS** — install to `/usr/local/bin/mailpit` with the install script:
+
+```sh
+sudo sh < <(curl -sL https://raw.githubusercontent.com/axllent/mailpit/develop/install.sh)
+```
+
+To use a different install path, set `INSTALL_PATH`:
+
+```sh
+sudo INSTALL_PATH=/usr/bin sh < <(curl -sL https://raw.githubusercontent.com/axllent/mailpit/develop/install.sh)
+```
+
+If you hit GitHub rate limits, pass a token via `GITHUB_TOKEN`:
+
+```sh
+sudo GITHUB_TOKEN="your_token_here" sh < <(curl -sL https://raw.githubusercontent.com/axllent/mailpit/develop/install.sh)
+```
+
+**Windows** — download the static binary from the [Mailpit releases page](https://github.com/axllent/mailpit/releases), extract `mailpit.exe`, and either copy it to a directory on your `PATH` or run it directly as `.\mailpit.exe`.
 
 ## Installation
 
@@ -29,11 +52,13 @@ Start Django and Vite together:
 
 ```sh
 make dev
+mailpit
 ```
 
 - Frontend: http://localhost:3000
 - Backend: http://localhost:8000
 - Django admin: http://localhost:8000/admin/
+- Mailpit dashboard: http://localhost:8025/
 
 Press Ctrl-C once to stop both processes. To run either service separately, use `make dev-backend` or `make dev-frontend`.
 
