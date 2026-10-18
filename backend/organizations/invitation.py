@@ -1,7 +1,4 @@
-from django.core import signing
-from django.core.signing import BadSignature, SignatureExpired
-from django.http import Http404, HttpRequest
-from django.shortcuts import get_object_or_404
+from django.http import HttpRequest
 from ninja import Router
 from ninja.errors import HttpError
 
@@ -34,22 +31,9 @@ invitation_router = Router(tags=['Temporary Invitations'])
     },
 )
 def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:  # noqa: ARG001
-    """Return the invitation for a signed token.
-
-    Raises 400 if malformed, 404 if absent and 410 if the invitation is expired.
-    """
-    try:
-        decoded_uuid = signing.loads(invite_token, max_age=1800)
-        invitation = get_object_or_404(OrgInvitation, pk=decoded_uuid)
-    except SignatureExpired as exc:
-        raise HttpError(410, 'Invitation token has expired!') from exc
-    except BadSignature as exc:
-        raise HttpError(410, 'Token invalid!') from exc
-    except ValueError as exc:
-        raise HttpError(400, 'Invalid data') from exc
-    except Http404 as exc:
-        raise HttpError(404, 'Invitation with that ID does not exist.') from exc
-    return {'invitation': invitation, 'invitation_token': invite_token}
+    return InvitationResult(
+        invitation=OrgInvitation.objects.get_and_validate_invitation(invite_token), invitation_token=invite_token
+    )
 
 
 @invitation_router.patch(
@@ -63,11 +47,11 @@ def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:
     },
 )
 def accept_invitation(
-    request: HttpRequest,
+    request: HttpRequest,  # noqa: ARG001
     payload: InvitationPayload,
     invite_token: str,
 ) -> InvitationUpdateResult:
-    invitation = get_invitation(request, invite_token)['invitation']
+    invitation = OrgInvitation.objects.get_and_validate_invitation(invite_token)
     if not payload.accepted:
         invitation.accepted = False
         invitation.save()

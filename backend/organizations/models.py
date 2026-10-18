@@ -4,8 +4,13 @@ from datetime import timedelta
 from typing import Any
 
 from django.conf import settings
+from django.core import signing
 from django.db import models
+from django.db.models import QuerySet
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from ninja.errors import HttpError
 
 
 class BaseModel(models.Model):
@@ -54,6 +59,25 @@ class Member(BaseModel):
         return self.user.email
 
 
+class OrgInviteManager(models.Manager['OrgInvitation']):
+    def get_and_validate_invitation(self, invite_token: str) -> OrgInvitation:
+        try:
+            decoded_uuid = signing.loads(invite_token, max_age=1800)
+            invitation = get_object_or_404(OrgInvitation, pk=decoded_uuid)
+        except signing.SignatureExpired as exc:
+            raise HttpError(410, 'Invitation token has expired!') from exc
+        except signing.BadSignature as exc:
+            raise HttpError(410, 'Token invalid!') from exc
+        except ValueError as exc:
+            raise HttpError(400, 'Invalid data') from exc
+        except Http404 as exc:
+            raise HttpError(404, 'Invitation with that ID does not exist.') from exc
+        return invitation
+
+    def all_valid_invitations(self) -> QuerySet[OrgInvitation]:
+        return self.get_queryset().filter(expired_at__gt=timezone.now())
+
+
 class OrgInvitation(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid7, editable=False)
     email = models.EmailField(max_length=254, unique=False)
@@ -63,6 +87,8 @@ class OrgInvitation(BaseModel):
     accepted = models.BooleanField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     expired_at = models.DateTimeField(default=expired_date_at)
+
+    objects = OrgInviteManager()
 
     def __str__(self) -> str:
         return str(self.id)
