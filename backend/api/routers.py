@@ -5,10 +5,8 @@ from ninja import NinjaAPI
 from ninja.errors import ValidationError
 from ninja.security import SessionAuth
 
-from organizations.api import members_router, organization_router, workspace_router
-from organizations.invitation import invitation_router
-from users.api import router_membership, router_profile
-from users.auth import router as auth_router
+from organizations.api.urls import invitation_router, organization_router
+from users.api.urls import auth_router, router_profile
 
 description = """
 A web app designed for startups, companies, and individuals
@@ -48,11 +46,8 @@ def catch_all(request: HttpRequest, exc: Exception) -> HttpResponse:
 
 api.add_router('/auth/', auth_router, auth=None)
 
-router_profile.add_router('/memberships/', router_membership)
 api.add_router('/user/', router_profile)
 
-organization_router.add_router('/', workspace_router)
-organization_router.add_router('/', members_router)
 api.add_router('/organization/', organization_router, auth=None)
 
 api.add_router('/invitation/', invitation_router, auth=None)

@@ -7,10 +7,9 @@ from django.http import HttpRequest
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizations.invitation import accept_invitation, get_invitation
-from organizations.schema import InvitationPayload
-from users.models import User
-from users.schema import (
+from organizations.api.invitation_views import accept_invitation, get_invitation
+from organizations.api.schemas import InvitationPayload
+from users.api.schemas import (
     BadRequestError,
     ConflictError,
     GoneError,
@@ -20,6 +19,7 @@ from users.schema import (
     UnauthorizedError,
     UserResponse,
 )
+from users.models import User
 
 router = Router(tags=['Authentication'])
 
