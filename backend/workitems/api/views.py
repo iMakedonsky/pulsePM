@@ -8,17 +8,17 @@ from django.utils import timezone
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizations.api import assert_membership
+from organizations.api.schemas import InvalidOrganizationIdError, OrganizationForbiddenError
+from organizations.api.views import assert_membership
 from organizations.models import Member, WorkSpace
-from organizations.schema import InvalidOrganizationIdError, OrganizationForbiddenError
-from workitems.models import WorkItem
-from workitems.schema import (
+from workitems.api.schemas import (
     WorkItemBadRequestError,
     WorkItemCreatePayload,
     WorkItemNotFoundError,
     WorkItemSchema,
     WorkItemUpdatePayload,
 )
+from workitems.models import WorkItem
 
 workitem_router = Router(tags=['Work items'])
 

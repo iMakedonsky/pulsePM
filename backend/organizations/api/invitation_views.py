@@ -6,8 +6,7 @@ from django.utils import timezone
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizations.models import Member, OrgInvitation
-from organizations.schema import (
+from organizations.api.schemas import (
     InvitationBadRequestError,
     InvitationConflictError,
     InvitationGoneError,
@@ -20,6 +19,7 @@ from organizations.schema import (
     InvitationUpdateResult,
     InvitationUpdateSchema,
 )
+from organizations.models import Member, OrgInvitation
 from users.models import User
 
 invitation_router = Router(tags=['Temporary Invitations'])

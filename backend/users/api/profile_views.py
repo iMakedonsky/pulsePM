@@ -6,13 +6,13 @@ from ninja import Router
 from ninja.errors import HttpError
 
 from organizations.models import Member
-from users.models import User
-from users.schema import (
+from users.api.schemas import (
     GetListParticipation,
     MembershipNotFoundError,
     SessionUnauthorizedError,
     UserResponse,
 )
+from users.models import User
 
 router_profile = Router(tags=['Profile'])
 router_membership = Router(tags=['Profile'])

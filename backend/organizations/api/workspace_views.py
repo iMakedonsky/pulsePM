@@ -5,9 +5,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizations.api import assert_membership
-from organizations.models import WorkSpace
-from organizations.schema import (
+from organizations.api.schemas import (
     InvalidOrganizationIdError,
     OrganizationForbiddenError,
     WorkspaceBadRequestError,
@@ -17,6 +15,8 @@ from organizations.schema import (
     WorkspacesNotFoundError,
     WorkspaceUpdatePayload,
 )
+from organizations.api.views import assert_membership
+from organizations.models import WorkSpace
 
 workspace_router = Router(tags=['Workspaces'])
 

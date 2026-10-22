@@ -3,7 +3,7 @@ from datetime import date, datetime
 from ninja import ModelSchema, Schema
 from pydantic import Field
 
-from users.schema import ErrorSchema
+from users.api.schemas import ErrorSchema
 from workitems.models import WorkItem
 
 

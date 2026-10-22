@@ -4,8 +4,8 @@ from ninja import ModelSchema, Schema
 from pydantic import Field
 
 from organizations.models import Member, Organization, OrgInvitation, WorkSpace
+from users.api.schemas import ErrorSchema
 from users.models import User
-from users.schema import ErrorSchema
 
 
 class OrganizationSchema(ModelSchema):
