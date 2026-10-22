@@ -1,3 +1,5 @@
+from collections.abc import Callable
+from functools import wraps
 from typing import cast
 
 from django.core.exceptions import ValidationError
@@ -24,8 +26,8 @@ from organizations.schema import (
 from users.models import User
 
 organization_router = Router(tags=['Organizations'])
-workspace_router = Router(tags=['Organizations'])
-members_router = Router(tags=['Organizations'])
+workspace_router = Router(tags=['Workspaces'])
+members_router = Router(tags=['Members'])
 
 
 class AuthenticatedRequest(HttpRequest):
@@ -34,10 +36,15 @@ class AuthenticatedRequest(HttpRequest):
     user: User
 
 
-def assert_membership(request: HttpRequest, org_id: int) -> None:
-    user = cast(AuthenticatedRequest, request).user
-    if not Member.objects.filter(user=user.pk, organization=org_id).exists():
-        raise HttpError(403, 'Current User is not a member of the Organization.')
+def assert_membership[T](endpoint: Callable[[HttpRequest, int], T]) -> Callable[[HttpRequest, int], T]:
+    @wraps(endpoint)
+    def inner_assert_membership(request: HttpRequest, org_id: int) -> T:
+        user = cast(AuthenticatedRequest, request).user
+        if not Member.objects.filter(user=user.pk, organization=org_id).exists():
+            raise HttpError(403, 'Current User is not a member of the Organization.')
+        return endpoint(request, org_id)
+
+    return inner_assert_membership
 
 
 @organization_router.post(
@@ -65,8 +72,8 @@ def create_organization(request: HttpRequest, payload: OrganizationPayload) -> O
         404: OrganizationNotFoundError,
     },
 )
-def get_organization(request: HttpRequest, org_id: int) -> Organization:
-    assert_membership(request, org_id)
+@assert_membership
+def get_organization(request: HttpRequest, org_id: int) -> Organization:  # noqa: ARG001
     try:
         return get_object_or_404(Organization, pk=org_id)
     except Http404 as exc:
@@ -82,8 +89,8 @@ def get_organization(request: HttpRequest, org_id: int) -> Organization:
         404: WorkspacesNotFoundError,
     },
 )
-def list_workspaces(request: HttpRequest, org_id: int) -> QuerySet[WorkSpace]:
-    assert_membership(request, org_id)
+@assert_membership
+def list_workspaces(request: HttpRequest, org_id: int) -> QuerySet[WorkSpace]:  # noqa: ARG001
     workspaces = WorkSpace.objects.filter(organization=org_id).select_related('organization')
     if not workspaces.exists():
         raise HttpError(404, 'This organization has no workspaces yet.')
@@ -99,8 +106,8 @@ def list_workspaces(request: HttpRequest, org_id: int) -> QuerySet[WorkSpace]:
         404: MembersNotFoundError,
     },
 )
-def list_members(request: HttpRequest, org_id: int) -> QuerySet[Member]:
-    assert_membership(request, org_id)
+@assert_membership
+def list_members(request: HttpRequest, org_id: int) -> QuerySet[Member]:  # noqa: ARG001
     members = Member.objects.filter(organization=org_id).select_related('user', 'organization')
     if not members.exists():
         raise HttpError(404, 'This organization has no members yet.')

@@ -12,14 +12,14 @@ function OrganizationDashboard() {
   const organizationData = useQuery({
     queryKey: [...currentUserQueryKey, 'organization', organizationId],
     queryFn: () => getOrganizationData(Number(organizationId)),
-    enabled: typeof window !== 'undefined',
+    enabled: true,
     retry: false,
   });
 
   const workspacesList = useQuery({
     queryKey: [...currentUserQueryKey, 'workspaces', organizationId],
     queryFn: () => getListWorkspaces(Number(organizationId)),
-    enabled: typeof window !== 'undefined',
+    enabled: true,
     retry: false,
   });
 

@@ -1,7 +1,6 @@
 import datetime
 import uuid
 from datetime import timedelta
-from typing import Any
 
 from django.conf import settings
 from django.core import signing
@@ -12,14 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from ninja.errors import HttpError
 
-
-class BaseModel(models.Model):
-    class Meta:
-        abstract = True
-
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        self.full_clean()
-        super().save(*args, **kwargs)
+from common.models import BaseModel
 
 
 def expired_date_at() -> datetime.datetime:

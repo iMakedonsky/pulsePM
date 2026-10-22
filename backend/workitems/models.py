@@ -5,7 +5,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-from organizations.models import BaseModel, Member, WorkSpace
+from common.models import BaseModel
+from organizations.models import Member, WorkSpace
 
 
 def validate_not_past(value: date) -> None:
