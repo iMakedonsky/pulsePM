@@ -9,7 +9,6 @@ from organizations.api.schemas import (
     InvitationNotFoundError,
     InvitationPayload,
     InvitationResponse,
-    InvitationResult,
     InvitationUpdateGoneError,
     InvitationUpdateNotFoundError,
     InvitationUpdateResult,
@@ -30,10 +29,8 @@ invitation_router = Router(tags=['Temporary Invitations'])
         410: InvitationGoneError,
     },
 )
-def get_invitation(request: HttpRequest, invite_token: str) -> InvitationResult:  # noqa: ARG001
-    return InvitationResult(
-        invitation=OrgInvitation.objects.get_and_validate_invitation(invite_token), invitation_token=invite_token
-    )
+def get_invitation(request: HttpRequest, invite_token: str) -> OrgInvitation:  # noqa: ARG001
+    return OrgInvitation.objects.get_and_validate_invitation(invite_token)
 
 
 @invitation_router.patch(

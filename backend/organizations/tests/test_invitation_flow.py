@@ -130,12 +130,11 @@ class TestInvitationFlow:
         opened = get_invitation(client, token)
         assert opened.status_code == 200
         body = opened.json()
-        assert body['invitation_token'] == token
-        assert body['invitation']['org_invite'] == organization.pk
-        assert body['invitation']['accepted'] is None
+        assert body['org_invite'] == organization.pk
+        assert body['accepted'] is None
 
         # The frontend pre-fills the sign-up form with the invited address.
-        registered = register(client, body['invitation']['email'], token)
+        registered = register(client, body['email'], token)
         assert registered.status_code == 200
         assert registered.json()['email'] == invitee_email
 

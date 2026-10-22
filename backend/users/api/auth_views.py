@@ -38,7 +38,7 @@ def register_endpoint(request: HttpRequest, payload: RegisterPayload, token: str
         ) from exc
 
     if token:
-        invitation = get_invitation(request, token)['invitation']
+        invitation = get_invitation(request, token)
         if invitation.email.lower() != payload.email.lower():
             raise HttpError(400, 'Registration email does not match the invitation.')
 

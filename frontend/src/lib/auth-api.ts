@@ -5,6 +5,13 @@ export interface AuthUser {
   last_name: string;
 }
 
+export interface Invitation {
+  org_invite: number;
+  accepted: boolean;
+  email: string;
+  text_message: string;
+}
+
 export interface MemberShip {
   id: number;
   organization: { id: number; name: string };
@@ -38,6 +45,7 @@ export class ApiError extends Error {
 
 // TODO: Consider about Cashe usage. Is that necessary to add all of that?
 export const currentUserQueryKey = ['auth', 'me'] as const;
+export const tokenQueryKey = ['token'];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
@@ -69,7 +77,7 @@ export const login = (email: string, password: string) =>
   });
 
 export const logout = () => request<void>('/auth/logout', { method: 'POST' });
-
+export const getInvitation = (token: string) => request<Invitation>(`/invitation/${token}`);
 export const getCurrentUser = () => request<AuthUser>('/user/profile');
 export const getUserMemberShip = () => request<MemberShip[]>('/user/memberships');
 export const getOrganizationData = (id: number) => request<OrganizationTypes>(`/organization/${id}`);

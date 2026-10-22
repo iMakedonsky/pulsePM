@@ -157,4 +157,5 @@ htmlcov/
 *.pyc
 Backend/Notes.md
 install.cmd
+exit
 # add ssh key to git push commits from terminal

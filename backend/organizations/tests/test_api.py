@@ -45,11 +45,10 @@ class InvitationApiTest(TestCase):
         response = self.client.get(self.url(self.token))
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body['invitation_token'], self.token)
-        self.assertEqual(body['invitation']['org_invite'], self.organization.id)
-        self.assertEqual(body['invitation']['email'], 'Invitee@example.com')
-        self.assertEqual(body['invitation']['text_message'], 'Invitation :)')
-        self.assertIsNone(body['invitation']['accepted'])
+        self.assertEqual(body['org_invite'], self.organization.id)
+        self.assertEqual(body['email'], 'Invitee@example.com')
+        self.assertEqual(body['text_message'], 'Invitation :)')
+        self.assertIsNone(body['accepted'])
 
     def test_get_tampered_token_is_410(self) -> None:
         response = self.client.get(self.url('not-a-signed-token'))

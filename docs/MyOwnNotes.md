@@ -14,9 +14,7 @@ https://docs.djangoproject.com/en/6.1/topics/migrations/#:~:text=migrations%20as
 https://github.com/iMakedonsky/pulsePM/pull/3#discussion_r4276559810
 
 ### Project architectural pattern
-1) Is it ok? If I splitted large organization api endpoints into few py files, like workspace api, workitems? 
 2) Is it ok? How I set aside api files, which represent organization entities models?
-3) Should I have created a separerte application dirs for each entity?
 
 # Frontend notes
 TODO: Consider how better to rewrite userMemberShip, the reason is 'enabled'

@@ -39,22 +39,16 @@ class WorkspaceSchema(ModelSchema):
         fields = ['id', 'name', 'space_code', 'created_by']
 
 
-class InvitationSchema(ModelSchema):
+class InvitationResponse(ModelSchema):
     class Meta:
         model = OrgInvitation
         fields = ['org_invite', 'accepted', 'email', 'text_message']
-
-
-class InvitationResponse(Schema):
-    invitation: InvitationSchema
-    invitation_token: str
 
 
 class InvitationResult(TypedDict):
     """What `get_invitation` returns in Python: the live model, not its serialised schema."""
 
     invitation: OrgInvitation
-    invitation_token: str
 
 
 class InvitationUpdateResult(TypedDict):
