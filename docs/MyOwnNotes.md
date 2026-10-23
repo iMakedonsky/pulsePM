@@ -4,6 +4,7 @@
    + Frontend to accept/reject the invite
    + Include invites in the members table, as “pending members”
    + Add a button next to the table to send a new invite.
+TODO: Consider how better to rewrite userMemberShip, the reason is 'enabled'
 
 # Backend notes
 1) Ought to create seperete serializer file for every applicaiton? To split message details and output data.
@@ -17,4 +18,6 @@ https://github.com/iMakedonsky/pulsePM/pull/3#discussion_r4276559810
 2) Is it ok? How I set aside api files, which represent organization entities models?
 
 # Frontend notes
-TODO: Consider how better to rewrite userMemberShip, the reason is 'enabled'
+1) Why useQuery doesn't save cache in local storage of client? 
+   + Where it takes ceched data?
+   + Chaching in local storage vs chaching in tanstack?

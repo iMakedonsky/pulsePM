@@ -30,6 +30,7 @@ ANSWER_ENDPOINT = ('patch', '/api/invitation/{invite_token}/accept')
 MAILPIT_API = f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1'
 TOKEN_IN_MAIL = re.compile(rf'{re.escape(FRONTED_ORIGIN)}/invitation/(\S+)')
 PASSWORD = 'Str0ng-pass-phrase!'
+REJECTED = 'Invitation was rejected.'
 
 
 # --- fixtures and helpers ----------------------------------------------------
@@ -164,6 +165,13 @@ class TestInvitationFlow:
         assert not Member.objects.filter(organization=organization).exclude(pk=sender.pk).exists()
         assert not User.objects.filter(email=invitee_email).exists()
 
+        # A refused invitation is closed: it can no longer be opened, accepted or used to sign up.
+        assert_error(get_invitation(client, token), 400, REJECTED)
+        assert_error(answer(client, token, {'accepted': True}), 400, REJECTED)
+        assert_error(register(client, invitee_email, token), 400, REJECTED)
+        assert not User.objects.filter(email=invitee_email).exists()
+        assert not Member.objects.filter(organization=organization).exclude(pk=sender.pk).exists()
+
     def test_existing_user_accepts_invitation(
         self, invitee_email: str, organization: Organization, sender: Member
     ) -> None:
@@ -235,6 +243,40 @@ class TestOpenInvitationErrors:
         with patch('django.core.signing.time.time', return_value=time.time() + 29 * 60):
             response = get_invitation(client, token)
         assert response.status_code == 200
+
+
+@pytest.fixture
+def rejected_invitation(invitation: OrgInvitation) -> OrgInvitation:
+    invitation.accepted = False
+    invitation.save()
+    return invitation
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures('rejected_invitation')
+class TestRejectedInvitation:
+    """An invitation already marked `accepted=False` is closed on every endpoint, even with a fresh token."""
+
+    def test_opening_is_400(self, client: Client, token: str) -> None:
+        assert_error(get_invitation(client, token), 400, REJECTED, OPEN_ENDPOINT)
+
+    @pytest.mark.parametrize('accepted', [True, False])
+    def test_answering_is_400_and_adds_no_member(
+        self, client: Client, invitation: OrgInvitation, token: str, *, accepted: bool
+    ) -> None:
+        User.objects.create_user(email=invitation.email, password=PASSWORD)
+        assert_error(answer(client, token, {'accepted': accepted}), 400, REJECTED, ANSWER_ENDPOINT)
+        assert not Member.objects.filter(user__email=invitation.email).exists()
+        invitation.refresh_from_db()
+        assert invitation.accepted is False
+
+    def test_signing_up_is_400_and_creates_no_user(self, client: Client, invitation: OrgInvitation, token: str) -> None:
+        assert_error(register(client, invitation.email, token), 400, REJECTED)
+        assert not User.objects.filter(email=invitation.email).exists()
+
+    def test_message_is_documented(self) -> None:
+        assert REJECTED in documented_messages(*OPEN_ENDPOINT, 400)
+        assert REJECTED in documented_messages(*ANSWER_ENDPOINT, 400)
 
 
 @pytest.mark.django_db

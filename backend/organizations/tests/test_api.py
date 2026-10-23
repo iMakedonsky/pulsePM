@@ -106,6 +106,20 @@ class InvitationApiTest(TestCase):
         self.assertEqual(response.status_code, 410)
         self.assertFalse(Member.objects.filter(user=self.invitee).exists())
 
+    def test_get_rejected_invitation_is_400(self) -> None:
+        self.invitation.accepted = False
+        self.invitation.save()
+        response = self.client.get(self.url(self.token))
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {'detail': 'Invitation was rejected.'})
+
+    def test_patch_accept_rejected_invitation_is_400(self) -> None:
+        self.accept(self.token, accepted=False)
+        response = self.accept(self.token)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {'detail': 'Invitation was rejected.'})
+        self.assertFalse(Member.objects.filter(user=self.invitee).exists())
+
     def test_patch_decline_sets_false_without_member(self) -> None:
         response = self.accept(self.token, accepted=False)
         self.assertEqual(response.status_code, 200)

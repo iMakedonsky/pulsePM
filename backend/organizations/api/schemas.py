@@ -101,7 +101,7 @@ class OrganizationConflictError(ErrorSchema):
 
 
 class InvitationBadRequestError(ErrorSchema):
-    detail: str = Field(examples=['Invalid data'])
+    detail: str = Field(examples=['Invalid data', 'Invitation was rejected.'])
 
 
 class InvitationNotFoundError(ErrorSchema):

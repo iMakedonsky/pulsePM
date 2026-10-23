@@ -102,6 +102,15 @@ class TestRegisterErrorMessages:
         assert_documented(response, 410, self.path)
         assert response.json() == {'detail': 'Token invalid!'}
 
+    def test_rejected_invitation_is_400(self, client: Client, invitation: OrgInvitation) -> None:
+        invitation.accepted = False
+        invitation.save()
+        token = signing.dumps(invitation.id.int)
+        response = post_register(client, invitation.email, PASSWORD, token)
+        assert_documented(response, 400, self.path)
+        assert response.json() == {'detail': 'Invitation was rejected.'}
+        assert not User.objects.filter(email=invitation.email).exists()
+
     def test_token_older_than_max_age_is_410(self, client: Client, invitation: OrgInvitation) -> None:
         token = signing.dumps(invitation.id.int)
         with patch('django.core.signing.time.time', return_value=time.time() + 3600):

@@ -56,6 +56,8 @@ class OrgInviteManager(models.Manager['OrgInvitation']):
         try:
             decoded_uuid = signing.loads(invite_token, max_age=1800)
             invitation = get_object_or_404(OrgInvitation, pk=decoded_uuid)
+            if invitation.accepted is False:
+                raise HttpError(400, 'Invitation was rejected.')
         except signing.SignatureExpired as exc:
             raise HttpError(410, 'Invitation token has expired!') from exc
         except signing.BadSignature as exc:
@@ -76,7 +78,7 @@ class OrgInvitation(BaseModel):
     sender = models.ForeignKey(Member, on_delete=models.CASCADE)
     org_invite = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True)
     text_message = models.TextField(max_length=500, null=False, default='Invitation :)')
-    accepted = models.BooleanField(null=True, blank=True)
+    accepted = models.BooleanField(null=True, blank=True, default=None)
     created_at = models.DateTimeField(default=timezone.now)
     expired_at = models.DateTimeField(default=expired_date_at)
 

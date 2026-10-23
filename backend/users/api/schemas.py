@@ -37,6 +37,7 @@ class BadRequestError(ErrorSchema):
             'Provided password is invalid.',
             'Registration email does not match the invitation.',
             'Invalid data',
+            'Invitation was rejected.',
         ]
     )
 
