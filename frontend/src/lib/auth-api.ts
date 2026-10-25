@@ -7,9 +7,13 @@ export interface AuthUser {
 
 export interface Invitation {
   org_invite: number;
-  accepted: boolean;
+  accepted: boolean | null;
   email: string;
   text_message: string;
+}
+
+export interface InvitationResponse {
+  accepted: boolean;
 }
 
 export interface MemberShip {
@@ -78,6 +82,11 @@ export const login = (email: string, password: string) =>
 
 export const logout = () => request<void>('/auth/logout', { method: 'POST' });
 export const getInvitation = (token: string) => request<Invitation>(`/invitation/${token}`);
+export const respondToInvitation = (token: string, accepted: boolean) =>
+  request<InvitationResponse>(`/invitation/${token}/accept`, {
+    method: 'PATCH',
+    body: JSON.stringify({ accepted }),
+  });
 export const getCurrentUser = () => request<AuthUser>('/user/profile');
 export const getUserMemberShip = () => request<MemberShip[]>('/user/memberships');
 export const getOrganizationData = (id: number) => request<OrganizationTypes>(`/organization/${id}`);

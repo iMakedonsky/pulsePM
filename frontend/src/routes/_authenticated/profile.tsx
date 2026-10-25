@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip } from '../lib/auth-api';
+import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip } from '#/lib/auth-api.ts';
 
-export const Route = createFileRoute('/profile')({ component: Profile });
+export const Route = createFileRoute('/_authenticated/profile')({ component: Profile });
 
 function Profile() {
   const currentUser = useQuery({
@@ -16,7 +16,7 @@ function Profile() {
   const userMemberShip = useQuery({
     queryKey: [...currentUserQueryKey, 'membership'],
     queryFn: getUserMemberShip,
-    enabled: !!currentUser.data, // don't fire until authenticated
+    enabled: !!currentUser.data,
     retry: false,
   });
 
@@ -41,7 +41,6 @@ function Profile() {
   }
 
   const { first_name, last_name, email, id } = currentUser.data;
-  // If the 'data' variable returns an underfind, it will be an empty array. This is to avoid a type error.
   const membershipsList = userMemberShip.data ?? [];
 
   return (
@@ -84,7 +83,7 @@ function Profile() {
                   <tr key={member.id} className="relative border border-[var(--sea-ink)] hover:bg-[var(--sand)]">
                     <td className="p-2">
                       <Link
-                        to={`/organization/$organizationId`}
+                        to="/organization/$organizationId"
                         params={{ organizationId: String(member.organization.id) }}
                         className="after:absolute after:inset-0"
                       >

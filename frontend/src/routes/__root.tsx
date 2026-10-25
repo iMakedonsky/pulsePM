@@ -4,7 +4,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { ToastProvider } from '#/context/ToastMessage.tsx';
-import { Topbar } from '../components/topbar';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 import appCss from '../styles.css?url';
 
@@ -42,7 +41,6 @@ function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <Topbar />
         <Outlet />
       </ToastProvider>
     </QueryClientProvider>

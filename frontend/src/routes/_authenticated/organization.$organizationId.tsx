@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ApiError, currentUserQueryKey, getListWorkspaces, getOrganizationData } from '#/lib/auth-api.ts';
 
-export const Route = createFileRoute('/organization/$organizationId')({
+export const Route = createFileRoute('/_authenticated/organization/$organizationId')({
   component: OrganizationDashboard,
 });
 
@@ -39,7 +39,6 @@ function OrganizationDashboard() {
       </main>
     );
   }
-  // handle the error status with an access/not-found state instead of silently returning.
   if (!organizationData.data) {
     return null;
   }
