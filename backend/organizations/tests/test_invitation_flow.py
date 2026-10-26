@@ -30,7 +30,8 @@ ANSWER_ENDPOINT = ('patch', '/api/invitation/{invite_token}/accept')
 MAILPIT_API = f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1'
 TOKEN_IN_MAIL = re.compile(rf'{re.escape(FRONTED_ORIGIN)}/invitation/(\S+)')
 PASSWORD = 'Str0ng-pass-phrase!'
-REJECTED = 'The invitation is no longer valid.'
+NO_LONGER_VALID = 'The invitation is no longer valid.'
+REJECTED = NO_LONGER_VALID
 
 
 # --- fixtures and helpers ----------------------------------------------------
@@ -303,23 +304,36 @@ class TestAnswerInvitationErrors:
         assert invitation.accepted is None
 
     def test_accepting_before_signing_up_is_404(self, client: Client, invitation: OrgInvitation, token: str) -> None:
+        # The text embeds the invitee's address, so it is checked exactly; the docs hold a sample address.
         assert_error(
-            answer(client, token, {'accepted': True}), 404, 'User with that email does not exist.', ANSWER_ENDPOINT
+            answer(client, token, {'accepted': True}),
+            404,
+            f'User with email "{invitation.email}" does not exist. '
+            'First create own account then login in and try to accept again!',
         )
         invitation.refresh_from_db()
         assert invitation.accepted is None
 
-    def test_accepting_twice_is_409(
+    def test_accepting_twice_is_410_and_adds_no_second_member(
         self, client: Client, invitation: OrgInvitation, token: str, organization: Organization
     ) -> None:
         user = User.objects.create_user(email=invitation.email, password=PASSWORD)
         assert answer(client, token, {'accepted': True}).status_code == 200
+        assert_error(answer(client, token, {'accepted': True}), 410, NO_LONGER_VALID, ANSWER_ENDPOINT)
+        assert Member.objects.filter(user=user, organization=organization).count() == 1
+
+    def test_already_a_member_is_409_and_leaves_invitation_open(
+        self, client: Client, invitation: OrgInvitation, token: str, organization: Organization
+    ) -> None:
+        user = User.objects.create_user(email=invitation.email, password=PASSWORD)
+        Member.objects.create(user=user, organization=organization)
         assert_error(
             answer(client, token, {'accepted': True}),
             409,
             f'The user {user} is already invited to organization {organization}.',
         )
-        assert Member.objects.filter(user=user, organization=organization).count() == 1
+        invitation.refresh_from_db()
+        assert invitation.accepted is None
 
     @pytest.mark.parametrize(
         ('payload', 'detail'),

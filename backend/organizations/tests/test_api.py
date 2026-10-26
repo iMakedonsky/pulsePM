@@ -76,11 +76,11 @@ class InvitationApiTest(TestCase):
         self.invitation.refresh_from_db()
         self.assertTrue(self.invitation.accepted)
 
-    def test_patch_accept_twice_is_409(self) -> None:
+    def test_patch_accept_twice_is_410(self) -> None:
         first = self.accept(self.token)
         second = self.accept(self.token)
         self.assertEqual(first.status_code, 200)
-        self.assertEqual(second.status_code, 409)
+        self.assertEqual(second.status_code, 410)
         self.assertEqual(Member.objects.filter(user=self.invitee).count(), 1)
         self.invitation.refresh_from_db()
         self.assertTrue(self.invitation.accepted)
@@ -96,7 +96,14 @@ class InvitationApiTest(TestCase):
         self.invitee.delete()
         response = self.accept(self.token)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json(), {'detail': 'User with that email does not exist.'})
+        self.assertEqual(
+            response.json(),
+            {
+                'detail': f'User with email "{self.invitation.email}" does not exist. '
+                f'First create own account then login in and '
+                f'try to accept again!'
+            },
+        )
         self.invitation.refresh_from_db()
         self.assertIsNone(self.invitation.accepted)
 

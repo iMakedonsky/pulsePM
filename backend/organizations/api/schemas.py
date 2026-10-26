@@ -128,7 +128,15 @@ class InvitationListNotFoundError(ErrorSchema):
 
 
 class InvitationUpdateNotFoundError(ErrorSchema):
-    detail: str = Field(examples=['Invitation with that ID does not exist.', 'User with that email does not exist.'])
+    detail: str = Field(
+        examples=[
+            'Invitation with that ID does not exist.',
+            (
+                'User with email "ada@example.com" does not exist. '
+                'First create own account then login in and try to accept again!'
+            ),
+        ]
+    )
 
 
 class InvitationConflictError(ErrorSchema):
