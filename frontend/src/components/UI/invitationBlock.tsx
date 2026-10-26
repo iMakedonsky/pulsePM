@@ -7,7 +7,7 @@ import { acceptInvitation, getInvitation, type Invitation } from '#/lib/auth-api
 export function InvitationBlock({ token }: { token: string }) {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
-  const navigation = useNavigate();
+  const navigation = useNavigate({ from: '/invitation/$token' });
   const queryKey = ['invitation', token] as const;
 
   const getInvitationData = useQuery({
@@ -27,34 +27,37 @@ export function InvitationBlock({ token }: { token: string }) {
         invitation ? { ...invitation, accepted: invitationResponse.accepted } : invitation,
       );
       addToast(`Invitation was accepted!`, 'Success');
+      await navigation({ to: `/organization/${invitationData?.org_invite}` });
     },
-    onError: (error) => addToast(error.message, 'Error'),
+    onError: async (error) => {
+      addToast(error.message, 'Error');
+      await navigation({ to: '/' });
+    },
   });
 
   const renderShell = (children: ReactNode) => (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 lg:px-8">
       <div className="island-shell w-full max-w-md rounded-3xl border border-[var(--sea-ink)] p-8 text-center">
         <h1 className="display-title font-bold text-[32px]">Invitation</h1>
-        <hr className="mt-4 border-[var(--line)] border-t" />
-        <hr className="mt-1 border-[var(--line)] border-t" />
+        <hr className="mt-2 mb-5 border-[var(--line)] border-t" />
         {children}
       </div>
     </div>
   );
 
-  // Validation order: request state first, then the data itself.
-  // handle the error status with an access/not-found state instead of silently returning.
+  const errorMessageComp = (errorMessage: string) => (
+    <div>
+      <h3 className="display-title font-semibold text-lg">Error</h3>
+      <p className="mt-2 text-[var(--sea-ink-soft)]">{errorMessage}</p>
+    </div>
+  );
+
   if (getInvitationData.isPending || getInvitationData.isLoading) {
     return renderShell(<p>Loading invitation…</p>);
   }
-  // accepted: null = pending, true = accepted, false = rejected
-  if (invitationData?.accepted === false) {
-    addToast(`Invitation is rejected!`, 'Error');
-    return;
-  }
-  if (invitationData && new Date(invitationData.expired_at).getTime() < Date.now()) {
-    addToast(`Invitation is rejected!`, 'Error');
-    return;
+
+  if (getInvitationData.isError) {
+    return renderShell(errorMessageComp(getInvitationData.error.message));
   }
 
   return renderShell(

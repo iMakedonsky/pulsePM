@@ -57,8 +57,10 @@ class OrgInviteManager(models.Manager['OrgInvitation']):
         try:
             decoded_uuid = signing.loads(invite_token, max_age=1800)
             invitation = get_object_or_404(OrgInvitation, pk=decoded_uuid)
-            if invitation.accepted is False or invitation.expired_at < timezone.now():
+            if invitation.accepted is False or invitation.accepted is True:
                 raise HttpError(410, 'The invitation is no longer valid.')
+            if invitation.expired_at < timezone.now():
+                raise HttpError(410, 'Invitation token has expired!')
         except signing.SignatureExpired as exc:
             raise HttpError(410, 'Invitation token has expired!') from exc
         except signing.BadSignature as exc:

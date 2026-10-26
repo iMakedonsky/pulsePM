@@ -56,7 +56,11 @@ def accept_invitation(
 
     user = User.objects.filter(email__iexact=invitation.email).first()
     if not user:
-        raise HttpError(404, 'User with that email does not exist.')
+        raise HttpError(
+            404,
+            f'User with email "{invitation.email}" does not exist. First create own account then login in and '
+            f'try to accept again!',
+        )
 
     member, created_bool = Member.objects.get_or_create(user=user, organization=invitation.org_invite)
     if not created_bool:
