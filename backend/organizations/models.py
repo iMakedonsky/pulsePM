@@ -1,6 +1,7 @@
 import datetime
 import uuid
 from datetime import timedelta
+from enum import StrEnum
 
 from django.conf import settings
 from django.core import signing
@@ -73,6 +74,11 @@ class OrgInviteManager(models.Manager['OrgInvitation']):
 
 
 class OrgInvitation(BaseModel):
+    class OrgInvitationStatus(StrEnum):
+        ACCEPTED = 'accepted'
+        REJECTED = 'rejected'
+        EXPIRED = 'expired'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid7, editable=False)
     email = models.EmailField(max_length=254, unique=False)
     sender = models.ForeignKey(Member, on_delete=models.CASCADE)
@@ -90,6 +96,14 @@ class OrgInvitation(BaseModel):
     @property
     def org_name(self) -> str:
         return self.org_invite.name
+
+    @property
+    def status(self) -> OrgInvitationStatus:
+        if self.accepted:
+            return self.OrgInvitationStatus.ACCEPTED
+        if self.expired_at < timezone.now():
+            return self.OrgInvitationStatus.EXPIRED
+        return self.OrgInvitationStatus.REJECTED
 
 
 class WorkSpace(BaseModel):
