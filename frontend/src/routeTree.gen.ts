@@ -9,111 +9,163 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as InvitationTokenRouteImport } from './routes/invitation.$token'
-import { Route as OrganizationOrganizationIdRouteImport } from './routes/organization.$organizationId'
+import { Route as AuthentificatedRouteRouteImport } from './routes/_authentificated/route'
+import { Route as PublicRouteRouteImport } from './routes/_public/route'
+import { Route as AuthentificatedProfileRouteImport } from './routes/_authentificated/profile'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as AuthentificatedOrganizationOrganizationIdRouteImport } from './routes/_authentificated/organization.$organizationId'
+import { Route as PublicInvitationTokenRouteImport } from './routes/_public/invitation.$token'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthentificatedRouteRoute = AuthentificatedRouteRouteImport.update({
+  id: '/_authentificated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfileRoute = ProfileRouteImport.update({
+const PublicRouteRoute = PublicRouteRouteImport.update({
+  id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthentificatedProfileRoute = AuthentificatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthentificatedRouteRoute,
 } as any)
-const InvitationTokenRoute = InvitationTokenRouteImport.update({
-  id: '/invitation/$token',
-  path: '/invitation/$token',
-  getParentRoute: () => rootRouteImport,
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRouteRoute,
 } as any)
-const OrganizationOrganizationIdRoute =
-  OrganizationOrganizationIdRouteImport.update({
+const AuthentificatedOrganizationOrganizationIdRoute =
+  AuthentificatedOrganizationOrganizationIdRouteImport.update({
     id: '/organization/$organizationId',
     path: '/organization/$organizationId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthentificatedRouteRoute,
   } as any)
+const PublicInvitationTokenRoute = PublicInvitationTokenRouteImport.update({
+  id: '/invitation/$token',
+  path: '/invitation/$token',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/profile': typeof ProfileRoute
-  '/invitation/$token': typeof InvitationTokenRoute
-  '/organization/$organizationId': typeof OrganizationOrganizationIdRoute
+  '/': typeof PublicIndexRoute
+  '/profile': typeof AuthentificatedProfileRoute
+  '/organization/$organizationId': typeof AuthentificatedOrganizationOrganizationIdRoute
+  '/invitation/$token': typeof PublicInvitationTokenRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/profile': typeof ProfileRoute
-  '/invitation/$token': typeof InvitationTokenRoute
-  '/organization/$organizationId': typeof OrganizationOrganizationIdRoute
+  '/': typeof PublicIndexRoute
+  '/profile': typeof AuthentificatedProfileRoute
+  '/organization/$organizationId': typeof AuthentificatedOrganizationOrganizationIdRoute
+  '/invitation/$token': typeof PublicInvitationTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/profile': typeof ProfileRoute
-  '/invitation/$token': typeof InvitationTokenRoute
-  '/organization/$organizationId': typeof OrganizationOrganizationIdRoute
+  '/_authentificated': typeof AuthentificatedRouteRouteWithChildren
+  '/_public': typeof PublicRouteRouteWithChildren
+  '/_authentificated/profile': typeof AuthentificatedProfileRoute
+  '/_public/': typeof PublicIndexRoute
+  '/_authentificated/organization/$organizationId': typeof AuthentificatedOrganizationOrganizationIdRoute
+  '/_public/invitation/$token': typeof PublicInvitationTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/profile' | '/invitation/$token' | '/organization/$organizationId'
+    '/' | '/profile' | '/organization/$organizationId' | '/invitation/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/invitation/$token' | '/organization/$organizationId'
+  to: '/' | '/profile' | '/organization/$organizationId' | '/invitation/$token'
   id:
     | '__root__'
-    | '/'
-    | '/profile'
-    | '/invitation/$token'
-    | '/organization/$organizationId'
+    | '/_authentificated'
+    | '/_public'
+    | '/_authentificated/profile'
+    | '/_public/'
+    | '/_authentificated/organization/$organizationId'
+    | '/_public/invitation/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ProfileRoute: typeof ProfileRoute
-  InvitationTokenRoute: typeof InvitationTokenRoute
-  OrganizationOrganizationIdRoute: typeof OrganizationOrganizationIdRoute
+  AuthentificatedRouteRoute: typeof AuthentificatedRouteRouteWithChildren
+  PublicRouteRoute: typeof PublicRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_authentificated': {
+      id: '/_authentificated'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthentificatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile': {
-      id: '/profile'
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authentificated/profile': {
+      id: '/_authentificated/profile'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthentificatedProfileRouteImport
+      parentRoute: typeof AuthentificatedRouteRoute
     }
-    '/invitation/$token': {
-      id: '/invitation/$token'
-      path: '/invitation/$token'
-      fullPath: '/invitation/$token'
-      preLoaderRoute: typeof InvitationTokenRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRouteRoute
     }
-    '/organization/$organizationId': {
-      id: '/organization/$organizationId'
+    '/_authentificated/organization/$organizationId': {
+      id: '/_authentificated/organization/$organizationId'
       path: '/organization/$organizationId'
       fullPath: '/organization/$organizationId'
-      preLoaderRoute: typeof OrganizationOrganizationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthentificatedOrganizationOrganizationIdRouteImport
+      parentRoute: typeof AuthentificatedRouteRoute
+    }
+    '/_public/invitation/$token': {
+      id: '/_public/invitation/$token'
+      path: '/invitation/$token'
+      fullPath: '/invitation/$token'
+      preLoaderRoute: typeof PublicInvitationTokenRouteImport
+      parentRoute: typeof PublicRouteRoute
     }
   }
 }
 
+interface AuthentificatedRouteRouteChildren {
+  AuthentificatedProfileRoute: typeof AuthentificatedProfileRoute
+  AuthentificatedOrganizationOrganizationIdRoute: typeof AuthentificatedOrganizationOrganizationIdRoute
+}
+
+const AuthentificatedRouteRouteChildren: AuthentificatedRouteRouteChildren = {
+  AuthentificatedProfileRoute: AuthentificatedProfileRoute,
+  AuthentificatedOrganizationOrganizationIdRoute:
+    AuthentificatedOrganizationOrganizationIdRoute,
+}
+
+const AuthentificatedRouteRouteWithChildren =
+  AuthentificatedRouteRoute._addFileChildren(AuthentificatedRouteRouteChildren)
+
+interface PublicRouteRouteChildren {
+  PublicIndexRoute: typeof PublicIndexRoute
+  PublicInvitationTokenRoute: typeof PublicInvitationTokenRoute
+}
+
+const PublicRouteRouteChildren: PublicRouteRouteChildren = {
+  PublicIndexRoute: PublicIndexRoute,
+  PublicInvitationTokenRoute: PublicInvitationTokenRoute,
+}
+
+const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(
+  PublicRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ProfileRoute: ProfileRoute,
-  InvitationTokenRoute: InvitationTokenRoute,
-  OrganizationOrganizationIdRoute: OrganizationOrganizationIdRoute,
+  AuthentificatedRouteRoute: AuthentificatedRouteRouteWithChildren,
+  PublicRouteRoute: PublicRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

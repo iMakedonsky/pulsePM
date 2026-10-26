@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ApiError, currentUserQueryKey, getListWorkspaces, getOrganizationData } from '#/lib/auth-api.ts';
+import { ApiError, currentUserQueryKey, getListInvitations, getListWorkspaces, getOrganizationData } from '#/lib/auth-api.ts';
 
-export const Route = createFileRoute('/organization/$organizationId')({
+export const Route = createFileRoute('/_authentificated/organization/$organizationId')({
   component: OrganizationDashboard,
 });
 
@@ -23,21 +23,15 @@ function OrganizationDashboard() {
     retry: false,
   });
 
+  const invitationList = useQuery({
+    queryKey: [...currentUserQueryKey, 'invitations', organizationId],
+    queryFn: () => getListInvitations(Number(organizationId)),
+    enabled: true,
+    retry: false,
+  });
+
   if (organizationData.isLoading || organizationData.isPending) {
     return <main className="page-wrap py-16">Loading profile…</main>;
-  }
-  if (organizationData.error) {
-    return (
-      <main className="page-wrap py-16">
-        <section className="island-shell rounded-2xl p-8">
-          <h1 className="display-title font-bold text-3xl">Profile locked</h1>
-          <p className="mt-3">Please log in from the top bar to access your profile.</p>
-          <Link to="/" className="mt-5 inline-block">
-            Return home
-          </Link>
-        </section>
-      </main>
-    );
   }
   // handle the error status with an access/not-found state instead of silently returning.
   if (!organizationData.data) {
@@ -46,6 +40,7 @@ function OrganizationDashboard() {
 
   const { owner, name, description } = organizationData.data;
   const listWorkspaces = workspacesList.data ?? [];
+  const listInvitations = invitationList.data ?? [];
   return (
     <main className="page-wrap py-16">
       <section className="island-shell rise-in mx-auto max-w-2xl rounded-3xl p-8 text-center">
@@ -88,6 +83,37 @@ function OrganizationDashboard() {
                     </td>
                     <td className="p-2">{workspace.space_code}</td>
                     <td className="p-2">{workspace.created_by}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <hr className="mt-1 border-[var(--line)] border-t" />
+        {invitationList.error instanceof ApiError ? (
+          <div className="max-w-full content-center p-5 text-center">
+            <p>Organization haven't created invitation yet!</p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-3xl p-8">
+            <table className="w-full table-fixed rounded-lg border border-[var(--sea-ink)] p-2 text-center">
+              <thead>
+                <tr>
+                  <th className="rounded-md border border-[var(--sea-ink)] p-2">Name</th>
+                  <th className="rounded-md border border-[var(--sea-ink)] p-2">Email</th>
+                  <th className="rounded-md border border-[var(--sea-ink)] p-2">Role</th>
+                  <th className="rounded-md border border-[var(--sea-ink)] p-2">Accepted</th>
+                </tr>
+              </thead>
+              <tbody className="w-full">
+                {listInvitations.map((invitation, index) => (
+                  <tr key={invitation.member?.id ?? index} className="border border-[var(--sea-ink)]">
+                    <td className="p-2">
+                      {invitation.member ? `${invitation.member.user.first_name} ${invitation.member.user.last_name}` : '—'}
+                    </td>
+                    <td className="p-2">{invitation.member?.user.email ?? '—'}</td>
+                    <td className="p-2">{invitation.member?.role ?? '—'}</td>
+                    <td className="p-2">{invitation.accepted ? 'Yes' : 'No'}</td>
                   </tr>
                 ))}
               </tbody>

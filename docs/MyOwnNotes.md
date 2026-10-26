@@ -1,9 +1,9 @@
 # TODOs
 1. Build a frontend for the organizations. Could be a simple button + form.  Only one organization for now.
+   - [ ] Include invites in the members table, as “pending members”
+   - [ ] Add a button next to the table to send a new invite.
 2. Build the frontend for the invitations:
-   + Frontend to accept/reject the invite
-   + Include invites in the members table, as “pending members”
-   + Add a button next to the table to send a new invite.
+   - [x] Frontend to accept/reject the invite
 TODO: Consider how better to rewrite userMemberShip, the reason is 'enabled'
 
 # Backend notes
@@ -15,9 +15,17 @@ https://docs.djangoproject.com/en/6.1/topics/migrations/#:~:text=migrations%20as
 https://github.com/iMakedonsky/pulsePM/pull/3#discussion_r4276559810
 
 ### Project architectural pattern
-2) Is it ok? How I set aside api files, which represent organization entities models?
 
 # Frontend notes
-1) Why useQuery doesn't save cache in local storage of client? 
-   + Where it takes ceched data?
-   + Chaching in local storage vs chaching in tanstack?
+
+@src/routes @src/router.tsx @src/routeTree.gen.ts 
+Would you run thougth route files and then elaborate schematically how router works (how it bound route files.)
+
+Prompt:
+@src/components/UI/InvitationForm.tsx  
+Допиши компонент.
+   Компонент приймає параметри: organizationId, isVisible, onClose (as arrow func).
+isVisible відповідає за відображання попап вікна;
+onClose ламбда функція що дозволяю закрити вікно при натисканні на "X", або після  успішного відправлення фетч реквесту POST.
+Реквест на створення запрошення:
+ 

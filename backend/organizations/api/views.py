@@ -11,6 +11,8 @@ from ninja.errors import HttpError
 
 from organizations.api.schemas import (
     InvalidOrganizationIdError,
+    InvitationListNotFoundError,
+    InvitationListResponse,
     MemberSchema,
     MembersNotFoundError,
     OrganizationBadRequestError,
@@ -22,7 +24,7 @@ from organizations.api.schemas import (
     WorkspaceSchema,
     WorkspacesNotFoundError,
 )
-from organizations.models import Member, Organization, WorkSpace
+from organizations.models import Member, Organization, OrgInvitation, WorkSpace
 from users.models import User
 
 organization_router = Router(tags=['Organizations'])
@@ -112,3 +114,20 @@ def list_members(request: HttpRequest, org_id: int) -> QuerySet[Member]:  # noqa
     if not members.exists():
         raise HttpError(404, 'This organization has no members yet.')
     return members
+
+
+@members_router.get(
+    '{org_id}/invitations',
+    response={
+        200: list[InvitationListResponse],
+        400: InvalidOrganizationIdError,
+        403: OrganizationForbiddenError,
+        404: InvitationListNotFoundError,
+    },
+)
+@assert_membership
+def list_invitations(request: HttpRequest, org_id: int) -> QuerySet[OrgInvitation]:  # noqa: ARG001
+    invitations = OrgInvitation.objects.filter(org_invite=org_id).order_by('-created_at')
+    if not invitations.exists():
+        raise HttpError(404, 'This organization has no invitations yet.')
+    return invitations

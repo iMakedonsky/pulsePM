@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip } from '../lib/auth-api';
+import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip } from '../../lib/auth-api.ts';
 
-export const Route = createFileRoute('/profile')({ component: Profile });
+export const Route = createFileRoute('/_authentificated/profile')({ component: Profile });
 
 function Profile() {
   const currentUser = useQuery({
@@ -16,25 +16,11 @@ function Profile() {
   const userMemberShip = useQuery({
     queryKey: [...currentUserQueryKey, 'membership'],
     queryFn: getUserMemberShip,
-    enabled: !!currentUser.data, // don't fire until authenticated
     retry: false,
   });
 
   if (currentUser.isLoading || currentUser.isPending) {
     return <main className="page-wrap py-16">Loading profile…</main>;
-  }
-  if (currentUser.error instanceof ApiError && currentUser.error.status === 401) {
-    return (
-      <main className="page-wrap py-16">
-        <section className="island-shell rounded-2xl p-8">
-          <h1 className="display-title font-bold text-3xl">Profile locked</h1>
-          <p className="mt-3">Please log in from the top bar to access your profile.</p>
-          <Link to="/" className="mt-5 inline-block">
-            Return home
-          </Link>
-        </section>
-      </main>
-    );
   }
   if (!currentUser.data) {
     return null;

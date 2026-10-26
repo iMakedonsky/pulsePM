@@ -12,6 +12,7 @@ export function RegistrationModal({
 }): JSX.Element {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
+  const invitationToken = queryClient.getQueryData<string>(['token']);
 
   const [signUpEmail, setSignUpEmail] = useState<string>('');
   const [signUpPassword, setSignUpPassword] = useState<string>('');
@@ -22,7 +23,7 @@ export function RegistrationModal({
   const passwordId = `${uid}-password`;
 
   const signUpMutation = useMutation({
-    mutationFn: () => signUp(signUpEmail, signUpPassword),
+    mutationFn: () => signUp(signUpEmail, signUpPassword, invitationToken),
     onSuccess: (user) => {
       queryClient.setQueryData(currentUserQueryKey, user);
       setSignUpPassword('');

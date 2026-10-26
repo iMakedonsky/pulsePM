@@ -37,7 +37,6 @@ class BadRequestError(ErrorSchema):
             'Provided password is invalid.',
             'Registration email does not match the invitation.',
             'Invalid data',
-            'Invitation was rejected.',
         ]
     )
 
@@ -60,7 +59,9 @@ class ConflictError(ErrorSchema):
 
 
 class GoneError(ErrorSchema):
-    detail: str = Field(examples=['Token invalid!', 'Invitation token has expired!'])
+    detail: str = Field(
+        examples=['Token invalid!', 'Invitation token has expired!', 'The invitation is no longer valid.']
+    )
 
 
 class SessionUnauthorizedError(ErrorSchema):

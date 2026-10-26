@@ -42,7 +42,13 @@ class WorkspaceSchema(ModelSchema):
 class InvitationResponse(ModelSchema):
     class Meta:
         model = OrgInvitation
-        fields = ['org_invite', 'accepted', 'email', 'text_message']
+        fields = ['org_invite', 'accepted', 'email', 'text_message', 'expired_at']
+
+
+class InvitationListResponse(ModelSchema):
+    class Meta:
+        model = OrgInvitation
+        fields = ['id', 'org_invite', 'accepted', 'email', 'sender', 'text_message', 'created_at', 'expired_at']
 
 
 class InvitationResult(TypedDict):
@@ -101,7 +107,7 @@ class OrganizationConflictError(ErrorSchema):
 
 
 class InvitationBadRequestError(ErrorSchema):
-    detail: str = Field(examples=['Invalid data', 'Invitation was rejected.'])
+    detail: str = Field(examples=['Invalid data'])
 
 
 class InvitationNotFoundError(ErrorSchema):
@@ -109,7 +115,13 @@ class InvitationNotFoundError(ErrorSchema):
 
 
 class InvitationGoneError(ErrorSchema):
-    detail: str = Field(examples=['Token invalid!', 'Invitation token has expired!'])
+    detail: str = Field(
+        examples=['Token invalid!', 'Invitation token has expired!', 'The invitation is no longer valid.']
+    )
+
+
+class InvitationListNotFoundError(ErrorSchema):
+    detail: str = Field(examples=['The organization has no invitations yet.'])
 
 
 class InvitationUpdateNotFoundError(ErrorSchema):
@@ -121,4 +133,6 @@ class InvitationConflictError(ErrorSchema):
 
 
 class InvitationUpdateGoneError(ErrorSchema):
-    detail: str = Field(examples=['Token invalid!', 'Invitation token has expired!'])
+    detail: str = Field(
+        examples=['Token invalid!', 'Invitation token has expired!', 'The invitation is no longer valid.']
+    )

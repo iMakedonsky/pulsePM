@@ -30,7 +30,7 @@ ANSWER_ENDPOINT = ('patch', '/api/invitation/{invite_token}/accept')
 MAILPIT_API = f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1'
 TOKEN_IN_MAIL = re.compile(rf'{re.escape(FRONTED_ORIGIN)}/invitation/(\S+)')
 PASSWORD = 'Str0ng-pass-phrase!'
-REJECTED = 'Invitation was rejected.'
+REJECTED = 'The invitation is no longer valid.'
 
 
 # --- fixtures and helpers ----------------------------------------------------
@@ -166,9 +166,9 @@ class TestInvitationFlow:
         assert not User.objects.filter(email=invitee_email).exists()
 
         # A refused invitation is closed: it can no longer be opened, accepted or used to sign up.
-        assert_error(get_invitation(client, token), 400, REJECTED)
-        assert_error(answer(client, token, {'accepted': True}), 400, REJECTED)
-        assert_error(register(client, invitee_email, token), 400, REJECTED)
+        assert_error(get_invitation(client, token), 410, REJECTED)
+        assert_error(answer(client, token, {'accepted': True}), 410, REJECTED)
+        assert_error(register(client, invitee_email, token), 410, REJECTED)
         assert not User.objects.filter(email=invitee_email).exists()
         assert not Member.objects.filter(organization=organization).exclude(pk=sender.pk).exists()
 
@@ -226,7 +226,7 @@ class TestOpenInvitationErrors:
         foreign = signing.dumps(invitation.id.int, key='some-other-secret-key')
         assert_error(get_invitation(client, foreign), 410, 'Token invalid!', OPEN_ENDPOINT)
 
-    def test_token_with_non_json_payload_is_400(self, client: Client) -> None:
+    def test_token_with_non_json_payload_is_410(self, client: Client) -> None:
         assert_error(get_invitation(client, validly_signed_garbage()), 400, 'Invalid data', OPEN_ENDPOINT)
 
     def test_unknown_invitation_is_404(self, client: Client) -> None:
@@ -257,26 +257,26 @@ def rejected_invitation(invitation: OrgInvitation) -> OrgInvitation:
 class TestRejectedInvitation:
     """An invitation already marked `accepted=False` is closed on every endpoint, even with a fresh token."""
 
-    def test_opening_is_400(self, client: Client, token: str) -> None:
-        assert_error(get_invitation(client, token), 400, REJECTED, OPEN_ENDPOINT)
+    def test_opening_is_410(self, client: Client, token: str) -> None:
+        assert_error(get_invitation(client, token), 410, REJECTED, OPEN_ENDPOINT)
 
     @pytest.mark.parametrize('accepted', [True, False])
-    def test_answering_is_400_and_adds_no_member(
+    def test_answering_is_410_and_adds_no_member(
         self, client: Client, invitation: OrgInvitation, token: str, *, accepted: bool
     ) -> None:
         User.objects.create_user(email=invitation.email, password=PASSWORD)
-        assert_error(answer(client, token, {'accepted': accepted}), 400, REJECTED, ANSWER_ENDPOINT)
+        assert_error(answer(client, token, {'accepted': accepted}), 410, REJECTED, ANSWER_ENDPOINT)
         assert not Member.objects.filter(user__email=invitation.email).exists()
         invitation.refresh_from_db()
         assert invitation.accepted is False
 
-    def test_signing_up_is_400_and_creates_no_user(self, client: Client, invitation: OrgInvitation, token: str) -> None:
-        assert_error(register(client, invitation.email, token), 400, REJECTED)
+    def test_signing_up_is_410_and_creates_no_user(self, client: Client, invitation: OrgInvitation, token: str) -> None:
+        assert_error(register(client, invitation.email, token), 410, REJECTED)
         assert not User.objects.filter(email=invitation.email).exists()
 
     def test_message_is_documented(self) -> None:
-        assert REJECTED in documented_messages(*OPEN_ENDPOINT, 400)
-        assert REJECTED in documented_messages(*ANSWER_ENDPOINT, 400)
+        assert REJECTED in documented_messages(*OPEN_ENDPOINT, 410)
+        assert REJECTED in documented_messages(*ANSWER_ENDPOINT, 410)
 
 
 @pytest.mark.django_db
@@ -284,7 +284,7 @@ class TestAnswerInvitationErrors:
     def test_tampered_token_is_410(self, client: Client) -> None:
         assert_error(answer(client, 'not-a-signed-token', {'accepted': True}), 410, 'Token invalid!', ANSWER_ENDPOINT)
 
-    def test_token_with_non_json_payload_is_400(self, client: Client) -> None:
+    def test_token_with_non_json_payload_is_410(self, client: Client) -> None:
         assert_error(answer(client, validly_signed_garbage(), {'accepted': True}), 400, 'Invalid data', ANSWER_ENDPOINT)
 
     def test_unknown_invitation_is_404(self, client: Client) -> None:
@@ -328,16 +328,16 @@ class TestAnswerInvitationErrors:
             ({'accepted': 'maybe'}, 'Invalid accepted: Input should be a valid boolean, unable to interpret input'),
         ],
     )
-    def test_invalid_payload_is_400(self, client: Client, token: str, payload: dict[str, Any], detail: str) -> None:
+    def test_invalid_payload_is_410(self, client: Client, token: str, payload: dict[str, Any], detail: str) -> None:
         assert_error(answer(client, token, payload), 400, detail)
 
-    def test_unparsable_body_is_400(self, client: Client, token: str) -> None:
+    def test_unparsable_body_is_410(self, client: Client, token: str) -> None:
         assert_error(answer(client, token, 'not json'), 400, 'Cannot parse request body')
 
 
 @pytest.mark.django_db
 class TestSignUpWithInvitationErrors:
-    def test_signing_up_with_another_email_is_400_and_creates_no_user(
+    def test_signing_up_with_another_email_is_410_and_creates_no_user(
         self, client: Client, invitation: OrgInvitation, token: str
     ) -> None:
         assert_error(

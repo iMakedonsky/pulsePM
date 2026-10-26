@@ -106,18 +106,18 @@ class InvitationApiTest(TestCase):
         self.assertEqual(response.status_code, 410)
         self.assertFalse(Member.objects.filter(user=self.invitee).exists())
 
-    def test_get_rejected_invitation_is_400(self) -> None:
+    def test_get_rejected_invitation_is_410(self) -> None:
         self.invitation.accepted = False
         self.invitation.save()
         response = self.client.get(self.url(self.token))
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json(), {'detail': 'Invitation was rejected.'})
+        self.assertEqual(response.status_code, 410)
+        self.assertEqual(response.json(), {'detail': 'The invitation is no longer valid.'})
 
-    def test_patch_accept_rejected_invitation_is_400(self) -> None:
+    def test_patch_accept_rejected_invitation_is_410(self) -> None:
         self.accept(self.token, accepted=False)
         response = self.accept(self.token)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json(), {'detail': 'Invitation was rejected.'})
+        self.assertEqual(response.status_code, 410)
+        self.assertEqual(response.json(), {'detail': 'The invitation is no longer valid.'})
         self.assertFalse(Member.objects.filter(user=self.invitee).exists())
 
     def test_patch_decline_sets_false_without_member(self) -> None:
@@ -169,12 +169,12 @@ class TestCreateOrganizationErrorMessages:
     def post(self, client: Client, **payload: str) -> _MonkeyPatchedWSGIResponse:
         return client.post(self.path, payload, content_type='application/json')
 
-    def test_blank_name_is_400(self, client: Client, outsider: User) -> None:
+    def test_blank_name_is_410(self, client: Client, outsider: User) -> None:
         client.force_login(outsider)
         response = self.post(client, name='', description='Test org')
         assert_documented(response, 'post', self.path, 400, 'This field cannot be blank.')
 
-    def test_too_long_name_is_400(self, client: Client, outsider: User) -> None:
+    def test_too_long_name_is_410(self, client: Client, outsider: User) -> None:
         client.force_login(outsider)
         response = self.post(client, name='x' * 101, description='Test org')
         assert_documented(
@@ -198,7 +198,7 @@ class TestGetOrganizationErrorMessages:
     def get(self, client: Client, org_id: object) -> _MonkeyPatchedWSGIResponse:
         return client.get(f'/api/organization/{org_id}')
 
-    def test_non_numeric_id_is_400(self, client: Client, owner: User) -> None:
+    def test_non_numeric_id_is_410(self, client: Client, owner: User) -> None:
         client.force_login(owner)
         assert_documented(self.get(client, 'abc'), 'get', self.path, 400, 'Invalid org_id.')
 
@@ -229,7 +229,7 @@ class TestListWorkspacesErrorMessages:
     def get(self, client: Client, org_id: object) -> _MonkeyPatchedWSGIResponse:
         return client.get(f'/api/organization/{org_id}/workspaces')
 
-    def test_non_numeric_id_is_400(self, client: Client, owner: User) -> None:
+    def test_non_numeric_id_is_410(self, client: Client, owner: User) -> None:
         client.force_login(owner)
         assert_documented(self.get(client, 'abc'), 'get', self.path, 400, 'Invalid org_id.')
 
@@ -273,7 +273,7 @@ class TestListMembersErrorMessages:
     def get(self, client: Client, org_id: object) -> _MonkeyPatchedWSGIResponse:
         return client.get(f'/api/organization/{org_id}/members')
 
-    def test_non_numeric_id_is_400(self, client: Client, owner: User) -> None:
+    def test_non_numeric_id_is_410(self, client: Client, owner: User) -> None:
         client.force_login(owner)
         assert_documented(self.get(client, 'abc'), 'get', self.path, 400, 'Invalid org_id.')
 
