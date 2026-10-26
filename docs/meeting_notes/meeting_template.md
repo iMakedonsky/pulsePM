@@ -16,40 +16,26 @@ Please follow this checklist to ensure a productive meeting. Make a PR with a co
 
 
 ## What was planned last time
-1. Build a frontend for the organizations. Could be a simple button + form.  Only one organization for now.
-   - Include invites in the members table, as “pending members”
-   - Add a button next to the table to send a new invite.
-2. Build the frontend for the invitations:
-   - Frontend to accept/reject the invite
+1. ...
+2. ...
+3. ...
+
+... what was planned during previous meeting
 
 ## What was finished
-1. I've finised invitation prcecsing. 
-   - Backend
-   I implemented accepting/rejecting validation.
-   - Frontend
-   Designed basicl invitation page (central window with h1, p, 2 buttons: reject, accept)
-   Validated response from server if user accept or reject invitation. 
+1. ...❌
+2. ...✅
+3. ...? 
+
 ... what was done/finished since the last meeting
 
 
 ## Questions
-### Architecture
-1) Should we assign status row in OrgInvitation entity? To display the actual status of invitation based on expired/reject/accepted rows.
-
-### Pattern Design
-1) Ought to create seperete serializer file for every applicaiton? To split message details and output data.
-2) Is it ok? How I set aside api files, which represent organization entities models?
-
-### Technologies
-### Frameworks
-1) Why useQuery doesn't save cache in local storage of client? 
-   + Where it takes ceched data?
-   + Chaching in local storage vs chaching in tanstack memory?
-### Development processes
-### Other
-1) Should I return status code from backend to hanle errors? 
-- in case with expired data
-- accepted: False 
+1. ... Architecture
+2. ... Technologies
+3. ... Frameworks
+4. ... Development processes
+5. ... Other
 
 
 Please write down EXACT formulations.
