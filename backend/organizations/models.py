@@ -76,7 +76,7 @@ class OrgInvitation(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid7, editable=False)
     email = models.EmailField(max_length=254, unique=False)
     sender = models.ForeignKey(Member, on_delete=models.CASCADE)
-    org_invite = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True)
+    org_invite = models.ForeignKey(Organization, on_delete=models.CASCADE)
     text_message = models.TextField(max_length=500, null=False, default='Invitation :)')
     accepted = models.BooleanField(null=True, blank=True, default=None)
     created_at = models.DateTimeField(default=timezone.now)
@@ -86,6 +86,10 @@ class OrgInvitation(BaseModel):
 
     def __str__(self) -> str:
         return str(self.id)
+
+    @property
+    def org_name(self) -> str:
+        return self.org_invite.name
 
 
 class WorkSpace(BaseModel):

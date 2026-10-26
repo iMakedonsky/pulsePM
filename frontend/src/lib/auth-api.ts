@@ -11,6 +11,7 @@ export interface Invitation {
   email: string;
   text_message: string;
   expired_at: string;
+  org_name: string;
 }
 
 export interface InvitationResponse {

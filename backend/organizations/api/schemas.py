@@ -40,6 +40,9 @@ class WorkspaceSchema(ModelSchema):
 
 
 class InvitationResponse(ModelSchema):
+    # org_name: Annotated[str, Field(alias="org_invite.org_name")] noqa: ERA001
+    org_name: str
+
     class Meta:
         model = OrgInvitation
         fields = ['org_invite', 'accepted', 'email', 'text_message', 'expired_at']

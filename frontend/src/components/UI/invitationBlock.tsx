@@ -60,7 +60,7 @@ export function InvitationBlock({ token }: { token: string }) {
   return renderShell(
     <>
       <div className="form-group py-6">
-        <h2 className="display-title font-semibold text-lg">{invitationData?.org_invite}</h2>
+        <h2 className="display-title font-semibold text-lg">Invited to org name: {invitationData?.org_name}</h2>
         <p className="mt-2 text-[var(--sea-ink-soft)]">{invitationData?.text_message}</p>
       </div>
       <div className="flex items-baseline justify-center gap-4">
