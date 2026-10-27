@@ -22,7 +22,7 @@ class WorkSpaceView(LoginRequiredMixin, View):
             request,
             'pulse/workspace.html',
             {
-                'workitem_form': AddItemForm(),
+                'workitem_fo    rm': AddItemForm(),
                 'workspace_data': get_object_or_404(WorkSpace, pk=workspace_id),
                 'workitem_list': WorkItem.objects.filter(workspace_id=workspace_id),
             },

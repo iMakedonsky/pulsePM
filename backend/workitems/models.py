@@ -1,11 +1,11 @@
 from datetime import date
-from typing import Any
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
+from common.models import BaseModel
 from organizations.models import Member, WorkSpace
 
 
@@ -14,7 +14,7 @@ def validate_not_past(value: date) -> None:
         raise ValidationError('Value cannot be in the past.')
 
 
-class WorkItem(models.Model):
+class WorkItem(BaseModel):
     class Status(models.TextChoices):
         TODO = 'to do'
         IN_PROGRESS = 'in progress'
@@ -45,7 +45,3 @@ class WorkItem(models.Model):
 
     def __str__(self) -> str:
         return self.title
-
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        self.full_clean()
-        super().save(*args, **kwargs)
