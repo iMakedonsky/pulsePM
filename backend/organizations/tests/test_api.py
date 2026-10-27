@@ -195,7 +195,7 @@ class TestCreateOrganizationErrorMessages:
         assert_documented(response, 'post', self.path, 409, 'User already owns an organization.')
 
     def test_declared_statuses(self) -> None:
-        assert documented_statuses('post', self.path) == {200, 400, 409}
+        assert documented_statuses('post', self.path) == {201, 400, 409}
 
 
 @pytest.mark.django_db

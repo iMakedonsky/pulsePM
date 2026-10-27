@@ -48,7 +48,7 @@ class OrganizationApiTests(TestCase):
         )
 
     def test_create_second_owned_organization_is_409(self) -> None:
-        self.assertEqual(200, self.create().status_code)
+        self.assertEqual(201, self.create().status_code)
         response = self.create('Other')
         self.assertEqual(409, response.status_code)
         self.assertEqual(1, Organization.objects.filter(owner=self.user).count())
@@ -57,7 +57,7 @@ class OrganizationApiTests(TestCase):
         other = get_user_model().objects.create_user(email='bob@example.com', password='78S28130s')
         org = Organization.objects.create(owner=other, name='Bob inc', description='desc')
         Member.objects.create(user=self.user, organization=org)
-        self.assertEqual(200, self.create().status_code)
+        self.assertEqual(201, self.create().status_code)
 
     def test_non_numeric_id_is_400(self) -> None:
         for path in ('asda', 'asda/workspaces', 'asda/members'):

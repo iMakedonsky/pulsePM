@@ -1,12 +1,12 @@
 from collections.abc import Callable
 from functools import wraps
-from typing import cast
+from typing import Concatenate, cast
 
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import Http404, HttpRequest
 from django.shortcuts import get_object_or_404
-from ninja import Router
+from ninja import Router, Status
 from ninja.errors import HttpError
 
 from organizations.api.schemas import (
@@ -38,22 +38,26 @@ class AuthenticatedRequest(HttpRequest):
     user: User
 
 
-def assert_membership[T](endpoint: Callable[[HttpRequest, int], T]) -> Callable[[HttpRequest, int], T]:
+def assert_membership[**P, T](
+    endpoint: Callable[Concatenate[HttpRequest, int, P], T],
+) -> Callable[Concatenate[HttpRequest, int, P], T]:
+    """Raise 403 unless the requesting user is a member of the `org_id` organization."""
+
     @wraps(endpoint)
-    def inner_assert_membership(request: HttpRequest, org_id: int) -> T:
+    def inner_assert_membership(request: HttpRequest, org_id: int, *args: P.args, **kwargs: P.kwargs) -> T:
         user = cast(AuthenticatedRequest, request).user
         if not Member.objects.filter(user=user.pk, organization=org_id).exists():
             raise HttpError(403, 'Current User is not a member of the Organization.')
-        return endpoint(request, org_id)
+        return endpoint(request, org_id, *args, **kwargs)
 
-    return inner_assert_membership
+    return cast(Callable[Concatenate[HttpRequest, int, P], T], inner_assert_membership)
 
 
 @organization_router.post(
     '/create',
-    response={200: OrganizationSchema, 400: OrganizationBadRequestError, 409: OrganizationConflictError},
+    response={201: OrganizationSchema, 400: OrganizationBadRequestError, 409: OrganizationConflictError},
 )
-def create_organization(request: HttpRequest, payload: OrganizationPayload) -> Organization:
+def create_organization(request: HttpRequest, payload: OrganizationPayload) -> Status[Organization]:
     user = cast(AuthenticatedRequest, request).user
     if Organization.objects.filter(owner=user.pk).exists():
         raise HttpError(409, 'User already owns an organization.')
@@ -62,7 +66,7 @@ def create_organization(request: HttpRequest, payload: OrganizationPayload) -> O
         Member.objects.create(user=user, organization=organization, role=Member.OrgRoles.OWNER)
     except ValidationError as exc:
         raise HttpError(400, '; '.join(exc.messages)) from exc
-    return organization
+    return Status(201, organization)
 
 
 @organization_router.get(

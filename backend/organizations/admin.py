@@ -1,13 +1,10 @@
-from typing import Any, override
+from typing import override
 
-import requests
 from django.contrib import admin, messages
-from django.core import signing
 from django.forms import ModelForm
 from django.http import HttpRequest
-from requests import HTTPError, RequestException
 
-from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST, FROM_EMAIL, FRONTED_ORIGIN
+from organizations.mailpitRequests.emails import InvitationEmailError, send_invitation_email
 
 from .models import Member, Organization, OrgInvitation, WorkSpace
 
@@ -44,42 +41,15 @@ class OrgInvitationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     def save_model(
         self, request: HttpRequest, obj: OrgInvitation, form: ModelForm[OrgInvitation], change: bool
     ) -> None:
-        encode_id = signing.dumps(obj.id.int)
-
-        payload: dict[str, Any] = {
-            'from': {
-                'Email': FROM_EMAIL,
-                'Name': FROM_EMAIL,
-            },
-            'to': [
-                {
-                    'Email': obj.email.lower(),
-                    'Name': obj.email.lower(),
-                }
-            ],
-            'subject': f'Invitation to org {obj.org_invite}',
-            'text': str(obj.text_message + '\n' + f'{FRONTED_ORIGIN}/invitation/{encode_id}'),
-        }
         try:
-            response = requests.post(
-                f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1/send', json=payload, timeout=5
+            send_invitation_email(obj)
+        except InvitationEmailError as exc:
+            messages.error(
+                request, f'Mailpit rejected the invitation. Status code: {exc.status_code}, Message: {exc.text}'
             )
-            response.raise_for_status()
-
-            obj.save()
-        except HTTPError as exc:
-            detail = (
-                f'Status code: {exc.response.status_code}, Message: {exc.response.text}'
-                if exc.response is not None
-                else str(exc)
-            )
-            messages.error(request, f'Mailpit rejected the invitation. {detail}')
             messages.set_level(request, messages.ERROR)
             return
-        except RequestException as exc:
-            messages.error(request, f'Mailpit rejected the invitation: {exc}')
-            messages.set_level(request, messages.ERROR)
-            return
+        obj.save()
 
 
 @admin.register(WorkSpace)
