@@ -1,9 +1,11 @@
+from django.core import signing
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import HttpRequest
 from ninja import Router, Status
 from ninja.errors import HttpError
 
+from conf.settings import FRONTED_ORIGIN
 from organizations.api.schemas import (
     InvitationBadRequestError,
     InvitationConflictError,
@@ -49,6 +51,9 @@ def create_invitation(request: HttpRequest, org_id: int, payload: InvitationCrea
                 sender_id=sender.pk,
                 text_message=payload.text_message,
             )
+        encode_uuid = signing.dumps(invitation.id.int)
+        invitation.text_message = str(payload.text_message + '\n' + f'{FRONTED_ORIGIN}/invitation/{encode_uuid}')
+        invitation.save()
         send_invitation_email(invitation)
     except ValidationError as exc:
         raise HttpError(400, '; '.join(exc.messages)) from exc

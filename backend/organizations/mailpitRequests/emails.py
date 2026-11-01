@@ -2,10 +2,9 @@ from http import HTTPStatus
 from typing import Any
 
 import requests
-from django.core import signing
 from requests import HTTPError, RequestException
 
-from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST, FROM_EMAIL, FRONTED_ORIGIN
+from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST, FROM_EMAIL
 from organizations.models import OrgInvitation
 
 BAD_GATEWAY = HTTPStatus.BAD_GATEWAY.value
@@ -21,7 +20,6 @@ class InvitationEmailError(Exception):
 
 
 def send_invitation_email(invitation_data: OrgInvitation) -> None:
-    encode_id = signing.dumps(invitation_data.id.int)
     payload: dict[str, Any] = {
         'from': {
             'Email': FROM_EMAIL,
@@ -34,10 +32,11 @@ def send_invitation_email(invitation_data: OrgInvitation) -> None:
             }
         ],
         'subject': f'Invitation to org {invitation_data.org_invite}',
-        'text': str(invitation_data.text_message + '\n' + f'{FRONTED_ORIGIN}/invitation/{encode_id}'),
+        'text': invitation_data.text_message,
     }
     try:
         response = requests.post(f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1/send', json=payload, timeout=5)
+
         response.raise_for_status()
     except HTTPError as exc:
         if exc.response is None:

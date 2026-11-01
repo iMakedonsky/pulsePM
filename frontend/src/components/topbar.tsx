@@ -33,6 +33,7 @@ export function Topbar() {
       addToast(error.message, 'Error');
     },
   });
+
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: () => queryClient.removeQueries({ queryKey: currentUserQueryKey }),

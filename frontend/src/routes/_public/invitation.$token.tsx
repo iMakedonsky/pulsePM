@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { InvitationBlock } from '#/components/UI/invitationBlock.tsx';
+import { InvitationAcceptionBlock } from '#/components/UI/invitationAcceptionBlock.tsx';
 
 export const Route = createFileRoute('/_public/invitation/$token')({
   component: InvitationRoute,
@@ -8,5 +8,5 @@ export const Route = createFileRoute('/_public/invitation/$token')({
 function InvitationRoute() {
   const { token } = Route.useParams();
 
-  return <InvitationBlock token={token} />;
+  return <InvitationAcceptionBlock token={token} />;
 }

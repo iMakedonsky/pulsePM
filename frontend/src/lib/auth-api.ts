@@ -9,9 +9,19 @@ export interface Invitation {
   org_invite: number;
   accepted: boolean | null;
   email: string;
-  text_message: string;
   expired_at: string;
   org_name: string;
+}
+
+export interface InvitationListItem {
+  id: string;
+  org_invite: number;
+  accepted: boolean | null;
+  email: string;
+  sender_name: string;
+  text_message: string;
+  created_at: string;
+  expired_at: string;
 }
 
 export interface InvitationResponse {
@@ -79,7 +89,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
-export const signUp = (email: string, password: string, token?: string) =>
+export const signUp = (email: string, password: string, token?: string | null) =>
   request<AuthUser>('/auth/register', {
     method: 'POST',
     // TODO: How do I hand token better? (cache / cookie / payload)
@@ -103,10 +113,9 @@ export const getCurrentUser = () => request<AuthUser>('/user/profile');
 export const getUserMemberShip = () => request<MemberShip[]>('/user/memberships');
 export const getOrganizationData = (id: number) => request<OrganizationTypes>(`/organization/${id}`);
 export const getListWorkspaces = (id: number) => request<WorkspaceTypes[]>(`/organization/${id}/workspaces`);
-export const getListInvitations = (id: number) => request<InvitationResponse[]>(`/organization/${id}/invitations`);
-// TODO: backend has no POST endpoint for this yet, path mirrors the GET list route
+export const getListInvitations = (id: number) => request<InvitationListItem[]>(`/organization/${id}/invitations`);
 export const createInvitation = (orgId: number, email: string, textMessage: string) =>
-  request<Invitation>(`/organization/${orgId}/invitations`, {
+  request<Invitation>(`/organization/${orgId}/invitation/create`, {
     method: 'POST',
     body: JSON.stringify({ email, text_message: textMessage }),
   });

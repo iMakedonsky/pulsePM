@@ -24,7 +24,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <CreateToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="absolute inset-x-0 top-8.75 z-50 flex flex-col items-center gap-3 px-4">
+      <div className="fixed inset-x-0 top-8.75 z-50 flex flex-col items-center gap-3 px-4">
         {toasts.map((toast) => (
           <div
             className={`w-full max-w-md rounded-md border px-4 py-3 text-center shadow-sm backdrop-blur-sm ${toast.type === 'Error' ? 'border-red-300 bg-red-100 text-[var(--sea-ink)]' : 'border-[var(--line)] bg-cyan-100 text-[var(--sea-ink)]'}`}

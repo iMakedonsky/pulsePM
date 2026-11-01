@@ -1,8 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { type JSX, useId, useState } from 'react';
 import { useToast } from '#/context/toast-context.ts';
-import { currentUserQueryKey, signUp } from '@/lib/auth-api';
-
+import { signUp } from '@/lib/auth-api';
 export function RegistrationModal({
   isRegistrationFormVisible,
   onClose,
@@ -11,8 +10,9 @@ export function RegistrationModal({
   onClose: () => void;
 }): JSX.Element {
   const { addToast } = useToast();
-  const queryClient = useQueryClient();
-  const invitationToken = queryClient.getQueryData<string>(['token']);
+  // TODO: Consider how to save token from url and then pass it to Registration request, which will send token and
+  //  create organization member after user register. I see three options: setQeuryData, setCookie,
+  //  save it in localStorage
 
   const [signUpEmail, setSignUpEmail] = useState<string>('');
   const [signUpPassword, setSignUpPassword] = useState<string>('');
@@ -23,9 +23,8 @@ export function RegistrationModal({
   const passwordId = `${uid}-password`;
 
   const signUpMutation = useMutation({
-    mutationFn: () => signUp(signUpEmail, signUpPassword, invitationToken),
-    onSuccess: (user) => {
-      queryClient.setQueryData(currentUserQueryKey, user);
+    mutationFn: () => signUp(signUpEmail, signUpPassword),
+    onSuccess: () => {
       setSignUpPassword('');
 
       // TODO: User should have opportunity to enter f_name and l_name, to show user name in ToastMessage

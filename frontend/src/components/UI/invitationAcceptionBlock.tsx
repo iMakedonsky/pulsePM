@@ -1,19 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useToast } from '#/context/toast-context.ts';
-import { acceptInvitation, getInvitation, type Invitation } from '#/lib/auth-api.ts';
+import { acceptInvitation, getInvitation } from '#/lib/auth-api.ts';
 
-export function InvitationBlock({ token }: { token: string }) {
+export function InvitationAcceptionBlock({ token }: { token: string }) {
   const { addToast } = useToast();
-  const queryClient = useQueryClient();
   const navigation = useNavigate({ from: '/invitation/$token' });
-  const queryKey = ['invitation', token] as const;
+  const invitationQueryKey = ['invitation_token'] as const;
 
   const getInvitationData = useQuery({
-    queryKey,
+    queryKey: invitationQueryKey,
     queryFn: () => getInvitation(token),
   });
+  localStorage.setItem('invitation_token', token);
 
   const invitationData = getInvitationData.data;
   const acceptMutation = useMutation({
@@ -23,9 +23,6 @@ export function InvitationBlock({ token }: { token: string }) {
         await navigation({ to: '/' });
         return;
       }
-      queryClient.setQueryData<Invitation>(queryKey, (invitation) =>
-        invitation ? { ...invitation, accepted: invitationResponse.accepted } : invitation,
-      );
       addToast(`Invitation was accepted!`, 'Success');
       await navigation({ to: `/organization/${invitationData?.org_invite}` });
     },
@@ -64,7 +61,6 @@ export function InvitationBlock({ token }: { token: string }) {
     <>
       <div className="form-group py-6">
         <h2 className="display-title font-semibold text-lg">Invited to org name: {invitationData?.org_name}</h2>
-        <p className="mt-2 text-[var(--sea-ink-soft)]">{invitationData?.text_message}</p>
       </div>
       <div className="flex items-baseline justify-center gap-4">
         <button

@@ -51,7 +51,7 @@ class InvitationGoneError(ErrorSchema):
 
 
 class InvitationListNotFoundError(ErrorSchema):
-    detail: str = Field(examples=['The organization has no invitations yet.'])
+    detail: str = Field(examples=['This organization has no invitations yet.'])
 
 
 class InvitationUpdateNotFoundError(ErrorSchema):

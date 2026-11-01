@@ -47,7 +47,6 @@ class InvitationApiTest(TestCase):
         body = response.json()
         self.assertEqual(body['org_invite'], self.organization.id)
         self.assertEqual(body['email'], 'Invitee@example.com')
-        self.assertEqual(body['text_message'], 'Invitation :)')
         self.assertIsNone(body['accepted'])
 
     def test_get_tampered_token_is_410(self) -> None:

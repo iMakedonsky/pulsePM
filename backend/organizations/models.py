@@ -100,12 +100,8 @@ class OrgInvitation(BaseModel):
         return self.org_invite.name
 
     @property
-    def status(self) -> OrgInvitationStatus:
-        if self.accepted:
-            return self.OrgInvitationStatus.ACCEPTED
-        if self.expired_at < timezone.now():
-            return self.OrgInvitationStatus.EXPIRED
-        return self.OrgInvitationStatus.REJECTED
+    def sender_name(self) -> str:
+        return self.sender.user.email
 
 
 class WorkSpace(BaseModel):

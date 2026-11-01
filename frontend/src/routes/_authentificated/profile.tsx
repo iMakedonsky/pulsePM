@@ -54,7 +54,7 @@ function Profile() {
             <p>User haven't participated in any organizations yet!</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-t-3xl rounded-r-5xl rounded-b-3xl rounded-l-5xl">
+          <div className="overflow-hidden rounded-3xl p-8">
             <table className="w-full table-fixed rounded-lg border border-[var(--sea-ink)] p-2 text-center">
               <thead>
                 <tr>

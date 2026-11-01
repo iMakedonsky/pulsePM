@@ -38,13 +38,15 @@ class InvitationResponse(ModelSchema):
 
     class Meta:
         model = OrgInvitation
-        fields = ['org_invite', 'accepted', 'email', 'text_message', 'expired_at']
+        fields = ['org_invite', 'accepted', 'email', 'expired_at']
 
 
 class InvitationListResponse(ModelSchema):
+    sender_name: str
+
     class Meta:
         model = OrgInvitation
-        fields = ['id', 'org_invite', 'accepted', 'email', 'sender', 'text_message', 'created_at', 'expired_at']
+        fields = ['id', 'org_invite', 'accepted', 'email', 'text_message', 'created_at', 'expired_at']
 
 
 class InvitationUpdateSchema(Schema):

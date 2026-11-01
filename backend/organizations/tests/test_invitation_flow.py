@@ -1,4 +1,4 @@
-"""End-to-end invitation flow: admin creates the invitation, Mailpit receives the mail, the invitee acts on the token.
+"""End-to-end invitation flow: a member invites via the API, Mailpit gets the mail, the invitee acts on the token.
 
 The happy-path tests need a running Mailpit (`EMAIL_SERVICE_HOST:EMAIL_HTTP_PORT`) and are skipped without one.
 The error tests only need the database.
@@ -17,7 +17,7 @@ from django.core import signing
 from django.core.signing import TimestampSigner, b64_encode
 from django.test import Client
 
-from api.openapi_docs import documented_messages
+from api.openapi_docs import documented_messages, documented_statuses
 from conf.settings import EMAIL_HTTP_PORT, EMAIL_SERVICE_HOST, FRONTED_ORIGIN
 from organizations.models import Member, Organization, OrgInvitation
 from users.models import User
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 
 OPEN_ENDPOINT = ('get', '/api/invitation/{invite_token}')
 ANSWER_ENDPOINT = ('patch', '/api/invitation/{invite_token}/accept')
+LIST_ENDPOINT = ('get', '/api/organization/{org_id}/invitations')
 MAILPIT_API = f'http://{EMAIL_SERVICE_HOST}:{EMAIL_HTTP_PORT}/api/v1'
 TOKEN_IN_MAIL = re.compile(rf'{re.escape(FRONTED_ORIGIN)}/invitation/(\S+)')
 PASSWORD = 'Str0ng-pass-phrase!'
@@ -69,16 +70,16 @@ def sender(owner: User, organization: Organization) -> Member:
 
 
 def send_invitation(email: str, sender: Member) -> str:
-    """Create the invitation the way staff do (admin form -> Mailpit) and return the token from the delivered mail."""
-    staff = User.objects.create_superuser(email=f'staff-{uuid.uuid4().hex[:6]}@example.com', password=PASSWORD)
-    admin_client = Client()
-    admin_client.force_login(staff)
-    response = admin_client.post(
-        '/admin/organizations/orginvitation/add/',
-        {'email': email, 'sender': sender.pk, 'org_invite': sender.organization_id, 'text_message': 'Join us'},
+    """Create the invitation as the organization's member (API -> Mailpit) and return the token from the mail."""
+    sender_client = Client()
+    sender_client.force_login(sender.user)
+    response = sender_client.post(
+        f'/api/organization/{sender.organization_id}/invitation/create',
+        {'email': email, 'text_message': 'Join us'},
+        content_type='application/json',
     )
-    assert response.status_code == 302, 'admin did not accept the invitation form'
-    assert OrgInvitation.objects.filter(email=email).exists(), 'Mailpit rejected the invitation, nothing was saved'
+    assert response.status_code == 201, f'invitation was not created: {response.content!r}'
+    assert OrgInvitation.objects.filter(email=email).exists()
 
     deadline = time.monotonic() + 5
     while time.monotonic() < deadline:
@@ -385,3 +386,113 @@ class TestSignUpWithInvitationErrors:
         response = register(client, invitation.email, signing.dumps(uuid.uuid4().int))
         assert_error(response, 404, 'Invitation with that ID does not exist.')
         assert not User.objects.filter(email=invitation.email).exists()
+
+
+# --- GET /api/organization/{org_id}/invitations -------------------------------
+
+
+@pytest.mark.django_db
+class TestListInvitations:
+    @staticmethod
+    def url(org_id: object) -> str:
+        return f'/api/organization/{org_id}/invitations'
+
+    @pytest.fixture
+    def signed_in(self, client: Client, owner: User, sender: Member) -> Client:  # noqa: ARG002
+        client.force_login(owner)
+        return client
+
+    def test_declared_statuses(self) -> None:
+        assert documented_statuses(*LIST_ENDPOINT) == {200, 400, 403, 404}
+
+    def test_200_returns_invitations_with_sender_name(
+        self, signed_in: Client, organization: Organization, invitation: OrgInvitation, owner: User
+    ) -> None:
+        response = signed_in.get(self.url(organization.pk))
+
+        assert response.status_code == 200
+        [item] = response.json()
+        assert item['id'] == str(invitation.id)
+        assert item['sender_name'] == owner.email
+        assert isinstance(item['sender_name'], str)
+        assert item['org_invite'] == organization.pk
+        assert item['email'] == invitation.email
+        assert item['accepted'] is None
+        assert {'created_at', 'expired_at'} <= item.keys()
+        assert 'org_name' not in item
+
+    def test_200_lists_newest_first(
+        self, signed_in: Client, organization: Organization, sender: Member, invitation: OrgInvitation
+    ) -> None:
+        newer = OrgInvitation.objects.create(email='newer@example.com', sender=sender, org_invite=organization)
+
+        response = signed_in.get(self.url(organization.pk))
+
+        assert [item['id'] for item in response.json()] == [str(newer.id), str(invitation.id)]
+
+    def test_200_sender_name_is_each_invitations_own_sender(
+        self, signed_in: Client, organization: Organization, sender: Member, invitation: OrgInvitation
+    ) -> None:
+        colleague = Member.objects.create(
+            user=User.objects.create_user(email='pm@example.com', password=PASSWORD),
+            organization=organization,
+            role=Member.OrgRoles.PM,
+        )
+        OrgInvitation.objects.create(email='other@example.com', sender=colleague, org_invite=organization)
+
+        senders = {item['email']: item['sender_name'] for item in signed_in.get(self.url(organization.pk)).json()}
+
+        assert senders == {invitation.email: sender.user.email, 'other@example.com': 'pm@example.com'}
+
+    @pytest.mark.usefixtures('invitation')
+    def test_200_shows_current_status_after_the_invitee_answers(
+        self, signed_in: Client, organization: Organization, token: str
+    ) -> None:
+        assert answer(Client(), token, {'accepted': False}).status_code == 200
+
+        [item] = signed_in.get(self.url(organization.pk)).json()
+
+        assert item['accepted'] is False
+
+    def test_200_leaves_out_other_organizations(
+        self, signed_in: Client, organization: Organization, invitation: OrgInvitation
+    ) -> None:
+        stranger = User.objects.create_user(email='stranger@example.com', password=PASSWORD)
+        other = Organization.objects.create(owner=stranger, name='Other', description='Other org')
+        other_member = Member.objects.create(user=stranger, organization=other, role=Member.OrgRoles.OWNER)
+        OrgInvitation.objects.create(email='foreign@example.com', sender=other_member, org_invite=other)
+
+        response = signed_in.get(self.url(organization.pk))
+
+        assert [item['id'] for item in response.json()] == [str(invitation.id)]
+
+    def test_400_non_numeric_org_id(self, signed_in: Client) -> None:
+        assert_error(signed_in.get(self.url('abc')), 400, 'Invalid org_id.', LIST_ENDPOINT)
+
+    @pytest.mark.usefixtures('invitation')
+    def test_403_not_a_member(self, client: Client, organization: Organization) -> None:
+        outsider = User.objects.create_user(email='outsider@example.com', password=PASSWORD)
+        client.force_login(outsider)
+        assert_error(
+            client.get(self.url(organization.pk)),
+            403,
+            'Current User is not a member of the Organization.',
+            LIST_ENDPOINT,
+        )
+
+    @pytest.mark.usefixtures('sender')
+    def test_403_anonymous(self, client: Client, organization: Organization) -> None:
+        assert_error(
+            client.get(self.url(organization.pk)),
+            403,
+            'Current User is not a member of the Organization.',
+            LIST_ENDPOINT,
+        )
+
+    def test_404_organization_without_invitations(self, signed_in: Client, organization: Organization) -> None:
+        assert_error(
+            signed_in.get(self.url(organization.pk)),
+            404,
+            'This organization has no invitations yet.',
+            LIST_ENDPOINT,
+        )

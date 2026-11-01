@@ -41,9 +41,7 @@ export function InvitationForm({
   });
 
   return (
-    <div
-      className={`fixed inset-0 z-40 items-center justify-center bg-black/30 backdrop-blur-sm ${isInvitationFormVisible ? 'flex' : 'hidden'}`}
-    >
+    <div className={`fixed z-50 items-center justify-start ${isInvitationFormVisible ? 'flex' : 'hidden'}`}>
       <div className="relative rounded-xl border border-[var(--line)] bg-[var(--foam)]">
         <button
           aria-label="Close invitation form"
