@@ -48,6 +48,7 @@ export interface MemberShip {
 }
 
 export interface OrganizationTypes {
+  owner_name: string;
   owner: number;
   name: string;
   description?: string;
@@ -57,6 +58,7 @@ export interface WorkspaceTypes {
   id: number;
   name: string;
   space_code: string;
+  creator_name: string;
   created_by: number;
 }
 

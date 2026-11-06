@@ -53,9 +53,9 @@ class OrganizationApiTests(TestCase):
         self.assertEqual(409, response.status_code)
         self.assertEqual(1, Organization.objects.filter(owner=self.user).count())
 
-    def test_create_allowed_when_only_contributor_elsewhere(self) -> None:
-        other = get_user_model().objects.create_user(email='bob@example.com', password='78S28130s')
-        org = Organization.objects.create(owner=other, name='Bob inc', description='desc')
+    def test_create_allowed_only_owner(self) -> None:
+        owner = get_user_model().objects.create_user(email='bob@example.com', password='78S28130s')
+        org = Organization.objects.create(owner=owner, name='Bob inc', description='desc')
         Member.objects.create(user=self.user, organization=org)
         self.assertEqual(201, self.create().status_code)
 

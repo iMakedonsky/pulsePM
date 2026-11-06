@@ -15,7 +15,6 @@ from organizations.api.schemas import (
     InvitationNotFoundError,
     InvitationPayload,
     InvitationResponse,
-    InvitationUpdateGoneError,
     InvitationUpdateNotFoundError,
     InvitationUpdateResult,
     InvitationUpdateSchema,
@@ -82,7 +81,7 @@ def get_invitation(request: HttpRequest, invite_token: str) -> OrgInvitation:  #
         400: InvitationBadRequestError,
         404: InvitationUpdateNotFoundError,
         409: InvitationConflictError,
-        410: InvitationUpdateGoneError,
+        410: InvitationGoneError,
     },
 )
 def accept_invitation(

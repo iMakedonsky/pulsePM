@@ -68,9 +68,3 @@ class InvitationUpdateNotFoundError(ErrorSchema):
 
 class InvitationConflictError(ErrorSchema):
     detail: str = Field(examples=['The user ada@example.com is already invited to organization Acme.'])
-
-
-class InvitationUpdateGoneError(ErrorSchema):
-    detail: str = Field(
-        examples=['Token invalid!', 'Invitation token has expired!', 'The invitation is no longer valid.']
-    )

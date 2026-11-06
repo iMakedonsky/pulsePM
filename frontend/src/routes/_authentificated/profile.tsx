@@ -6,10 +6,10 @@ import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip } from
 export const Route = createFileRoute('/_authentificated/profile')({ component: Profile });
 
 function Profile() {
-  const currentUser = useQuery({
+  const currentUserQuery = useQuery({
     queryKey: currentUserQueryKey,
     queryFn: getCurrentUser,
-    enabled: typeof window !== 'undefined',
+    enabled: true,
     retry: false,
   });
 
@@ -19,32 +19,25 @@ function Profile() {
     retry: false,
   });
 
-  if (currentUser.isLoading || currentUser.isPending) {
+  if (currentUserQuery.isLoading || currentUserQuery.isPending) {
     return <main className="page-wrap py-16">Loading profile…</main>;
   }
-  if (!currentUser.data) {
-    return null;
-  }
-
-  const { first_name, last_name, email, id } = currentUser.data;
-  // If the 'data' variable returns an underfind, it will be an empty array. This is to avoid a type error.
-  const membershipsList = userMemberShip.data ?? [];
 
   return (
     <main className="page-wrap py-16">
       <section className="island-shell rise-in max-w-2xl rounded-3xl p-8">
         <p className="island-kicker">Your account</p>
         <h1 className="display-title mt-3 font-bold text-4xl">
-          {[first_name, last_name].filter(Boolean).join(' ') || 'Profile'}
+          {[currentUserQuery.data?.first_name, currentUserQuery.data?.last_name].filter(Boolean).join(' ') || 'Profile'}
         </h1>
         <dl className="mt-8 grid gap-5 text-sm">
           <div>
             <dt className="font-semibold text-[var(--sea-ink-soft)]">Email</dt>
-            <dd className="mt-1 text-lg">{email}</dd>
+            <dd className="mt-1 text-lg">{currentUserQuery.data?.email}</dd>
           </div>
           <div>
             <dt className="font-semibold text-[var(--sea-ink-soft)]">Member ID</dt>
-            <dd className="mt-1 text-lg">{id}</dd>
+            <dd className="mt-1 text-lg">{currentUserQuery.data?.id}</dd>
           </div>
         </dl>
       </section>
@@ -66,7 +59,7 @@ function Profile() {
                 </tr>
               </thead>
               <tbody className="w-full">
-                {membershipsList.map((member) => (
+                {userMemberShip.data?.map((member) => (
                   <tr key={member.id} className="relative border border-[var(--sea-ink)] hover:bg-[var(--sand)]">
                     <td className="p-2">
                       <Link

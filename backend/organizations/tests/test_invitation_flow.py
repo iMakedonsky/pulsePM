@@ -23,7 +23,7 @@ from organizations.models import Member, Organization, OrgInvitation
 from users.models import User
 
 if TYPE_CHECKING:
-    from django.test.client import _MonkeyPatchedWSGIResponse
+    from django.test.client import _MonkeyPatchedWSGIResponse as TestHttpResponse
 
 OPEN_ENDPOINT = ('get', '/api/invitation/{invite_token}')
 ANSWER_ENDPOINT = ('patch', '/api/invitation/{invite_token}/accept')
@@ -81,15 +81,12 @@ def send_invitation(email: str, sender: Member) -> str:
     assert response.status_code == 201, f'invitation was not created: {response.content!r}'
     assert OrgInvitation.objects.filter(email=email).exists()
 
-    deadline = time.monotonic() + 5
-    while time.monotonic() < deadline:
-        found = requests.get(f'{MAILPIT_API}/search', params={'query': f'to:{email}'}, timeout=5).json()
-        if found['messages']:
-            message = requests.get(f'{MAILPIT_API}/message/{found["messages"][0]["ID"]}', timeout=5).json()
-            match = TOKEN_IN_MAIL.search(message['Text'])
-            assert match, f'no invitation link in the mail body: {message["Text"]!r}'
-            return match.group(1)
-        time.sleep(0.2)
+    found = requests.get(f'{MAILPIT_API}/search', params={'query': f'to:{email}'}, timeout=5).json()
+    if found['messages']:
+        message = requests.get(f'{MAILPIT_API}/message/{found["messages"][0]["ID"]}', timeout=5).json()
+        match = TOKEN_IN_MAIL.search(message['Text'])
+        assert match, f'no invitation link in the mail body: {message["Text"]!r}'
+        return match.group(1)
     pytest.fail(f'no mail for {email} reached Mailpit')
 
 
@@ -97,20 +94,20 @@ def invitation_url(token: str, *, accept: bool = False) -> str:
     return f'/api/invitation/{token}' + ('/accept' if accept else '')
 
 
-def get_invitation(client: Client, token: str) -> _MonkeyPatchedWSGIResponse:
+def get_invitation(client: Client, token: str) -> TestHttpResponse:
     return client.get(invitation_url(token))
 
 
-def answer(client: Client, token: str, payload: Any) -> _MonkeyPatchedWSGIResponse:
+def answer(client: Client, token: str, payload: Any) -> TestHttpResponse:
     return client.patch(invitation_url(token, accept=True), payload, content_type='application/json')
 
 
-def register(client: Client, email: str, token: str | None = None) -> _MonkeyPatchedWSGIResponse:
+def register(client: Client, email: str, token: str | None = None) -> TestHttpResponse:
     url = '/api/auth/register' + (f'?token={token}' if token else '')
     return client.post(url, {'email': email, 'password': PASSWORD}, content_type='application/json')
 
 
-def login(client: Client, email: str) -> _MonkeyPatchedWSGIResponse:
+def login(client: Client, email: str) -> TestHttpResponse:
     return client.post('/api/auth/login', {'email': email, 'password': PASSWORD}, content_type='application/json')
 
 
@@ -203,9 +200,7 @@ def token(invitation: OrgInvitation) -> str:
     return signing.dumps(invitation.id.int)
 
 
-def assert_error(
-    response: _MonkeyPatchedWSGIResponse, status: int, detail: str, endpoint: tuple[str, str] | None = None
-) -> None:
+def assert_error(response: TestHttpResponse, status: int, detail: str, endpoint: tuple[str, str] | None = None) -> None:
     """Check status and exact message; with `endpoint`, also that the message is listed in the API docs."""
     assert (response.status_code, response.json()) == (status, {'detail': detail})
     if endpoint is not None:

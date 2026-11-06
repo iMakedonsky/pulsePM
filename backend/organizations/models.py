@@ -110,8 +110,12 @@ class WorkSpace(BaseModel):
     name = models.CharField(max_length=100)
     space_code = models.CharField(max_length=5, unique=True)
     description = models.TextField(max_length=500, null=True, default='')
-    icon_url = models.CharField(max_length=500)
+    icon_url = models.CharField(max_length=500, default='/data/image')
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def creator_name(self) -> str:
+        return self.created_by.user.email

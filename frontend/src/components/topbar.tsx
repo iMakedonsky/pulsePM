@@ -9,10 +9,10 @@ export function Topbar() {
   const { addToast } = useToast();
 
   const queryClient = useQueryClient();
-  const currentUser = useQuery({
+  const currentUserQuery = useQuery({
     queryKey: currentUserQueryKey,
     queryFn: getCurrentUser,
-    enabled: typeof window !== 'undefined',
+    enabled: true,
     retry: false,
   });
 
@@ -45,10 +45,10 @@ export function Topbar() {
         <Link to="/" className="display-title font-bold text-[var(--sea-ink)] text-xl no-underline">
           PulsePM
         </Link>
-        {currentUser.data ? (
+        {currentUserQuery.data ? (
           <div className="flex items-center gap-4 text-sm">
             <Link to="/profile" className="nav-link">
-              {currentUser.data.first_name || currentUser.data.email}
+              {currentUserQuery.data.first_name || currentUserQuery.data.email}
             </Link>
 
             <button

@@ -11,10 +11,10 @@ from .models import Member, Organization, OrgInvitation, WorkSpace
 
 class WorkspaceInline(admin.TabularInline[WorkSpace, Organization]):
     model = WorkSpace
-    fields = ('name', 'space_code', 'created_by')
+    fields = ('name', 'space_code', 'description', 'created_by')
     extra = 0
-    can_add_related = False
-    can_change_related = False
+    can_add_related = True
+    can_change_related = True
 
 
 @admin.register(Organization)

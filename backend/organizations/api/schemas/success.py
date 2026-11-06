@@ -1,12 +1,14 @@
-from typing import TypedDict
+from typing import Annotated, TypedDict
 
-from ninja import ModelSchema, Schema
+from ninja import Field, ModelSchema, Schema
 
 from organizations.models import Member, Organization, OrgInvitation, WorkSpace
 from users.models import User
 
 
 class OrganizationSchema(ModelSchema):
+    owner_name: Annotated[str, Field(alias='owner.email')]
+
     class Meta:
         model = Organization
         fields = ['id', 'owner', 'name', 'description']
@@ -27,13 +29,14 @@ class MemberSchema(ModelSchema):
 
 
 class WorkspaceSchema(ModelSchema):
+    creator_name: str
+
     class Meta:
         model = WorkSpace
         fields = ['id', 'name', 'space_code', 'created_by']
 
 
 class InvitationResponse(ModelSchema):
-    # org_name: Annotated[str, Field(alias="org_invite.org_name")] noqa: ERA001
     org_name: str
 
     class Meta:
