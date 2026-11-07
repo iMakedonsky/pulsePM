@@ -13,12 +13,17 @@ from organizations.api.schemas.errors import (
     OrganizationConflictError,
     OrganizationForbiddenError,
     OrganizationNotFoundError,
+    WorkspaceBadRequestError,
+    WorkspaceNotFoundError,
     WorkspacesNotFoundError,
 )
 from organizations.api.schemas.payloads import (
     InvitationCreatePayload,
     InvitationPayload,
     OrganizationPayload,
+    OrganizationUpdatePayload,
+    WorkspaceCreatePayload,
+    WorkspaceUpdatePayload,
 )
 from organizations.api.schemas.success import (
     InvitationListResponse,
@@ -55,7 +60,12 @@ __all__ = [
     'OrganizationNotFoundError',
     'OrganizationPayload',
     'OrganizationSchema',
+    'OrganizationUpdatePayload',
     'UserBrief',
+    'WorkspaceBadRequestError',
+    'WorkspaceCreatePayload',
+    'WorkspaceNotFoundError',
     'WorkspaceSchema',
+    'WorkspaceUpdatePayload',
     'WorkspacesNotFoundError',
 ]

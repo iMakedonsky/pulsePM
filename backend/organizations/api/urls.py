@@ -1,7 +1,8 @@
 """Router wiring for the organizations API; mounted by `api.routers`."""
 
 from organizations.api.invitation_views import invitation_router
-from organizations.api.views import members_router, organization_router, workspace_router
+from organizations.api.views import members_router, organization_router
+from organizations.api.workspace_views import workspace_router
 
 organization_router.add_router('/', workspace_router)
 organization_router.add_router('/', members_router)

@@ -24,8 +24,22 @@ class OrganizationNotFoundError(ErrorSchema):
     detail: str = Field(examples=['Organization with that ID does not exist.'])
 
 
+class WorkspaceBadRequestError(ErrorSchema):
+    detail: str = Field(
+        examples=[
+            'This field cannot be blank.',
+            'Ensure this value has at most 5 characters (it has 6).',
+            'Work space with this Space code already exists.',
+        ]
+    )
+
+
 class WorkspacesNotFoundError(ErrorSchema):
     detail: str = Field(examples=['This organization has no workspaces yet.'])
+
+
+class WorkspaceNotFoundError(ErrorSchema):
+    detail: str = Field(examples=['Workspace with that ID does not exist.'])
 
 
 class MembersNotFoundError(ErrorSchema):

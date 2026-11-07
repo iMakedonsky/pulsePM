@@ -7,6 +7,7 @@ from ninja.security import SessionAuth
 
 from organizations.api.urls import invitation_router, organization_router
 from users.api.urls import auth_router, router_profile
+from workitems.api.urls import workitem_router
 
 description = """
 A web app designed for startups, companies, and individuals
@@ -48,6 +49,7 @@ api.add_router('/auth/', auth_router, auth=None)
 
 api.add_router('/user/', router_profile)
 
+organization_router.add_router('/', workitem_router)
 api.add_router('/organization/', organization_router, auth=None)
 
 api.add_router('/invitation/', invitation_router, auth=None)

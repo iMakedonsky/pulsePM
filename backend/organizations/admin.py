@@ -1,9 +1,11 @@
 from typing import override
 
 from django.contrib import admin, messages
+from django.core import signing
 from django.forms import ModelForm
 from django.http import HttpRequest
 
+from conf.settings import FRONTED_ORIGIN
 from organizations.mailpitRequests.emails import InvitationEmailError, send_invitation_email
 
 from .models import Member, Organization, OrgInvitation, WorkSpace
@@ -41,6 +43,9 @@ class OrgInvitationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     def save_model(
         self, request: HttpRequest, obj: OrgInvitation, form: ModelForm[OrgInvitation], change: bool
     ) -> None:
+        if not change:
+            encode_uuid = signing.dumps(obj.id.int)
+            obj.text_message = f'{obj.text_message}\n{FRONTED_ORIGIN}/invitation/{encode_uuid}'
         try:
             send_invitation_email(obj)
         except InvitationEmailError as exc:

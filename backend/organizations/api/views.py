@@ -21,15 +21,13 @@ from organizations.api.schemas import (
     OrganizationNotFoundError,
     OrganizationPayload,
     OrganizationSchema,
-    WorkspaceSchema,
-    WorkspacesNotFoundError,
+    OrganizationUpdatePayload,
 )
-from organizations.models import Member, Organization, OrgInvitation, WorkSpace
+from organizations.models import Member, Organization, OrgInvitation
 from users.models import User
 
 organization_router = Router(tags=['Organizations'])
-workspace_router = Router(tags=['Workspaces'])
-members_router = Router(tags=['Members'])
+members_router = Router(tags=['Organizations'])
 
 
 class AuthenticatedRequest(HttpRequest):
@@ -51,6 +49,22 @@ def assert_membership[**P, T](
         return endpoint(request, org_id, *args, **kwargs)
 
     return cast(Callable[Concatenate[HttpRequest, int, P], T], inner_assert_membership)
+
+
+def get_organization(org_id: int) -> Organization:
+    """Return the organization, otherwise raise 404."""
+    try:
+        return get_object_or_404(Organization, pk=org_id)
+    except Http404 as exc:
+        raise HttpError(404, 'Organization with that ID does not exist.') from exc
+
+
+def save_organization(organization: Organization) -> None:
+    """Save the organization (the model validates on save); report validation failures as 400."""
+    try:
+        organization.save()
+    except ValidationError as exc:
+        raise HttpError(400, '; '.join(exc.messages)) from exc
 
 
 @organization_router.post(
@@ -79,28 +93,42 @@ def create_organization(request: HttpRequest, payload: OrganizationPayload) -> S
     },
 )
 @assert_membership
-def get_organization(request: HttpRequest, org_id: int) -> Organization:  # noqa: ARG001
-    try:
-        return get_object_or_404(Organization, pk=org_id)
-    except Http404 as exc:
-        raise HttpError(404, 'Organization with that ID does not exist.') from exc
+def get_organization_detail(request: HttpRequest, org_id: int) -> Organization:  # noqa: ARG001
+    return get_organization(org_id)
 
 
-@workspace_router.get(
-    '{org_id}/workspaces',
+@organization_router.patch(
+    '/{org_id}/update',
     response={
-        200: list[WorkspaceSchema],
-        400: InvalidOrganizationIdError,
+        200: OrganizationSchema,
+        400: OrganizationBadRequestError,
         403: OrganizationForbiddenError,
-        404: WorkspacesNotFoundError,
+        404: OrganizationNotFoundError,
     },
 )
 @assert_membership
-def list_workspaces(request: HttpRequest, org_id: int) -> QuerySet[WorkSpace]:  # noqa: ARG001
-    workspaces = WorkSpace.objects.filter(organization=org_id).select_related('organization')
-    if not workspaces.exists():
-        raise HttpError(404, 'This organization has no workspaces yet.')
-    return workspaces
+def update_organization(request: HttpRequest, org_id: int, payload: OrganizationUpdatePayload) -> Organization:  # noqa: ARG001
+    organization = get_organization(org_id)
+    changes = payload.dict(exclude_unset=True)
+    for field, value in changes.items():
+        setattr(organization, field, value)
+    save_organization(organization)
+    return organization
+
+
+@organization_router.delete(
+    '/{org_id}/delete',
+    response={
+        200: None,
+        403: OrganizationForbiddenError,
+        404: OrganizationNotFoundError,
+    },
+)
+@assert_membership
+def delete_organization(request: HttpRequest, org_id: int) -> tuple[int, None]:  # noqa: ARG001
+    organization = get_organization(org_id)
+    organization.delete()
+    return 200, None
 
 
 @members_router.get(
