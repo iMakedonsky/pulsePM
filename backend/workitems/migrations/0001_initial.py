@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('organizations', '0001_initial'),
+        ('organizations', '0001_squashed_0004_orginvitation'),
     ]
 
     operations = [
