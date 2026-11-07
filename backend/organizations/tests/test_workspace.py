@@ -67,7 +67,12 @@ def outsider() -> User:
 def foreign_workspace(outsider: User) -> WorkSpace:
     member = Member.objects.get(user=outsider)
     return WorkSpace.objects.create(
-        created_by=member, organization=member.organization, name='Foreign', space_code='FRN', icon_url='frn.png'
+        created_by=member,
+        organization=member.organization,
+        name='Foreign',
+        space_code='FRN',
+        icon_url='frn.png',
+        description='Not ours',
     )
 
 
@@ -118,9 +123,12 @@ class TestCreateWorkspace:
 
         assert response.status_code == 200
         body = response.json()
-        assert (body['name'], body['space_code'], body['icon_url']) == ('Design', 'DSN', 'dsn.png')
-        assert body['organization'] == organization.pk
+        assert (body['name'], body['space_code']) == ('Design', 'DSN')
+        assert body['creator_name'] == 'owner@example.com'
         created = WorkSpace.objects.get(pk=body['id'])
+        assert body['created_by'] == created.created_by_id
+        assert created.organization_id == organization.pk
+        assert (created.icon_url, created.description) == ('dsn.png', 'Designers')
         assert created.created_by.user.email == 'owner@example.com'
 
     @pytest.mark.usefixtures('member')
@@ -216,9 +224,7 @@ class TestGetWorkspace:
             'name': 'Engineering',
             'space_code': 'ENG',
             'created_by': workspace.created_by_id,
-            'organization': organization.pk,
-            'description': 'Builders',
-            'icon_url': 'eng.png',
+            'creator_name': 'owner@example.com',
         }
 
     def test_400_non_numeric_org_id(self, signed_in: Client, workspace: WorkSpace) -> None:
@@ -301,7 +307,12 @@ class TestUpdateWorkspace:
         self, signed_in: Client, organization: Organization, workspace: WorkSpace, member: Member
     ) -> None:
         WorkSpace.objects.create(
-            created_by=member, organization=organization, name='Ops', space_code='OPS', icon_url='ops.png'
+            created_by=member,
+            organization=organization,
+            name='Ops',
+            space_code='OPS',
+            icon_url='ops.png',
+            description='Operations',
         )
         response = patch(signed_in, url(organization.pk, workspace.pk, 'update'), {'space_code': 'OPS'})
 

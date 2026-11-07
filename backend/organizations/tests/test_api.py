@@ -252,7 +252,14 @@ class TestListWorkspacesErrorMessages:
     ) -> None:
         other = Organization.objects.create(owner=outsider, name='Other', description='Other org')
         other_member = Member.objects.create(user=outsider, organization=other, role=Member.OrgRoles.OWNER)
-        WorkSpace.objects.create(created_by=other_member, organization=other, name='WS', space_code='WS1', icon_url='x')
+        WorkSpace.objects.create(
+            created_by=other_member,
+            organization=other,
+            name='WS',
+            space_code='WS1',
+            icon_url='x',
+            description='Other workspace',
+        )
         client.force_login(owner)
         response = self.get(client, organization.pk)
         assert_documented(response, 'get', self.path, 404, 'This organization has no workspaces yet.')
