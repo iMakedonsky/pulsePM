@@ -35,7 +35,7 @@ def save_workspace(workspace: WorkSpace) -> None:
         workspace.full_clean()
         workspace.save()
     except ValidationError as exc:
-        raise HttpError(400, '; '.join(exc.messages)) from exc
+        raise HttpError(400, ', '.join(exc.messages)) from exc
 
 
 @workspace_router.post(

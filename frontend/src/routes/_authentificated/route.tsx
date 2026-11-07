@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_authentificated')({
         queryFn: getCurrentUser,
         retry: false,
       });
-    } catch {
+    } catch (_error) {
       throw redirect({
         to: '/',
       });

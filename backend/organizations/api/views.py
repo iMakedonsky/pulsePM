@@ -59,14 +59,6 @@ def get_organization(org_id: int) -> Organization:
         raise HttpError(404, 'Organization with that ID does not exist.') from exc
 
 
-def save_organization(organization: Organization) -> None:
-    """Save the organization (the model validates on save); report validation failures as 400."""
-    try:
-        organization.save()
-    except ValidationError as exc:
-        raise HttpError(400, '; '.join(exc.messages)) from exc
-
-
 @organization_router.post(
     '/create',
     response={201: OrganizationSchema, 400: OrganizationBadRequestError, 409: OrganizationConflictError},
@@ -112,7 +104,10 @@ def update_organization(request: HttpRequest, org_id: int, payload: Organization
     changes = payload.dict(exclude_unset=True)
     for field, value in changes.items():
         setattr(organization, field, value)
-    save_organization(organization)
+    try:
+        organization.save()
+    except ValidationError as exp:
+        raise HttpError(400, ', '.join(exp.messages)) from exp
     return organization
 
 

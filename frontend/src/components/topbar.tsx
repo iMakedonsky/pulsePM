@@ -36,7 +36,11 @@ export function Topbar() {
 
   const logoutMutation = useMutation({
     mutationFn: logout,
-    onSuccess: () => queryClient.removeQueries({ queryKey: currentUserQueryKey }),
+    // resetQueries (unlike removeQueries) notifies the active useQuery observer, so the UI updates immediately.
+    onSuccess: () => queryClient.resetQueries({ queryKey: currentUserQueryKey }),
+    onError: (error) => {
+      addToast(error.message, 'Error');
+    },
   });
 
   return (

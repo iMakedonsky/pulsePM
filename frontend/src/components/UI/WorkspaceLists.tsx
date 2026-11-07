@@ -1,8 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
 import { ApiError, currentUserQueryKey, getListWorkspaces } from '#/lib/auth-api.ts';
 
 export function WorkspaceLists({ organizationId }: { organizationId: string }) {
+  const [isWorkspacesCollapsed, setIsWorkspacesCollapsed] = useState<boolean>(false);
+
   const workspacesList = useQuery({
     queryKey: [...currentUserQueryKey, 'workspaces', organizationId],
     queryFn: () => getListWorkspaces(Number(organizationId)),
@@ -26,11 +29,14 @@ export function WorkspaceLists({ organizationId }: { organizationId: string }) {
           aria-label="Open registration form"
           type="button"
           className="mt-5 mb-5 cursor-pointer rounded-md bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-sm text-white"
+          onClick={() => {
+            setIsWorkspacesCollapsed(!isWorkspacesCollapsed);
+          }}
         >
-          Collaps button
+          {isWorkspacesCollapsed ? 'Collaps' : 'Uncollaspse'}
         </button>
       </div>
-      <div className="flex flex-row items-center justify-between gap-[15px]">
+      <div className={`flex flex-row items-center justify-between gap-[15px] ${isWorkspacesCollapsed ? 'hidden' : 'block'}`}>
         <table className="w-full table-fixed rounded-lg border border-[var(--sea-ink)] p-2 text-center">
           <thead>
             <tr>

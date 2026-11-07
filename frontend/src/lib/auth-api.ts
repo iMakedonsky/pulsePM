@@ -87,7 +87,6 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } | null;
     throw new ApiError(response.status, body?.detail ?? 'Something went wrong.');
   }
-
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
