@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type JSX, useId, useState } from 'react';
 import { useToast } from '#/context/toast-context.ts';
-import { createInvitation, currentUserQueryKey } from '@/lib/auth-api';
+import { currentUserQueryKey } from '@/lib/authApi';
+import { createInvitation } from '@/lib/organizationApi';
 
 export function InvitationForm({
   organizationId,

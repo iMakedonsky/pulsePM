@@ -112,7 +112,7 @@ def update_workspace(
 @workspace_router.delete(
     '{org_id}/workspaces/{workspace_id}/delete',
     response={
-        200: None,
+        204: None,
         403: OrganizationForbiddenError,
         404: WorkspaceNotFoundError,
     },
@@ -120,4 +120,4 @@ def update_workspace(
 @assert_membership
 def delete_workspace(request: HttpRequest, org_id: int, workspace_id: int) -> tuple[int, None]:  # noqa: ARG001
     get_workspace(org_id, workspace_id).delete()
-    return 200, None
+    return 204, None

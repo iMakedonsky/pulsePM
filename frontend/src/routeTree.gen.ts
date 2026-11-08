@@ -15,6 +15,7 @@ import { Route as AuthentificatedProfileRouteImport } from './routes/_authentifi
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as AuthentificatedOrganizationOrganizationIdRouteImport } from './routes/_authentificated/organization.$organizationId'
 import { Route as PublicInvitationTokenRouteImport } from './routes/_public/invitation.$token'
+import { Route as AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRouteImport } from './routes/_authentificated/orgnaization.$organizationId.workspaces.$workspaceId'
 
 const AuthentificatedRouteRoute = AuthentificatedRouteRouteImport.update({
   id: '/_authentificated',
@@ -45,18 +46,28 @@ const PublicInvitationTokenRoute = PublicInvitationTokenRouteImport.update({
   path: '/invitation/$token',
   getParentRoute: () => PublicRouteRoute,
 } as any)
+const AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute =
+  AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRouteImport.update(
+    {
+      id: '/orgnaization/$organizationId/workspaces/$workspaceId',
+      path: '/orgnaization/$organizationId/workspaces/$workspaceId',
+      getParentRoute: () => AuthentificatedRouteRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/profile': typeof AuthentificatedProfileRoute
   '/organization/$organizationId': typeof AuthentificatedOrganizationOrganizationIdRoute
   '/invitation/$token': typeof PublicInvitationTokenRoute
+  '/orgnaization/$organizationId/workspaces/$workspaceId': typeof AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/profile': typeof AuthentificatedProfileRoute
   '/organization/$organizationId': typeof AuthentificatedOrganizationOrganizationIdRoute
   '/invitation/$token': typeof PublicInvitationTokenRoute
+  '/orgnaization/$organizationId/workspaces/$workspaceId': typeof AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -66,13 +77,23 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/_authentificated/organization/$organizationId': typeof AuthentificatedOrganizationOrganizationIdRoute
   '/_public/invitation/$token': typeof PublicInvitationTokenRoute
+  '/_authentificated/orgnaization/$organizationId/workspaces/$workspaceId': typeof AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/profile' | '/organization/$organizationId' | '/invitation/$token'
+    | '/'
+    | '/profile'
+    | '/organization/$organizationId'
+    | '/invitation/$token'
+    | '/orgnaization/$organizationId/workspaces/$workspaceId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/organization/$organizationId' | '/invitation/$token'
+  to:
+    | '/'
+    | '/profile'
+    | '/organization/$organizationId'
+    | '/invitation/$token'
+    | '/orgnaization/$organizationId/workspaces/$workspaceId'
   id:
     | '__root__'
     | '/_authentificated'
@@ -81,6 +102,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/_authentificated/organization/$organizationId'
     | '/_public/invitation/$token'
+    | '/_authentificated/orgnaization/$organizationId/workspaces/$workspaceId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,18 +154,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicInvitationTokenRouteImport
       parentRoute: typeof PublicRouteRoute
     }
+    '/_authentificated/orgnaization/$organizationId/workspaces/$workspaceId': {
+      id: '/_authentificated/orgnaization/$organizationId/workspaces/$workspaceId'
+      path: '/orgnaization/$organizationId/workspaces/$workspaceId'
+      fullPath: '/orgnaization/$organizationId/workspaces/$workspaceId'
+      preLoaderRoute: typeof AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRouteImport
+      parentRoute: typeof AuthentificatedRouteRoute
+    }
   }
 }
 
 interface AuthentificatedRouteRouteChildren {
   AuthentificatedProfileRoute: typeof AuthentificatedProfileRoute
   AuthentificatedOrganizationOrganizationIdRoute: typeof AuthentificatedOrganizationOrganizationIdRoute
+  AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute: typeof AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute
 }
 
 const AuthentificatedRouteRouteChildren: AuthentificatedRouteRouteChildren = {
   AuthentificatedProfileRoute: AuthentificatedProfileRoute,
   AuthentificatedOrganizationOrganizationIdRoute:
     AuthentificatedOrganizationOrganizationIdRoute,
+  AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute:
+    AuthentificatedOrgnaizationOrganizationIdWorkspacesWorkspaceIdRoute,
 }
 
 const AuthentificatedRouteRouteWithChildren =

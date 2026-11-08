@@ -29,6 +29,21 @@ class WorkItemSchema(ModelSchema):
         ]
 
 
+class ListWorkItemSchema(ModelSchema):
+    class Meta:
+        model = WorkItem
+        fields = [
+            'id',
+            'assigned_to',
+            'title',
+            'status',
+            'priority',
+            'created_at',
+            'due_date',
+            'last_update',
+        ]
+
+
 class WorkItemCreatePayload(Schema):
     """`workspace` is optional: a work item may live in the organization without belonging to a workspace."""
 

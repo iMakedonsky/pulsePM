@@ -12,6 +12,7 @@ from organizations.api.schemas import InvalidOrganizationIdError, OrganizationFo
 from organizations.api.views import assert_membership
 from organizations.models import Member, WorkSpace
 from workitems.api.schemas import (
+    ListWorkItemSchema,
     WorkItemBadRequestError,
     WorkItemCreatePayload,
     WorkItemNotFoundError,
@@ -80,7 +81,7 @@ def create_workitem(request: HttpRequest, org_id: int, payload: WorkItemCreatePa
 @workitem_router.get(
     '{org_id}/workitems',
     response={
-        200: list[WorkItemSchema],
+        200: list[ListWorkItemSchema],
         400: InvalidOrganizationIdError,
         403: OrganizationForbiddenError,
     },

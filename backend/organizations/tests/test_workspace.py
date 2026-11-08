@@ -266,19 +266,38 @@ class TestUpdateWorkspace:
         assert response.status_code == 200
         assert response.json()['name'] == 'Platform'
         workspace.refresh_from_db()
-        assert (workspace.name, workspace.space_code, workspace.icon_url) == ('Platform', 'ENG', 'eng.png')
+        assert (workspace.name, workspace.icon_url, workspace.description) == ('Platform', 'eng.png', 'Builders')
 
-    def test_200_keeping_own_space_code_is_not_a_duplicate(
+    def test_200_updates_icon_and_description(
         self, signed_in: Client, organization: Organization, workspace: WorkSpace
     ) -> None:
-        response = patch(signed_in, url(organization.pk, workspace.pk, 'update'), {'space_code': 'ENG'})
+        response = patch(
+            signed_in,
+            url(organization.pk, workspace.pk, 'update'),
+            {'icon_url': 'new.png', 'description': 'Updated'},
+        )
+
         assert response.status_code == 200
+        workspace.refresh_from_db()
+        assert (workspace.icon_url, workspace.description, workspace.name) == ('new.png', 'Updated', 'Engineering')
+
+    def test_200_space_code_cannot_be_changed(
+        self, signed_in: Client, organization: Organization, workspace: WorkSpace
+    ) -> None:
+        # `space_code` is not part of the update payload, so it is ignored rather than rejected.
+        response = patch(signed_in, url(organization.pk, workspace.pk, 'update'), {'space_code': 'NEW'})
+
+        assert response.status_code == 200
+        assert response.json()['space_code'] == 'ENG'
+        workspace.refresh_from_db()
+        assert workspace.space_code == 'ENG'
 
     @pytest.mark.parametrize(
         ('changes', 'detail'),
         [
             ({'name': ''}, BLANK),
-            ({'space_code': 'TOOLNG'}, 'Ensure this value has at most 5 characters (it has 6).'),
+            ({'icon_url': ''}, BLANK),
+            ({'name': 'x' * 101}, 'Ensure this value has at most 100 characters (it has 101).'),
         ],
     )
     def test_400_invalid_field_leaves_workspace_unchanged(
@@ -291,9 +310,15 @@ class TestUpdateWorkspace:
     ) -> None:
         response = patch(signed_in, url(organization.pk, workspace.pk, 'update'), changes)
 
-        assert_error(response, 'patch', self.path, 400, detail)
+        assert (response.status_code, response.json()) == (400, {'detail': detail})
         workspace.refresh_from_db()
-        assert (workspace.name, workspace.space_code) == ('Engineering', 'ENG')
+        assert (workspace.name, workspace.icon_url) == ('Engineering', 'eng.png')
+
+    def test_400_blank_name_is_documented(
+        self, signed_in: Client, organization: Organization, workspace: WorkSpace
+    ) -> None:
+        response = patch(signed_in, url(organization.pk, workspace.pk, 'update'), {'name': ''})
+        assert_error(response, 'patch', self.path, 400, BLANK)
 
     def test_400_null_name(self, signed_in: Client, organization: Organization, workspace: WorkSpace) -> None:
         # Not listed in the docs examples; checked for the exact text only.
@@ -302,23 +327,6 @@ class TestUpdateWorkspace:
         assert (response.status_code, response.json()) == (400, {'detail': 'This field cannot be null.'})
         workspace.refresh_from_db()
         assert workspace.name == 'Engineering'
-
-    def test_400_duplicate_space_code(
-        self, signed_in: Client, organization: Organization, workspace: WorkSpace, member: Member
-    ) -> None:
-        WorkSpace.objects.create(
-            created_by=member,
-            organization=organization,
-            name='Ops',
-            space_code='OPS',
-            icon_url='ops.png',
-            description='Operations',
-        )
-        response = patch(signed_in, url(organization.pk, workspace.pk, 'update'), {'space_code': 'OPS'})
-
-        assert_error(response, 'patch', self.path, 400, 'Work space with this Space code already exists.')
-        workspace.refresh_from_db()
-        assert workspace.space_code == 'ENG'
 
     def test_403_not_a_member_and_nothing_changes(
         self, client: Client, outsider: User, organization: Organization, workspace: WorkSpace
@@ -354,12 +362,12 @@ class TestDeleteWorkspace:
     path = DELETE
 
     def test_declared_statuses(self) -> None:
-        assert documented_statuses('delete', self.path) == {200, 403, 404}
+        assert documented_statuses('delete', self.path) == {204, 403, 404}
 
-    def test_200_deletes_workspace(self, signed_in: Client, organization: Organization, workspace: WorkSpace) -> None:
+    def test_204_deletes_workspace(self, signed_in: Client, organization: Organization, workspace: WorkSpace) -> None:
         response = signed_in.delete(url(organization.pk, workspace.pk, 'delete'))
 
-        assert response.status_code == 200
+        assert response.status_code == 204
         assert response.content == b''
         assert not WorkSpace.objects.filter(pk=workspace.pk).exists()
 

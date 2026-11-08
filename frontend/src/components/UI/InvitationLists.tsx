@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ApiError, currentUserQueryKey, getListInvitations } from '#/lib/auth-api.ts';
+import { ApiError } from '#/lib/apiClient.ts';
+import { currentUserQueryKey } from '#/lib/authApi.ts';
+import { getListInvitations } from '#/lib/organizationApi.ts';
 
 interface InvitationStatus {
   label: string;

@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ApiError, currentUserQueryKey, getListWorkspaces } from '#/lib/auth-api.ts';
+import { ApiError } from '#/lib/apiClient.ts';
+import { currentUserQueryKey } from '#/lib/authApi.ts';
+import { getListWorkspaces } from '#/lib/organizationApi.ts';
 
 export function WorkspaceLists({ organizationId }: { organizationId: string }) {
   const [isWorkspacesCollapsed, setIsWorkspacesCollapsed] = useState<boolean>(false);
@@ -42,19 +44,21 @@ export function WorkspaceLists({ organizationId }: { organizationId: string }) {
             <tr>
               <th className="rounded-md border border-[var(--sea-ink)] p-2">Name</th>
               <th className="rounded-md border border-[var(--sea-ink)] p-2">Space code</th>
-              <th className="rounded-md border border-[var(--sea-ink)] p-2">Created by</th>
             </tr>
           </thead>
           <tbody className="w-full">
             {workspacesList.data?.map((workspace) => (
               <tr key={workspace.id} className="relative border border-[var(--sea-ink)] hover:bg-[var(--sand)]">
                 <td className="p-2">
-                  <Link to="/" className="after:absolute after:inset-0">
+                  <Link
+                    to={`/orgnaization/$organizationId/workspaces/$workspaceId`}
+                    params={{ organizationId, workspaceId: String(workspace.id) }}
+                    className="after:absolute after:inset-0"
+                  >
                     {workspace.name}
                   </Link>
                 </td>
                 <td className="p-2">{workspace.space_code}</td>
-                <td className="p-2">{workspace.creator_name}</td>
               </tr>
             ))}
           </tbody>

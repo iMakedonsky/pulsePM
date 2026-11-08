@@ -49,7 +49,7 @@ flowchart LR
 ```
 
 - The user loads the app from the frontend on http://localhost:3000.
-- `src/lib/auth-api.ts` sends every request to `/api/...` with `credentials: 'include'`.
+- `src/lib/apiClient.ts` sends every request to `/api/...` with `credentials: 'include'`.
 - Vite proxies those requests to Django at http://127.0.0.1:8000, which serves the Ninja API
   under `/api/` and authenticates with standard Django sessions.
 - Django admin at http://localhost:8000/admin/ is reached directly, bypassing the frontend.

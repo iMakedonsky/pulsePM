@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useToast } from '#/context/toast-context.ts';
-import { acceptInvitation, getInvitation } from '#/lib/auth-api.ts';
+import { acceptInvitation, getInvitation } from '#/lib/organizationApi.ts';
 
 export function InvitationAcceptionBlock({ token }: { token: string }) {
   const { addToast } = useToast();

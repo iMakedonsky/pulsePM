@@ -30,6 +30,5 @@ class WorkspaceCreatePayload(Schema):
 
 class WorkspaceUpdatePayload(Schema):
     name: str | None = None
-    space_code: str | None = None
     icon_url: str | None = None
     description: str | None = None

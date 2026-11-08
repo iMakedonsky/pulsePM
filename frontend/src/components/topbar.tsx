@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { useId, useState } from 'react';
 import { RegistrationModal } from '../components/UI/RegistrationModal.tsx';
 import { useToast } from '../context/toast-context.ts';
-import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-api';
+import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/authApi';
 
 export function Topbar() {
   const { addToast } = useToast();

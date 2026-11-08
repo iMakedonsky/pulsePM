@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { ApiError, currentUserQueryKey, getCurrentUser, getUserMemberShip } from '../../lib/auth-api.ts';
+import { ApiError } from '../../lib/apiClient.ts';
+import { currentUserQueryKey, getCurrentUser, getUserMemberShip } from '../../lib/authApi.ts';
 
 export const Route = createFileRoute('/_authentificated/profile')({ component: Profile });
 

@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { InvitationForm } from '#/components/UI/InvitationForm.tsx';
 import { InvitationLists } from '#/components/UI/InvitationLists.tsx';
 import { WorkspaceLists } from '#/components/UI/WorkspaceLists.tsx';
-import { ApiError, currentUserQueryKey, getOrganizationData } from '#/lib/auth-api.ts';
+import { ApiError } from '#/lib/apiClient.ts';
+import { currentUserQueryKey } from '#/lib/authApi.ts';
+import { getOrganizationData } from '#/lib/organizationApi.ts';
 
 export const Route = createFileRoute('/_authentificated/organization/$organizationId')({
   component: OrganizationDashboard,

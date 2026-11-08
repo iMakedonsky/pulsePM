@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { type JSX, useId, useState } from 'react';
 import { useToast } from '#/context/toast-context.ts';
-import { signUp } from '@/lib/auth-api';
+import { signUp } from '@/lib/authApi';
 export function RegistrationModal({
   isRegistrationFormVisible,
   onClose,
