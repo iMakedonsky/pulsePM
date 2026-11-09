@@ -7,6 +7,7 @@ from django.http import HttpRequest
 
 from conf.settings import FRONTED_ORIGIN
 from organizations.mailpitRequests.emails import InvitationEmailError, send_invitation_email
+from workitems.models import WorkItem
 
 from .models import Member, Organization, OrgInvitation, WorkSpace
 
@@ -57,7 +58,16 @@ class OrgInvitationAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         obj.save()
 
 
+class WorkItemsInline(admin.TabularInline[WorkItem, WorkSpace]):
+    model = WorkItem
+    fields = ('title', 'status', 'priority', 'organization', 'assigned_to', 'created_by')
+    extra = 0
+    can_add_related = True
+    can_change_related = True
+
+
 @admin.register(WorkSpace)
 class WorkspaceAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = ('name', 'space_code', 'organization', 'created_by')
     readonly_fields = ('id', 'created_at')
+    inlines = [WorkItemsInline]

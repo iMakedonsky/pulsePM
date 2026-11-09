@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ApiError } from '#/lib/apiClient.ts';
 import { currentUserQueryKey } from '#/lib/authApi.ts';
 import { getListWorkspaces } from '#/lib/organizationApi.ts';
 
-export function WorkspaceLists({ organizationId }: { organizationId: string }) {
+export function WorkspaceTable({ organizationId }: { organizationId: string }) {
   const [isWorkspacesCollapsed, setIsWorkspacesCollapsed] = useState<boolean>(false);
 
   const workspacesList = useQuery({
@@ -15,7 +14,7 @@ export function WorkspaceLists({ organizationId }: { organizationId: string }) {
     retry: false,
   });
 
-  if (workspacesList.error instanceof ApiError) {
+  if (workspacesList.isError) {
     return (
       <div className="max-w-full content-center p-5 text-center">
         <p>Organization haven't created workspace yet!</p>

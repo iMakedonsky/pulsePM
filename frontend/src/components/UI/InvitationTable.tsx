@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { ApiError } from '#/lib/apiClient.ts';
 import { currentUserQueryKey } from '#/lib/authApi.ts';
 import { getListInvitations } from '#/lib/organizationApi.ts';
 
@@ -15,7 +14,7 @@ const INVITATION_STATUS: Record<string, InvitationStatus> = {
   false: { label: 'Rejected', color: 'bg-red-500' },
 };
 
-export function InvitationLists({ organizationId }: { organizationId: string }) {
+export function InvitationTable({ organizationId }: { organizationId: string }) {
   const [isInvitationsCollapsed, setIsInvitationsCollapsed] = useState<boolean>(false);
 
   const invitationList = useQuery({
@@ -25,7 +24,7 @@ export function InvitationLists({ organizationId }: { organizationId: string }) 
     retry: false,
   });
 
-  if (invitationList.error instanceof ApiError) {
+  if (invitationList.isError) {
     return (
       <div className="max-w-full content-center p-5 text-center">
         <p>Organization haven't created invitation yet!</p>

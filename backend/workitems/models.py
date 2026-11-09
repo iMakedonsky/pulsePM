@@ -51,3 +51,7 @@ class WorkItem(BaseModel):
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_clean()
         super().save(*args, **kwargs)
+
+    @property
+    def assignee_name(self) -> str:
+        return self.assigned_to.user.email

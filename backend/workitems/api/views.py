@@ -8,8 +8,13 @@ from django.utils import timezone
 from ninja import Router
 from ninja.errors import HttpError
 
-from organizations.api.schemas import InvalidOrganizationIdError, OrganizationForbiddenError
-from organizations.api.views import assert_membership
+from organizations.api.schemas import (
+    InvalidOrganizationIdError,
+    OrganizationForbiddenError,
+    OrganizationNotFoundError,
+    WorkspaceNotFoundError,
+)
+from organizations.api.views import assert_membership, get_organization
 from organizations.models import Member, WorkSpace
 from workitems.api.schemas import (
     ListWorkItemSchema,
@@ -27,6 +32,19 @@ workitem_router = Router(tags=['Work items'])
 def organization_workitems(org_id: int) -> QuerySet[WorkItem]:
     """Work items that belong to the organization."""
     return WorkItem.objects.filter(organization=org_id)
+
+
+def workspace_items(workspace_id: int) -> QuerySet[WorkItem]:
+    """Work items that belong to the workspace."""
+    return WorkItem.objects.filter(workspace=workspace_id)
+
+
+def get_workspace(org_id: int, workspace_id: int) -> WorkSpace:
+    """Return the workspace if it belongs to the organization, otherwise raise 404."""
+    try:
+        return get_object_or_404(WorkSpace, pk=workspace_id, organization=org_id)
+    except Http404 as exc:
+        raise HttpError(404, 'Workspace with that ID does not exist.') from exc
 
 
 def get_workitem(org_id: int, workitem_id: int) -> WorkItem:
@@ -84,11 +102,28 @@ def create_workitem(request: HttpRequest, org_id: int, payload: WorkItemCreatePa
         200: list[ListWorkItemSchema],
         400: InvalidOrganizationIdError,
         403: OrganizationForbiddenError,
+        404: OrganizationNotFoundError,
     },
 )
 @assert_membership
-def list_workitems(request: HttpRequest, org_id: int) -> QuerySet[WorkItem]:  # noqa: ARG001
+def list_org_workitems(request: HttpRequest, org_id: int) -> QuerySet[WorkItem]:  # noqa: ARG001
+    get_organization(org_id)
     return organization_workitems(org_id)
+
+
+@workitem_router.get(
+    '{org_id}/workspaces/{workspace_id}/workitems',
+    response={
+        200: list[ListWorkItemSchema],
+        400: InvalidOrganizationIdError,
+        403: OrganizationForbiddenError,
+        404: WorkspaceNotFoundError,
+    },
+)
+@assert_membership
+def list_workspace_items(request: HttpRequest, org_id: int, workspace_id: int) -> QuerySet[WorkItem]:  # noqa: ARG001
+    get_workspace(org_id, workspace_id)
+    return workspace_items(workspace_id)
 
 
 @workitem_router.get(

@@ -19,12 +19,13 @@ export interface updateWorkspacePayload {
 export interface getWorkItemsTypes {
   id: number;
   assigned_to: number;
+  assignee_name: string;
   title: string;
   status: string;
   priority: string;
   created_at: string;
   due_date?: string;
-  last_modified_by: string;
+  last_update: string;
 }
 
 export const getWorkspace = (org_id: number, workpsace_id: number) =>
@@ -35,7 +36,7 @@ export const updateWorkspace = (org_id: number, workpsace_id: number, name?: str
     body: JSON.stringify({ name, description, icon_url }),
   });
 export const getListWorkitems = (org_id: number, workpsace_id: number) =>
-  request<getWorkItemsTypes>(`/organization/${org_id}/workspaces/${workpsace_id}/workitems`);
+  request<getWorkItemsTypes[]>(`/organization/${org_id}/workspaces/${workpsace_id}/workitems`);
 export const deleteWorkspace = (org_id: number, workpsace_id: number) =>
   request<getWorkspaceType>(`/organization/${org_id}/workspaces/${workpsace_id}`, {
     method: 'DELETE',

@@ -30,6 +30,8 @@ class WorkItemSchema(ModelSchema):
 
 
 class ListWorkItemSchema(ModelSchema):
+    assignee_name: str
+
     class Meta:
         model = WorkItem
         fields = [

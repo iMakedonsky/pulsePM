@@ -2,9 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { InvitationForm } from '#/components/UI/InvitationForm.tsx';
-import { InvitationLists } from '#/components/UI/InvitationLists.tsx';
-import { WorkspaceLists } from '#/components/UI/WorkspaceLists.tsx';
-import { ApiError } from '#/lib/apiClient.ts';
+import { InvitationTable } from '#/components/UI/InvitationTable.tsx';
+import { WorkspaceTable } from '#/components/UI/WorkspaceTable.tsx';
 import { currentUserQueryKey } from '#/lib/authApi.ts';
 import { getOrganizationData } from '#/lib/organizationApi.ts';
 
@@ -28,7 +27,7 @@ function OrganizationDashboard() {
     return <main className="page-wrap py-16">Organization details…</main>;
   }
 
-  if (organizationData.error instanceof ApiError) {
+  if (organizationData.isError) {
     return <main className="page-wrap py-16 text-4xl">{organizationData.error.message}</main>;
   }
 
@@ -50,7 +49,7 @@ function OrganizationDashboard() {
         </div>
       </section>
       <section className="island-shell rise-in mx-auto mt-10 max-w-5xl rounded-3xl">
-        <WorkspaceLists organizationId={organizationId} />
+        <WorkspaceTable organizationId={organizationId} />
         <hr className="mt-1 border-[var(--line)] border-t" />
         <div className="flex flex-col gap-6">
           <h3 className="display-title text-center font-semibold text-lg">Invitations</h3>
@@ -75,7 +74,7 @@ function OrganizationDashboard() {
           isInvitationFormVisible={isInvitationFormVisible}
           onClose={() => setIsInvitationFormVisible(false)}
         />
-        <InvitationLists organizationId={organizationId} />
+        <InvitationTable organizationId={organizationId} />
       </section>
     </main>
   );
