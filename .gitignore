@@ -157,3 +157,6 @@ htmlcov/
 *.pyc
 Backend/Notes.md
 install.cmd
+exit
+docs/meeting_notes/workitems_backlog.md
+# add ssh key to git push commits from terminal

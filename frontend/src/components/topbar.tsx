@@ -7,11 +7,12 @@ import { currentUserQueryKey, getCurrentUser, login, logout } from '../lib/auth-
 
 export function Topbar() {
   const { addToast } = useToast();
+
   const queryClient = useQueryClient();
-  const currentUser = useQuery({
+  const currentUserQuery = useQuery({
     queryKey: currentUserQueryKey,
     queryFn: getCurrentUser,
-    enabled: typeof window !== 'undefined',
+    enabled: true,
     retry: false,
   });
 
@@ -32,9 +33,14 @@ export function Topbar() {
       addToast(error.message, 'Error');
     },
   });
+
   const logoutMutation = useMutation({
     mutationFn: logout,
-    onSuccess: () => queryClient.removeQueries({ queryKey: currentUserQueryKey }),
+    // resetQueries (unlike removeQueries) notifies the active useQuery observer, so the UI updates immediately.
+    onSuccess: () => queryClient.resetQueries({ queryKey: currentUserQueryKey }),
+    onError: (error) => {
+      addToast(error.message, 'Error');
+    },
   });
 
   return (
@@ -43,18 +49,21 @@ export function Topbar() {
         <Link to="/" className="display-title font-bold text-[var(--sea-ink)] text-xl no-underline">
           PulsePM
         </Link>
-        {currentUser.data ? (
+        {currentUserQuery.data ? (
           <div className="flex items-center gap-4 text-sm">
             <Link to="/profile" className="nav-link">
-              {currentUser.data.first_name || currentUser.data.email}
+              {currentUserQuery.data.first_name || currentUserQuery.data.email}
             </Link>
+
             <button
               aria-label="Log out"
               type="button"
               className="rounded-md bg-[var(--sea-ink)] px-3 py-2 text-white"
               onClick={() => logoutMutation.mutate()}
             >
-              {logoutMutation.isPending ? 'Signing out…' : 'Logout'}
+              <Link to="/" className="no-underline">
+                {logoutMutation.isPending ? 'Signing out…' : 'Logout'}
+              </Link>
             </button>
           </div>
         ) : (

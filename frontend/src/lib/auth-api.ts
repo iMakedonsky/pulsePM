@@ -5,6 +5,63 @@ export interface AuthUser {
   last_name: string;
 }
 
+export interface Invitation {
+  org_invite: number;
+  accepted: boolean | null;
+  email: string;
+  expired_at: string;
+  org_name: string;
+}
+
+export interface InvitationListItem {
+  id: string;
+  org_invite: number;
+  accepted: boolean | null;
+  email: string;
+  sender_name: string;
+  text_message: string;
+  created_at: string;
+  expired_at: string;
+}
+
+export interface InvitationResponse {
+  accepted: boolean;
+  member?: {
+    user: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      email: string;
+    };
+    id: number;
+    organization: number;
+    role: string;
+  };
+}
+
+export interface MemberShip {
+  id: number;
+  organization: { id: number; name: string };
+  role: string;
+  position: string;
+  last_activity: string;
+}
+
+export interface OrganizationTypes {
+  owner_name: string;
+  owner: number;
+  name: string;
+  description?: string;
+}
+
+export interface WorkspaceTypes {
+  id: number;
+  name: string;
+  space_code: string;
+  creator_name: string;
+  created_by: number;
+}
+
 export class ApiError extends Error {
   readonly status: number;
 
@@ -15,9 +72,9 @@ export class ApiError extends Error {
   }
 }
 
+// TODO: Consider about Cashe usage. Is that necessary to add all of that?
 export const currentUserQueryKey = ['auth', 'me'] as const;
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
     ...init,
     credentials: 'include',
@@ -30,22 +87,36 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } | null;
     throw new ApiError(response.status, body?.detail ?? 'Something went wrong.');
   }
-
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
-export const getCurrentUser = () => request<AuthUser>('/auth/me');
-
-export const signUp = (email: string, password: string) =>
-  request<AuthUser>('/register', {
+export const signUp = (email: string, password: string, token?: string | null) =>
+  request<AuthUser>('/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    // TODO: How do I hand token better? (cache / cookie / payload)
+    body: JSON.stringify({ email, password, token }),
   });
 
 export const login = (email: string, password: string) =>
-  request<AuthUser>('/login', {
+  request<AuthUser>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
 
-export const logout = () => request<void>('/logout', { method: 'POST' });
+export const logout = () => request<void>('/auth/logout', { method: 'POST' });
+export const getInvitation = (token: string) => request<Invitation>(`/invitation/${token}`);
+export const acceptInvitation = (token: string, accepted: boolean) =>
+  request<InvitationResponse>(`/invitation/${token}/accept`, {
+    method: 'PATCH',
+    body: JSON.stringify({ accepted }),
+  });
+export const getCurrentUser = () => request<AuthUser>('/user/profile');
+export const getUserMemberShip = () => request<MemberShip[]>('/user/memberships');
+export const getOrganizationData = (id: number) => request<OrganizationTypes>(`/organization/${id}`);
+export const getListWorkspaces = (id: number) => request<WorkspaceTypes[]>(`/organization/${id}/workspaces`);
+export const getListInvitations = (id: number) => request<InvitationListItem[]>(`/organization/${id}/invitations`);
+export const createInvitation = (orgId: number, email: string, textMessage: string) =>
+  request<Invitation>(`/organization/${orgId}/invitation/create`, {
+    method: 'POST',
+    body: JSON.stringify({ email, text_message: textMessage }),
+  });

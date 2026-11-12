@@ -1,13 +1,27 @@
-from typing import Any
+import datetime
+import uuid
+from datetime import timedelta
+from enum import StrEnum
 
 from django.conf import settings
+from django.core import signing
 from django.db import models
+from django.db.models import QuerySet
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from ninja.errors import HttpError
+
+from common.models import BaseModel
 
 
-class Organization(models.Model):
+def expired_date_at() -> datetime.datetime:
+    return timezone.now() + timedelta(minutes=30)
+
+
+class Organization(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=False, blank=False, unique=True)
     description = models.TextField(max_length=500, null=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -15,7 +29,7 @@ class Organization(models.Model):
         return self.name
 
 
-class Member(models.Model):
+class Member(BaseModel):
     class OrgRoles(models.TextChoices):
         OWNER = 'owner'
         PM = 'project-manager'
@@ -37,19 +51,71 @@ class Member(models.Model):
     def __str__(self) -> str:
         return self.user.email
 
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        self.full_clean()
-        super().save(*args, **kwargs)
+
+class OrgInviteManager(models.Manager['OrgInvitation']):
+    def get_and_validate_invitation(self, invite_token: str) -> OrgInvitation:
+        try:
+            decoded_uuid = signing.loads(invite_token, max_age=1800)
+            invitation = get_object_or_404(OrgInvitation, pk=decoded_uuid)
+            if invitation.accepted is False or invitation.accepted is True:
+                raise HttpError(410, 'The invitation is no longer valid.')
+            if invitation.expired_at < timezone.now():
+                raise HttpError(410, 'Invitation token has expired!')
+        except signing.SignatureExpired as exc:
+            raise HttpError(410, 'Invitation token has expired!') from exc
+        except signing.BadSignature as exc:
+            raise HttpError(410, 'Token invalid!') from exc
+        except ValueError as exc:
+            raise HttpError(400, 'Invalid data') from exc
+        except Http404 as exc:
+            raise HttpError(404, 'Invitation with that ID does not exist.') from exc
+        return invitation
+
+    def all_valid_invitations(self) -> QuerySet[OrgInvitation]:
+        return self.get_queryset().filter(expired_at__gt=timezone.now())
 
 
-class WorkSpace(models.Model):
+class OrgInvitation(BaseModel):
+    class OrgInvitationStatus(StrEnum):
+        ACCEPTED = 'accepted'
+        REJECTED = 'rejected'
+        EXPIRED = 'expired'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid7, editable=False)
+    email = models.EmailField(max_length=254, unique=False)
+    sender = models.ForeignKey(Member, on_delete=models.CASCADE)
+    org_invite = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    text_message = models.TextField(max_length=500, null=False, default='Invitation :)')
+    accepted = models.BooleanField(null=True, blank=True, default=None)
+    created_at = models.DateTimeField(default=timezone.now)
+    expired_at = models.DateTimeField(default=expired_date_at)
+
+    objects = OrgInviteManager()
+
+    def __str__(self) -> str:
+        return str(self.id)
+
+    @property
+    def org_name(self) -> str:
+        return self.org_invite.name
+
+    @property
+    def sender_name(self) -> str:
+        return self.sender.user.email
+
+
+class WorkSpace(BaseModel):
     created_by = models.ForeignKey(Member, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     space_code = models.CharField(max_length=5, unique=True)
     description = models.TextField(max_length=500, null=True, default='')
-    icon_url = models.CharField(max_length=500)
+    icon_url = models.CharField(max_length=500, default='/data/image')
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def creator_name(self) -> str:
+        return self.created_by.user.email
